@@ -1,66 +1,65 @@
-\documentclass[oneside,11pt, a4paper, footinclude=true, headinclude=true, cleardoublepage=empty]{scrbook}
+\documentclass[12pt, a4paper]{report}
 
-\usepackage[linedheaders,parts,pdfspacing,dottedtoc]{classicthesis}
-\usepackage{amsmath}
-%\usepackage{amsthm}
-\usepackage{acronym}
-\usepackage[a4paper, hmargin={2.8cm, 2.8cm}, vmargin={2.5cm, 2.5cm}]{geometry}
-\usepackage{eso-pic} % \AddToShipoutPicture
-\usepackage{graphicx} % \includegraphics
+% KU-forside
+\usepackage[usenames]{color}
+\usepackage[titelside, en, nat]{config/ku-forside}
+\usepackage[backend=bibtex]{biblatex}
+\usepackage{lastpage, fancyhdr, hyperref}
+\usepackage[left=126pt,
+            right=126pt,
+            top=126pt,
+            bottom=126pt]{geometry}
+\usepackage[toc,page]{appendix}
+
+\widowpenalty10000
+\clubpenalty10000
+
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
-\usepackage{csquotes}
-\usepackage{bookmark}
-\usepackage{longtable}
-\usepackage{array}
-\usepackage{multirow}
-\usepackage{times}
-\usepackage{lingmacros}
-\usepackage{color, colortbl}
-\usepackage{tabularx}
-\usepackage{pdfpages}
-\usepackage{footnote}
 
-\def \ColourPDF {Images/science-logo.pdf}
-\def \TitlePDF   {Images/diku-en.pdf}
+\titel{Deep Contact}
+\undertitel{}
+\opgave{Master Thesis}
+\forfatter{Jian Wu -- \texttt{xcb479@alumni.ku.dk}}
+\dato{August 6th 2018}
+\vejleder{Supervisor: Kenny}
 
-\subject{ 
-  \vspace{3.5cm}
-  \scriptsize{A thesis presented to the Faculty of Science in partial fulfillment of the requirements for the degree} \\
-  \Large{Master of Science in IT \& Cognition} \\}
-
-\title{
-  \Huge{Deep Contact}\\
-  \Large{SUBTITLE}
-}
-
-
-\author{
-  \Large{Jian Wu} \\
-  \texttt{xcb479@alumni.ku.dk}
-  \vspace{1.5cm} \\
-  \large{Supervisor: Kenny Er}
-}
-\date{July 2016}
+\addbibresource{refereces.bib}  
 
 \begin{document}
-\pagenumbering{roman}
-\AddToShipoutPicture*{\put(0,0){\includegraphics*[viewport=0 0 700 600]{\ColourPDF}}}
-\AddToShipoutPicture*{\put(0,602){\includegraphics*[viewport=0 600 700 1600]{\ColourPDF}}}
-\AddToShipoutPicture*{\put(0,0){\includegraphics*{\TitlePDF}}}
 
-\clearpage\maketitle
-\thispagestyle{empty}
+\maketitle
+\clearpage
+
+\setcounter{page}{1}
+\pagenumbering{roman}
+
+\include{abstract}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\newpage
+% chapter: 0, section: 1, subsection: 2 etc
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}
+
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+
+\include{Introduction}
+
+\include{chapter_1}
+\include{chapter_2}
+\include{chapter_3}
 
 % To use the conventional natbib style referencing
 % Bibliography style previews: http://nodonn.tipido.net/bibstyle.php
 % Reference styles: http://sites.stat.psu.edu/~surajit/present/bib.htm
 
-\bibliographystyle{apalike}
-%\bibliographystyle{unsrt} % Use for unsorted references  
-%\bibliographystyle{plainnat} % use this to have URLs listed in References
-\cleardoublepage
-\bibliography{References/references} % Path to your References.bib file
+\printbibliography
 
 
 \end{document}
