@@ -1,0 +1,66 @@
+\documentclass[oneside,11pt, a4paper, footinclude=true, headinclude=true, cleardoublepage=empty]{scrbook}
+
+\usepackage[linedheaders,parts,pdfspacing,dottedtoc]{classicthesis}
+\usepackage{amsmath}
+%\usepackage{amsthm}
+\usepackage{acronym}
+\usepackage[a4paper, hmargin={2.8cm, 2.8cm}, vmargin={2.5cm, 2.5cm}]{geometry}
+\usepackage{eso-pic} % \AddToShipoutPicture
+\usepackage{graphicx} % \includegraphics
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{csquotes}
+\usepackage{bookmark}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{times}
+\usepackage{lingmacros}
+\usepackage{color, colortbl}
+\usepackage{tabularx}
+\usepackage{pdfpages}
+\usepackage{footnote}
+
+\def \ColourPDF {Images/science-logo.pdf}
+\def \TitlePDF   {Images/diku-en.pdf}
+
+\subject{ 
+  \vspace{3.5cm}
+  \scriptsize{A thesis presented to the Faculty of Science in partial fulfillment of the requirements for the degree} \\
+  \Large{Master of Science in IT \& Cognition} \\}
+
+\title{
+  \Huge{Deep Contact}\\
+  \Large{SUBTITLE}
+}
+
+
+\author{
+  \Large{Jian Wu} \\
+  \texttt{xcb479@alumni.ku.dk}
+  \vspace{1.5cm} \\
+  \large{Supervisor: Kenny Er}
+}
+\date{July 2016}
+
+\begin{document}
+\pagenumbering{roman}
+\AddToShipoutPicture*{\put(0,0){\includegraphics*[viewport=0 0 700 600]{\ColourPDF}}}
+\AddToShipoutPicture*{\put(0,602){\includegraphics*[viewport=0 600 700 1600]{\ColourPDF}}}
+\AddToShipoutPicture*{\put(0,0){\includegraphics*{\TitlePDF}}}
+
+\clearpage\maketitle
+\thispagestyle{empty}
+
+% To use the conventional natbib style referencing
+% Bibliography style previews: http://nodonn.tipido.net/bibstyle.php
+% Reference styles: http://sites.stat.psu.edu/~surajit/present/bib.htm
+
+\bibliographystyle{apalike}
+%\bibliographystyle{unsrt} % Use for unsorted references  
+%\bibliographystyle{plainnat} % use this to have URLs listed in References
+\cleardoublepage
+\bibliography{References/references} % Path to your References.bib file
+
+
+\end{document}
