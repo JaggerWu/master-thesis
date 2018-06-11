@@ -3,7 +3,7 @@
 % KU-forside
 \usepackage[usenames]{color}
 \usepackage[titelside, en, nat]{config/ku-forside}
-\usepackage[backend=bibtex]{biblatex}
+\usepackage[backend=biber]{biblatex}
 \usepackage{lastpage, fancyhdr, hyperref}
 \usepackage[left=126pt,
             right=126pt,
@@ -18,13 +18,11 @@
 \usepackage[english]{babel}
 
 \titel{Deep Contact}
-\undertitel{}
+\undertitel{Accelerating Rigid Simulation With Convolutional Networks}
 \opgave{Master Thesis}
 \forfatter{Jian Wu -- \texttt{xcb479@alumni.ku.dk}}
 \dato{August 6th 2018}
-\vejleder{Supervisor: Kenny}
-
-\addbibresource{refereces.bib}  
+\vejleder{Supervisor: Kenny Erleben} 
 
 \begin{document}
 
@@ -48,18 +46,17 @@
 \setcounter{page}{1}
 \pagenumbering{arabic}
 
-
-\include{Introduction}
-
 \include{chapter_1}
 \include{chapter_2}
 \include{chapter_3}
+\include{chapter_4}
 
 % To use the conventional natbib style referencing
 % Bibliography style previews: http://nodonn.tipido.net/bibstyle.php
 % Reference styles: http://sites.stat.psu.edu/~surajit/present/bib.htm
-
-\printbibliography
+\cite{texbook}
+\bibliographystyle{unsrt}
+\bibliography{references.bib}
 
 
 \end{document}
