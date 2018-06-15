@@ -1,9 +1,16 @@
 \documentclass[12pt, a4paper]{report}
 
 % KU-forside
+\usepackage[]{algorithm2e}
+\usepackage{amsmath}
 \usepackage[usenames]{color}
 \usepackage[titelside, en, nat]{config/ku-forside}
-\usepackage[backend=biber]{biblatex}
+\usepackage[
+    backend=biber,
+    style=authoryear-icomp,
+]{biblatex}
+\addbibresource{references.bib}
+
 \usepackage{lastpage, fancyhdr, hyperref}
 \usepackage[left=126pt,
             right=126pt,
@@ -26,37 +33,30 @@
 
 \begin{document}
 
-\maketitle
-\clearpage
+    \maketitle
+    \clearpage
 
-\setcounter{page}{1}
-\pagenumbering{roman}
+    \setcounter{page}{1}
+    \pagenumbering{roman}
 
-\include{abstract}
+    \include{abstract}
 
-\tableofcontents
-\listoffigures
-\listoftables
+    \tableofcontents
+    \listoffigures
+    \listoftables
 
-\newpage
-% chapter: 0, section: 1, subsection: 2 etc
-\setcounter{secnumdepth}{2}
-\setcounter{tocdepth}{1}
+    \newpage
+    \setcounter{secnumdepth}{2}
+    \setcounter{tocdepth}{1}
 
-\setcounter{page}{1}
-\pagenumbering{arabic}
+    \setcounter{page}{1}
+    \pagenumbering{arabic}
 
-\include{chapter_1}
-\include{chapter_2}
-\include{chapter_3}
-\include{chapter_4}
+    \include{chapter_1}
+    \include{chapter_2}
+    \include{chapter_3}
+    \include{chapter_4}
 
-% To use the conventional natbib style referencing
-% Bibliography style previews: http://nodonn.tipido.net/bibstyle.php
-% Reference styles: http://sites.stat.psu.edu/~surajit/present/bib.htm
-\cite{texbook}
-\bibliographystyle{unsrt}
-\bibliography{references.bib}
-
+    \printbibliography
 
 \end{document}

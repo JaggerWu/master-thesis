@@ -1,8 +1,90 @@
 \chapter{Rigid Body Dynamics Simulation}
 
-This chapter mainly introduces rigid body simulation to help you understand how computer simulate rigid dynamics based on traditional newton-types methods. For more details, some contact forces solvers are decribed in this chapter. Afterwards, we will use one of solver to run some simulation and get the image data for the next step, grids-transfer.
+This chapter mainly introduces rigid body simulation to help you understand how computer simulate rigid dynamics based on traditional newton-euler equations. For more details, some contact forces solvers are decribed in this chapter. Afterwards, we will use one of solver to run some simulation and get the image data for the next step, grids-transfer. All the discussion about rigid simulation and contacts solver are based on 2-$D$ view.
 
 \section{Rigid dynamics Simulation}
+
+\subsection{Simulation Basics}
+
+Simulating the motion of a rigid body is almost the same as simulating the motion of a particle, so I will start with partcle simulation. For particle simulation, we let function $x(t)$ describe the particle's location in world space at time $t$. Then we use $v(t)=\frac{d}{d(t)}x(t)$
+to denote the velocity of the particle at time t. So, the state of a particle at a time t is the particle's position and velocity. We generalize this concept by defining a state vector $\textbf{Y}(t)$ for a system: for a single particle,
+\begin{equation}
+    \textbf{Y}(t) = \left(
+        \begin{array}{c}
+            x_{1}(t) \\
+            v_{1}(t) \\
+        \end{array}
+    \right)
+\end{equation}
+
+For a system with $n$ particles, we enlarge $\textbf{Y}(t)$ to be
+\begin{equation}
+    \textbf{Y}(t) = \left(
+    \begin{array}{c}
+        x_{1}(t) \\
+        v_{1}(t) \\
+        ... \\
+        x_{n}(t) \\
+        v_{n}(t) \\
+    \end{array}
+    \right)
+\end{equation}
+
+However, to simulate the motion of particles actually, we need to know one more thing -- the forces. $F(t)$ is defined as the force acting on the particle. If the mass of the particle is $m$, then the changes of $\textbf{Y}(t)$ will be given by
+\begin{equation}
+    \frac{d}{d(t)}\textbf{Y}(t) = \frac{d}{d(t)}\left(
+        \begin{array}{c}
+            x(t) \\
+            v(t) \\
+        \end{array} \right) = \left(
+        \begin{array}{c}
+            v(t) \\
+            F(t)/m \\
+        \end{array} \right)
+\end{equation}
+
+\subsection{Rigid Body Concepts}
+Unlike a particle, a rigid body occupies a volume of space and has a particular shape. Rigid bodies are more complicated, beside translating them, we can rotate them as well. To locate a rigid body, we use $x(t)$ to denote their translation and a rotation matrix $R(t)$ to describe their rotattion.
+
+\subsection{Rigid Body Equations of Motions}
+Finally, we can covert all concepts we need to define the state $\textbf{Y}(t)$ for a rigid body.
+\begin{equation}
+    \textbf{Y}(t) = \left(
+        \begin{array}{c}
+            x(t) \\
+            R(t) \\
+            P(t) \\
+            L(t) \\
+        \end{array}
+    \right)
+\end{equation}
+Like what is epressed in $\textbf{Y}(t)$, the state of a rigid body is mainly consist by its position and orientation (describing spatial information), and its linear and angualr momentum(describe velocity information). Since mass $M$ and bodyspace inertia tensor $I_{body}$ are constants, we can the auxiliary quantities $I(t)$, $\omega(t)$ at any given time.
+
+\begin{align*}
+    v(t) = \frac{P(t)}{M} &
+    I(t) = R(t)I_{body}R(t)^{T} &
+    \omega(t) = I(t)^{-1}L(t) &
+\end{align*}
+
+The derivative $\frac{d}{dt}\textbf{Y}(t)$ is
+$$\frac{d}{dt}\textbf{Y}(t) = \frac{d}{dt}(x(t), R(t), P(t), L(t))=(v(t), \omega(t)*R(t), F(t), \tau(t))$$
+
+\begin{algorithm}[H]
+ \KwData{this text}
+ \KwResult{how to write algorithm with \LaTeX2e }
+ initialization\;
+ \While{running the simulation world}{
+  read current\;
+  \eIf{understand}{
+   go to next section\;
+   current section becomes this one\;
+   }{
+   go back to the beginning of current section\;
+  }
+ }
+ \caption{How to write algorithms}
+\end{algorithm}
+
 
 \section{Contact Forces Solver}
 
