@@ -1,9 +1,48 @@
 \chapter{Partcle-grid-particle}
+    The basic method for generating training data which is more accessible to learning is that we will map a discrete element method(DEM) into a continuum setting use techniques from smooth particle hydrodynamics. Given a set of bodies $\delta$ and a set of contacts between these bodies $C$.
 
+\section{Smoothed Particle Hydrodynamics}
+    Smoothed particle hydrodynamics (SPH) was invented to simulate nonaxisymmetric phenoma in astrophysis initially. 
 
-\section{SPH}
+    \subsection{Fundamentals}
+
+    At the heart of SPH is an interpolation method which allows any function to be expressed in terms of its values at a set of disordered points - the particles\cite{monaghan1992smoothed}. The intergral interpolant of any function $A(\textbf{r})$ can be defined by,
+    \begin{equation}
+        A_{I}(\textbf{r}) = \int A({\textbf{r}}^{\prime})W(\|\textbf{r} - \textbf{r}^{\prime}\|, h)\dif\textbf{r}^{\prime}
+    \end{equation}
+
+    where the integration is over the entire space, and $W$ is an interpolating kernel with 
+    \begin{equation}
+        \int W(\|\textbf{r} - \textbf{r}^{\prime}\|, h)\dif \textbf{r}^{\prime} = 1
+    \end{equation}
+    and
+    \begin{equation}
+        \lim_{h\to 0} W(\|\textbf{r} - \textbf{r}^{\prime}\|, h)\dif\textbf{r}^{\prime} = \delta(\|\textbf{r} - \textbf{r}^{\prime}\|) 
+    \end{equation}
+
+    Normally, we want the kenel to be Non-negative and rotational invariant.
+    \begin{equation}
+        W(\|\text{x}_{i} - \text{x}_{j}\|, h) = W(\|\text{x}_{j} - \text{x}_{i}\|, h)
+    \end{equation}
+
+    \begin{equation}
+        W(\|\textbf{r} - \textbf{r}^{\prime}\|, h) \ge 0
+    \end{equation}
+
+    For numerical work, we can use midpoint rule,
+    \begin{equation}
+        A_{I}(\textbf{x}) \approx A_{S}(\textbf{x}) = \sum_{i} A(\textbf{x}_{i})W(\|\textbf{x}_{i}-\textbf{x}\|, h)\Delta V_{i}
+    \end{equation}
+    Since $V_{i} = m_{i}/\rho _{i}$
+    \begin{equation}
+        A_{S}(\textbf{x}) = \sum_{i} \frac{m_{i}}{\rho_{i}} A(\textbf{x}_{i})W(\|\textbf{x}_{i}-\textbf{x}\|, h)
+    \end{equation}
+
+\section{Kernels}
 
 \section{Particle to grid}
+
+\section{interpolation}
 
 \section{Grid to particle}
 

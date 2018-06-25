@@ -6,7 +6,7 @@ This chapter mainly introduces rigid body simulation to help you understand how 
 
 \subsection{Simulation Basics}
 
-Simulating the motion of a rigid body is almost the same as simulating the motion of a particle, so I will start with partcle simulation. For particle simulation, we let function $x(t)$ describe the particle's location in world space at time $t$. Then we use $v(t)=\frac{d}{d(t)}x(t)$
+Simulating the motion of a rigid body is almost the same as simulating the motion of a particle, so I will start with partcle simulation. For particle simulation, we let function $x(t)$ describe the particle's location in world space at time $t$. Then we use $v(t)=\frac{\dif}{\dif(t)}x(t)$
 to denote the velocity of the particle at time t. So, the state of a particle at a time t is the particle's position and velocity. We generalize this concept by defining a state vector $\textbf{Y}(t)$ for a system: for a single particle,
 \begin{equation}
     \textbf{Y}(t) = \left(
@@ -32,7 +32,7 @@ For a system with $n$ particles, we enlarge $\textbf{Y}(t)$ to be
 
 However, to simulate the motion of particles actually, we need to know one more thing -- the forces. $F(t)$ is defined as the force acting on the particle. If the mass of the particle is $m$, then the changes of $\textbf{Y}(t)$ will be given by
 \begin{equation}
-    \frac{d}{d(t)}\textbf{Y}(t) = \frac{d}{d(t)}\left(
+    \frac{\dif}{\dif(t)}\textbf{Y}(t) = \frac{\dif}{\dif(t)}\left(
         \begin{array}{c}
             x(t) \\
             v(t) \\
@@ -44,7 +44,7 @@ However, to simulate the motion of particles actually, we need to know one more 
 \end{equation}
 
 \subsection{Rigid Body Concepts}
-Unlike a particle, a rigid body occupies a volume of space and has a particular shape. Rigid bodies are more complicated, beside translating them, we can rotate them as well. To locate a rigid body, we use $x(t)$ to denote their translation and a rotation matrix $R(t)$ to describe their rotattion.
+Unlike a particle, a rigid body occupies a volume of space and has a particular shape. Rigid bodies are more complicated, beside translating them, we can rotate them as well. To locate a rigid body, we use $x(t)$ to denote their translation and a rotation matrix $R(t)$ to describe their rotation.
 
 \subsection{Rigid Body Equations of Motions}
 Finally, we can covert all concepts we need to define the state $\textbf{Y}(t)$ for a rigid body.
@@ -66,16 +66,16 @@ Like what is epressed in $\textbf{Y}(t)$, the state of a rigid body is mainly co
     \omega(t) = I(t)^{-1}L(t) &
 \end{align*}
 
-The derivative $\frac{d}{dt}\textbf{Y}(t)$ is
+The derivative $\frac{\dif}{\dif t}\textbf{Y}(t)$ is
 \begin{equation}
-    \frac{d}{dt}\textbf{Y}(t) = \frac{d}{dt}\left(
+    \frac{\dif}{\dif{t}}\textbf{Y}(t) = \frac{\dif}{\dif t}\left(
         \begin{array}{c}
             x(t) \\
             R(t) \\
-            P(t) \\
+            M v(t) \\
             L(t) \\
         \end{array}
-    \right) = \frac{d}{dt}\left(
+    \right) = \frac{\dif}{\dif t}\left(
         \begin{array}{c}
             v(t) \\
             \omega(t)*R(t) \\
@@ -85,7 +85,7 @@ The derivative $\frac{d}{dt}\textbf{Y}(t)$ is
     \right)
 \end{equation}
 
-Then, we can conclude the simulation algorithm 
+Then, we can conclude the simulation algorithm
 
 \begin{algorithm}[H]
  \KwData{this text}
