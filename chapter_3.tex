@@ -1,3 +1,4 @@
+
 \chapter{Partcle-grid-particle}
     The basic method for generating training data which is more accessible to learning is that we will map a discrete element method(DEM) into a continuum setting use techniques from smooth particle hydrodynamics. Given a set of bodies $\delta$ and a set of contacts between these bodies $C$.
 
@@ -21,7 +22,7 @@
     \end{equation}
     \begin{figure}[h!]
         \centering
-        \includegraphics[scale = 0.8]{Figures/sph}
+        \includegraphics[scale = 0.6]{Figures/sph}
         \caption{Visilaztion of SPH}
     \end{figure}
 
@@ -53,7 +54,7 @@
     \end{equation}
 
     The default, gradient and Laplacian of $A$ are:
-    \begin{equation} \label{eq:1}
+    \begin{equation}
         \begin{aligned}
             \nabla A_{S}(\textbf{x}) &= \sum_{i} \frac{m_{i}}{\rho_{i}} A(\textbf{x}_{i})\nabla W(\|\textbf{x}_{i}-\textbf{x}\|, h) \\
             \nabla^{2} A_{S}(\textbf{x}) &= \sum_{i} \frac{m_{i}}{\rho_{i}} A(\textbf{x}_{i})\nabla^{2} W(\|\textbf{x}_{i}-\textbf{x}\|, h)
@@ -67,19 +68,19 @@
     \subsubsection{Poly6}
     The kernel is also known as the 6th degree polynomial kernel.
     \begin{equation}
-        W_{poly6}(\textbf{r}, h) = \frac{315}{64\pi h^{9}}
+        W_{poly 6}(\textbf{r}, h) = \frac{315}{64\pi h^{9}}
             \begin{cases}
-                (h^2 - \|\textbf{r}\|^2)^3 & 0\le\|\texfbf{r}\|\le h \\
-                0 & Otherwise
+                (h^2 - \|\textbf{r}\|^2)^3 & 0 \le \|\texfbf{r}\| \le h \\
+                0 & \textrm{Otherwise}
             \end{cases}
     \end{equation}
 
     Then, the gradient of this kernel function can be
     \begin{equation}
-        \nabla W_{poly6}(\textbf{r}, h) = - \frac{945}{32\pi h^9}
+        \nabla W_{poly 6}(\textbf{r}, h) = - \frac{945}{32\pi h^9}
             \begin{cases}
                 \textbf{r}(h^2 - \|\textbf{r}\|^2)^2 & 0\le\|\texfbf{r}\|\le h \\
-                0 & Otherwise \\
+                0 & \textrm{Otherwise}\\
             \end{cases}
     \end{equation}
 
@@ -88,7 +89,7 @@
         \nabla^2 W_{poly6}(\textbf{r}, h) = - \frac{945}{16\pi h^9}
             \begin{cases}
                 (h^2 - \|\textbf{r}\|^2)(3h^2-7\|\textbf{r}\|^2) & 0\le\|\texfbf{r}\|\le h \\
-                0 & Otherwise \\
+                0 & \textrm{Otherwise}\\
             \end{cases}
     \end{equation}
 
@@ -99,7 +100,7 @@
         W_{spiky}(\textbf{r}, h) = \frac{15}{\pi h^6}
             \begin{cases}
                 (h - \|\textbf{r}\|)^3 & 0\le\|\texfbf{r}\|\le h \\
-                0 & Otherwise \\
+                0 & \textrm{Otherwise}\\
             \end{cases}
     \end{equation}
 
@@ -108,7 +109,7 @@
         \nabla W_{spiky}(\textbf{r}, h) = -\frac{45 \textbf{r}}{\pi h^6 \|\textbf{r}\|}
             \begin{cases}
                 (h - \|\textbf{r}\|)^2 & 0\le\|\texfbf{r}\|\le h \\
-                0 & Otherwise \\
+                0 & \textrm{Otherwise}\\
             \end{cases}
     \end{equation}
      The laplacian of spiky can be expressed by,
@@ -116,7 +117,7 @@
         \nabla^2 W_{spiky}(\textbf{r}, h) = \frac{90}{\pi h^6}
             \begin{cases}
                 h - \|\textbf{r}\| & 0\le\|\texfbf{r}\|\le h \\
-                0 & Otherwise \\
+                0 & \textrm{Otherwise}\\
             \end{cases}
     \end{equation}
 
@@ -142,7 +143,7 @@
     Neighbor search is one of the most crucial procedures in SPH method considersing all interpolation equations, $A(\textbf{r})$, needs the neighbor list for every particle (refer to equation \ref{eq:1}). A naive neighbor searching approach would end up with a complexity of $\Omega(n^2)$. The complexity is not good enough since it is impossoble to reach any interactive speed when the particle count increses. With an efficient nearest neighbor searching(NNS) algorithm, it is possible to have a significant performance increase since it is the most time consuming procedure in SPH computation,
 
         \subsubsection{$k-d$ Tree}
-            
+
 
 
 \section{Grid to particle}
