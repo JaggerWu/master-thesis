@@ -1,7 +1,8 @@
 \documentclass[12pt, a4paper]{report}
 
 \usepackage[
-    style=numeric,
+    style=ieee,
+    backend=biber,
 ]{biblatex}
 \addbibresource{references.bib}
 % KU-forside
@@ -55,7 +56,8 @@
     \include{chapter_2}
     \include{chapter_3}
     \include{chapter_4}
+    \include{chapter_5}
 
-    \printbibliography
+    \printbibliography[heading=bibintoc, title={References}]
 
 \end{document}
