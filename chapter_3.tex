@@ -20,7 +20,7 @@
     \begin{equation}
         A_{I}(\textbf{r}) = \int A({\textbf{r}}^{\prime})W(\|\textbf{r} - \textbf{r}^{\prime}\|, h)\dif\textbf{r}^{\prime}
     \end{equation}
-    \begin{figure}[h!]
+    \begin{figure}[!ht]
         \centering
         \includegraphics[scale = 0.6]{Figures/sph}
         \caption{Visilaztion of SPH}
@@ -70,7 +70,7 @@
     \begin{equation}
         W_{poly 6}(\textbf{r}, h) = \frac{315}{64\pi h^{9}}
             \begin{cases}
-                (h^2 - \|\textbf{r}\|^2)^3 & 0 \le \|\texfbf{r}\| \le h \\
+                (h^2 - \|\textbf{r}\|^2)^3 & 0 \le \|\textbf{r}\| \le h \\
                 0 & \textrm{Otherwise}
             \end{cases}
     \end{equation}
@@ -79,7 +79,7 @@
     \begin{equation}
         \nabla W_{poly 6}(\textbf{r}, h) = - \frac{945}{32\pi h^9}
             \begin{cases}
-                \textbf{r}(h^2 - \|\textbf{r}\|^2)^2 & 0\le\|\texfbf{r}\|\le h \\
+                \textbf{r}(h^2 - \|\textbf{r}\|^2)^2 & 0\le\|\textbf{r}\|\le h \\
                 0 & \textrm{Otherwise}\\
             \end{cases}
     \end{equation}
@@ -88,7 +88,7 @@
     \begin{equation}
         \nabla^2 W_{poly6}(\textbf{r}, h) = - \frac{945}{16\pi h^9}
             \begin{cases}
-                (h^2 - \|\textbf{r}\|^2)(3h^2-7\|\textbf{r}\|^2) & 0\le\|\texfbf{r}\|\le h \\
+                (h^2 - \|\textbf{r}\|^2)(3h^2-7\|\textbf{r}\|^2) & 0\le\|\textbf{r}\|\le h \\
                 0 & \textrm{Otherwise}\\
             \end{cases}
     \end{equation}
@@ -99,7 +99,7 @@
     \begin{equation}
         W_{spiky}(\textbf{r}, h) = \frac{15}{\pi h^6}
             \begin{cases}
-                (h - \|\textbf{r}\|)^3 & 0\le\|\texfbf{r}\|\le h \\
+                (h - \|\textbf{r}\|)^3 & 0\le\|\textbf{r}\|\le h \\
                 0 & \textrm{Otherwise}\\
             \end{cases}
     \end{equation}
@@ -108,7 +108,7 @@
     \begin{equation}
         \nabla W_{spiky}(\textbf{r}, h) = -\frac{45 \textbf{r}}{\pi h^6 \|\textbf{r}\|}
             \begin{cases}
-                (h - \|\textbf{r}\|)^2 & 0\le\|\texfbf{r}\|\le h \\
+                (h - \|\textbf{r}\|)^2 & 0\le\|\textbf{r}\|\le h \\
                 0 & \textrm{Otherwise}\\
             \end{cases}
     \end{equation}
@@ -116,18 +116,18 @@
      \begin{equation}
         \nabla^2 W_{spiky}(\textbf{r}, h) = \frac{90}{\pi h^6}
             \begin{cases}
-                h - \|\textbf{r}\| & 0\le\|\texfbf{r}\|\le h \\
+                h - \| \textbf{r} \| & 0 \le \| \textbf{r} \| \le h \\
                 0 & \textrm{Otherwise}\\
             \end{cases}
     \end{equation}
 
-    \begin{figure}[h!]
+    \begin{figure}[!ht]
         \centering
         \includegraphics[scale = 0.4]{Figures/kernels}
         \caption{Comparation of different kernels, we set smoothing length $h = 1$ here.}
     \end{figure}
 
-    \begin{figure}[h!]
+    \begin{figure}[!ht]
         \centering
         \includegraphics[scale = 0.4]{Figures/kenels_de}
         \caption{Comparation of gradient of different kernels, we set $h = 1$ here. }
