@@ -135,14 +135,14 @@
 
     \subsection{Grid size and smoothing length}
 
-    The grid should be also fine enough to capture the variation in our simulation. In our case, it is reasonale to have a grid fine enough such that no two contact points are mapped into the same cell. \\
+    The grid should be also fine enough to capture the variation in our simulation. In our case, it is reasonable to have a grid fine enough such that no two contact points are mapped into the same cell. \\
 
-    Smoothing length, $h$, is one of the most important parameters that affects the whole SPH method by changing the kernal value results abd neigbor searching results. Too small or too big values might cause lose essencail information in the simulation.
+    Smoothing length, $h$, is one of the most important parameters that affects the whole SPH method by changing the kernel value results abd neighbor searching results. Too small or too big values might cause lose essencail information in the simulation.
 
     \subsection{Neignbor Search}
     Neighbor search is one of the most crucial procedures in SPH method considersing all interpolation equations, $A(\textbf{r})$, needs the neighbor list for every particle (refer to equation \ref{eq:1}). A naive neighbor searching approach would end up with a complexity of $\Omega(n^2)$. The complexity is not good enough since it is impossoble to reach any interactive speed when the particle count increses. With an efficient nearest neighbor searching(NNS) algorithm, it is possible to have a significant performance increase since it is the most time consuming procedure in SPH computation,
 
-        \subsubsection{$k-d$ Tree}
+        \subsubsection{$\mathbf{k-d}$ Tree}
 
 
 
