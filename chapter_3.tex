@@ -151,24 +151,36 @@
 
 
 \section{Grid to particle}
-    After getting the grid image for simulation state in $t$, we will use the grid cells as input and renew the grid image based on trained model. Once the grid image in $t+\delta t$ have been renewed, the next step is to transfer the grid to particles which will instore all information including velocity,  
-    \subsection{interpolation}
+    After getting the grid image for simulation state in time $t$, we will use the grid cells as input and renew the grid image based on trained model. Once the grid image in $t+\Delta t$ have been renewed, the next step is to transfer the grid to particles which will instore all information including velocity,  
+    \subsection{Bilinear interpolation}
+    We applied bilinear interpolation in our case, since we did mainly research on a rectilinear $2-D$ grid.
     \begin{figure}[!ht]
         \centering
         \includegraphics[scale = 0.5]{Figures/inp}
-        \caption{Comparation of gradient of different kernels, we set $h = 1$ here. }
+        \caption{The figure shows visiualization of bilinear interpolation. The four red dots show the data points and the green dot is the point at which we want to interpolate.}
+        \label{fig:1}
     \end{figure}
-    We first do linear interpolation in the $x$-direction. This yields
+    The key idea is to perform linear interpolation first in one direction, and then again in the other direction. Although each step is linear in the sampled values and in the position, the interpolation as a whole is not linear but rather quadratic in the sample location. \\
+
+    As shown in Figure \ref{fig:1}, We have known $Q_{a, b} = (x_a, y_ b)$. Then, we can firstly do linear interpolation in the $x$-direction. This yields
 
     \begin{equation}
         \begin{aligned}
             f(x,y_{1})&\approx {\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{11})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{21}),\\f(x,y_{2})&\approx {\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{12})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{22}).
         \end{aligned}
+        \label{eq:2}
     \end{equation}
+
+    After getting the two values in $x-$direction $f(x, y_1)$ and $f(x, y_2)$, we can use these values to do interpolation in $y-$ direction.
+    \begin{equation}
+        f(x,y) \approx {\frac {y_{2}-y}{y_{2}-y_{1}}}f(x,y_{1})+{\frac {y-y_{1}}{y_{2}-y_{1}}}f(x,y_{2})
+    \end{equation}
+
+    Combine $f(x, y_1)$ and $f(x, y_2)$ defined in equation \ref{eq:2}, we can get,
 
     \begin{equation}
         \begin{aligned}
-        f(x,y)&\approx {\frac {y_{2}-y}{y_{2}-y_{1}}}f(x,y_{1})+{\frac {y-y_{1}}{y_{2}-y_{1}}}f(x,y_{2})\\&={\frac {y_{2}-y}{y_{2}-y_{1}}}\left({\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{11})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{21})\right)\\&\qquad+{\frac {y-y_{1}}{y_{2}-y_{1}}}\left({\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{12})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{22})\right)\\&={\frac {1}{(x_{2}-x_{1})(y_{2}-y_{1})}}{\big (}\\&\qquad f(Q_{11})(x_{2}-x)(y_{2}-y)+f(Q_{21})(x-x_{1})(y_{2}-y)\\&\qquad+f(Q_{12})(x_{2}-x)(y-y_{1})+f(Q_{22})(x-x_{1})(y-y_{1}){\big )}\\&={\frac {1}{(x_{2}-x_{1})(y_{2}-y_{1})}}{\begin{bmatrix}x_{2}-x&x-x_{1}\end{bmatrix}}\\&\qquad \cdot {\begin{bmatrix}f(Q_{11})&f(Q_{12})\\f(Q_{21})&f(Q_{22})\end{bmatrix}}{\begin{bmatrix}y_{2}-y\\y-y_{1}\end{bmatrix}}
+        f(x,y)&\approx{\frac {y_{2}-y}{y_{2}-y_{1}}}\left({\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{11})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{21})\right)\\&\qquad+{\frac {y-y_{1}}{y_{2}-y_{1}}}\left({\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{12})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{22})\right)\\&={\frac {1}{(x_{2}-x_{1})(y_{2}-y_{1})}}{\big (}\\&\qquad f(Q_{11})(x_{2}-x)(y_{2}-y)+f(Q_{21})(x-x_{1})(y_{2}-y)\\&\qquad+f(Q_{12})(x_{2}-x)(y-y_{1})+f(Q_{22})(x-x_{1})(y-y_{1}){\big )}\\&={\frac {1}{(x_{2}-x_{1})(y_{2}-y_{1})}}{\begin{bmatrix}x_{2}-x&x-x_{1}\end{bmatrix}}\\&\qquad \cdot {\begin{bmatrix}f(Q_{11})&f(Q_{12})\\f(Q_{21})&f(Q_{22})\end{bmatrix}}{\begin{bmatrix}y_{2}-y\\y-y_{1}\end{bmatrix}}
         \end{aligned}
     \end{equation}
 
