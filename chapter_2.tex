@@ -103,222 +103,25 @@ Then, we can conclude the simulation algorithm
  \caption{How to write algorithms}
 \end{algorithm}
 
+\subsection{Twist/Wrench}
+We will now introduce vectors called twists, which describe velocities, and wrenches, which describe forces, and explain how these objects transform from one coordinate frame to another one.
+    \subsubsection{Twist}
 
-\section{Contact Forces Solver}
+    \subsubsection{Wrench}
+        A wrench is a vector that expresses force and torque acting on a body. A wrench can be defined by 
+            $$\mathbf{f} = \left( \begin{array}{c} \tau \\ f \\ \end{array} \right )$$ 
 
-\subsection{Constraints}
-    In general form, a constraint is a scalar equation equal to some value (usually zero).
+        A wrench contains an angular component $\tau$ and a linear component $f$, which are applied at the origin of the coordinate frame they are specified in.
 
-\begin{equation}
-C( l_1, a_1, l_2, a_2 ) = 0
-\label{eq1}
-\end{equation}
 
-The \(l\) and \(a\) terms in \eqref{eq1} are my own notation: \(l\) refers to linear while \(a\) refers to angular. The subscripts 1 and 2 refer to the two objects within the constraint. As you can see, there exist linear and angular inputs to a constraint equation, and each must be a scalar value.
+\section{Constrained Dynamics}
+    Most interesting simulations of rigid bodies involve some kind of constraints. Usually we want to model systems of bodies that are interacting in some way. Some bodies may be in contact with each other, or attached together by some types of joint. Since this report mainly research contact forces, we 
+    \subsection{Expressing Constraints as Equations}
+        We express constraints mathematically as algebraic matrix equations with position, velocity, or acceleration vectors as the unknowns. In general, the configuration space of a set of n rigid bodies has dimension 6n. Adding constraint equations restricts the position (or velocity, or acceleration) to a subspace of smaller dimension.\\
 
-Let's take a step back to look at the distance constraint. The distance constraint wants to drive the distance between two anchor points on two bodies to be equal to some scalar value:
+        The constraints discussed in this thesis will all be holonomic constraints, which means the constraint on the velocity can be found by taking the derivative of a position constraint. Constraints that do not fit this description are called nonholonomic. An example of a nonholonomic constraint is a ball rolling on a table without slipping. The position of the ball has five degrees of freedom, so there is only one degree of constraint (only the height is constrained). Taking the derivative of the position constraint would only give a velocity constraint of degree one. Additional constraints on the velocity are needed to prevent the ball from slipping.\\
 
-\begin{equation}
-C( l_1, a_1, l_2, a_2 ) = \frac{1}{2}[\|\mathbf{P}_2 - \mathbf{P}_1\|^2 - L^2] = 0
-\label{eq2}
-\end{equation}
+        We will describe position constraints with a constraint function $g(\mathbf{p})$, which is a function from the space of possible positions of the rigid bodies, to R , where
+    \subsection{contact Constraints}
 
-\(L\) is the length of the rod connecting both bodies; \(\mathbf{P}_1\) and \(\mathbf{P}_2\) are the positions of the two bodies.
-
-In its current form, this constraint is an equation of position. This sort of position equation is non-linear, which makes solving it very hard. A method of solving this equation can be to instead derive the position constraint (with respect to time) and use a velocity constraint. Resulting velocity equations are linear, making them solvable. Solutions can then be integrated using some sort of integrator back into positional form.
-
-In general form, a velocity constraint is of the form:
-
-\begin{equation}
-\dot{C}( l_1, a_1, l_2, a_2 ) = 0
-\label{eq3}
-\end{equation}
-The dot above the \(C\) in \eqref{eq3} refers to the derivative of \(C\) with respect to time. This is common notation when dealing with the study of physics.
-
-During the derivative, a new term \(J\) appears via chain rule:
-
-\begin{equation}
-\dot{C}( l_1, a_1, l_2, a_2 ) = \mathbf{JV} = 0
-\label{eq4}
-\end{equation}
-
-The time derivative of \(C\) creates a velocity vector and a Jacobian. The Jacobian is a 1x6 matrix containing scalar values corresponding to each degree of freedom. In a pairwise constraint, a Jacobian will typically contain 12 elements (enough to contain the \(l\) and \(a\) terms for both bodies \(A\) and \(B\).
-
-A system of constraints can form a joint. A joint can contain many constraints restricting degrees of freedom in various ways. In this case, the Jacobian will be a matrix where the number of rows is equal to the number of constraints active in the system.
-
-The Jacobian is derived offline, by hand. Once a Jacobian is acquired, code to compute and use the Jacobian can be created. As you can see from \eqref{eq4}, the velocity \(\mathbf{V}\) is transformed from Cartesian space to constraint space. This is important because in constraint space the origin is known. In fact, any target can be known. This means that any constraint can be derived to yield a Jacobian that can transform forces from Cartesian space to constraint space.
-
-In constraint space, given a target scalar, the equation can move either towards or away from the target. Solutions can easily be obtained in constraint space to move the current state of a rigid body towards a target state. These solutions can then be transformed out of constraint space back into Cartesian space like so:
-
-\begin{equation}
-\mathbf{F} = \lambda \mathbf{J}^T
-\label{eq5}
-\end{equation}
-
-\(\mathbf{F}\) is a force in Cartesian space, where \(J^T\) is the inverse (transposed) Jacobian. \(\lambda\) (lambda) is a scalar multiplier.
-
-Think of the Jacobian as a velocity vector, where each row is a vector itself (of two scalar values in 2D, and three scalar values in 3D):
-
-\begin{equation}
-\mathbf{J} = \begin{bmatrix}
-l_1 \\
-a_1 \\
-l_2 \\
-a_2 \\
-\end{bmatrix}
-\label{eq6}
-\end{equation}
-
-To multiply \(\mathbf{V}\) by \(\mathbf{J}\) mathematically would involve matrix multiplication. However, most elements are zero, and this is why we treat the Jacobian as a vector. This allows us to define our own operation for computing \(JV\), as in \eqref{eq4}.
-
-\begin{equation}
-\mathbf{JV} = \begin{bmatrix}
-l_1 & a_1 & l_2 & a_2
-\end{bmatrix}
-\begin{bmatrix}
-v_1 \\
-\omega_1 \\
-v_2 \\
-\omega_2 \\
-\end{bmatrix}
-\label{eq7}
-\end{equation}
-
-Here, \(\mathbf{v}\) represents linear velocity, and \(\omega\) represents angular velocity. \eqref{eq7} can be written down as a few dot products and multiplications in order to provide a more efficient computation compared to full matrix multiplication:
-
-\begin{equation}
-\mathbf{JV} = l_1 \cdot v_1 + a_1 \cdot \omega_1 + l_2 \cdot v_2 + a_2 \cdot \omega_2
-\label{eq8}
-\end{equation}
-
-The Jacobian can be thought of as a direction vector in constraint space. This direction always points towards the target in the direction that requires the least work to be done. Since this "direction" Jacobian is derived offline, all that needs to be solved for is the magnitude of the force to be applied in order to uphold the constraint. This magnitude is called \(\lambda\). \(\lambda\) can be known as the Lagrange Multiplier. I myself have not formally studied Lagrangian Mechanics, however a study of Lagrangian Mechanics is not necessary in order to simply implement constraints. (I am proof of that!) \(\lambda\) can be solved using a constraint solver (more on this later).
-
-\subsection{Solving Constraints}
-In Erin Catto's paper\cite{catto2009modeling}, there exists a simple outline for hand-deriving Jacobians. The steps are:
-
-    Start with constraint equation \(C\)
-    Compute time derivative \(\dot{C}\)
-    Isolate all velocity terms
-    Identify \(\mathbf{J}\) by inspection
-
-The only hard part is computing the derivative, and this can come with practice. In general, hand-deriving constraints is difficult, but gets easier with time.
-
-Let's derive a valid Jacobian for use in solving a distance constraint. We can start at Step 1 with \eqref{eq2}. Here are some details for Step 2:
-
-\begin{equation}
-\dot{C} = (P_2 - P_1)(\dot{P}_2 - \dot{P}_1)
-\label{eq9}
-\end{equation}
-
-\begin{equation}
-\dot{C} = (P_2 - P_1)((v_2 + \omega_2 \times r_2) - (v_1 + \omega_1 \times r_1))
-\label{eq10}
-\end{equation}
-
-\(r_1\) and \(r_2\) are vectors from the center of mass to the anchor point, for bodies 1 and 2 respectively.
-
-The next step is to isolate the velocity terms. To do this, we'll make use of the scalar triple product identity:
-
-\begin{equation}
-(P_2 - P_1) = d
-\label{eq11}
-\end{equation}
-
-\begin{equation}
-\dot{C} = (d \cdot v_2 + d \cdot \omega_2 \times r_2) - (d \cdot v_1 + d \cdot \omega_1 \times r_1)
-\label{eq12}
-\end{equation}
-
-\begin{equation}
-\dot{C} = (d \cdot v_2 + \omega_2 \cdot r_2 \times d) - (d \cdot v_1 + \omega_1 \cdot r_1 \times d)
-\label{eq13}
-\end{equation}
-
-The last step is to identify the Jacobian by inspection. In order to do this, all the coefficients of all velocity terms (\(V\) and \(\omega\)) will be used as the Jacobian elements. Therefore:
-
-\begin{equation}
-J = \begin{bmatrix} -d & -r_1 \times d & d & r_2 \times d \end{bmatrix}
-\label{eq14}
-\end{equation}
-Some more Jacobians
-
-Contact constraint (interpenetration constraint), where \(n\) is the contact normal:
-
-\begin{equation}
-J = \begin{bmatrix} -n & -r_1 \times n & n & r_2 \times n \end{bmatrix}
-\label{eq15}
-\end{equation}
-
-Friction constraint (active during penetration), where \(t\) is an axis of friction (2D has one axis, 3D has two):
-
-\begin{equation}
-J = \begin{bmatrix} -t & -r_1 \times t & t & r_2 \times t \end{bmatrix}
-\label{eq16}
-\end{equation}
-
-Now that we have an understanding of what a constraint is, we can talk about how to solve them. As stated earlier, once a Jacobian is hand-derived, we only need to solve for \(\lambda\). Solving a single constraint in isolation is easy, but solving many constraints simultaneously is hard, and very inefficient (computationally). This poses a problem, as games and simulations will likely want to have many constraints active all at once.
-
-An alternative method to solving all constraints simultaneously (globally solve) would be to solve the constraints iteratively. By solving for approximations of the solution, and feeding in previous solutions to the equations, we can converge on the solution.
-
-One such iterative solver is known as Sequential Impulses, as dubbed by Erin Catto. Sequential Impulses is very similar to Projected Gauss Seidel. The idea is to solve all constraints, one at a time, multiple times. The solutions will invalidate each other, but over many iterations each individual constraint will converge and a global solution can be achieved. This is good! Iterative solvers are fast.
-
-Once a solution is achieved, an impulse can be applied to both bodies in the constraint in order to enforce the constraint.
-
-To solve a single constraint, we can use the following equation:
-
-\begin{equation}
-\lambda = \frac{-(JV + b)}{JM^{-1}J^T}
-\label{eq17}
-\end{equation}
-
-\(M^{-1}\) is the mass of the constraint; \(b\) is the bias (more on this later).
-
-This is a matrix containing the inverse mass and inverse inertia of both rigid bodies in the constraint. The following is the mass of the constraint; note that \(m^{-1}\) is the inverse mass of a body, while \(I^{-1}\) is the inverse inertia of a body:
-
-\begin{equation} M^{-1} =
-\begin{bmatrix}
-m_1 ^{-1} & 0 & 0 & 0 \\
-0 & I_1 ^{-1} & 0 & 0 \\
-0 & 0 & m_2 ^{-1} & 0 \\
-0 & 0 & 0 & I_2 ^{-1}
-\end{bmatrix}
-\label{eq18}
-\end{equation}
-
-Although \(M^{-1}\) is theoretically a matrix, please do not actually model it as such (most of it is zeroes!). Instead, be smart about what sort of calculations you do.
-
-\(JM^{-1}J^T\) is known as the constraint mass. This term is calculated one time and used to solve for \(\lambda\). We calculate it for a system like so:
-
-\begin{equation}
-JM^{-1}J^T = (l_1 \cdot l_1) * m_1 ^{-1} + (l_2 \cdot l_2) * m_2 ^{-1} + a_1 * (I_1 ^{-1} a_1) + a_2 * (I_2 ^{-1} a_2)
-\label{eq19}
-\end{equation}
-
-Please note that you must invert \eqref{eq19} in order to compute \eqref{eq17}.
-
-The above information is all that is needed to solve a constraint! A force in Cartesian space can be solved for and used to update the velocity of an object, in order to enforce a constraint. Please recall \eqref{eq5}:
-
-\begin{equation}
-F = \lambda J^T \\
-V_{final} = V_{initial} + m^{-1} * F \\
-∴ \\
-\begin{bmatrix}
-v_1 \\
-\omega_1 \\
-v_2 \\
-\omega_2 \\
-\end{bmatrix} += \begin{bmatrix}
-m_1 ^{-1} & 0 & 0 & 0 \\
-0 & I_1 ^{-1} & 0 & 0 \\
-0 & 0 & m_2 ^{-1} & 0 \\
-0 & 0 & 0 & I_2 ^{-1}
-\end{bmatrix}\begin{bmatrix}
-\lambda * l_1 \\
-\lambda * a_1 \\
-\lambda * l_2 \\
-\lambda * a_2 \\
-\end{bmatrix}
-\label{eq20}
-\end{equation}
-
-\section{Simulation Results}
+\subsection{}
