@@ -93,9 +93,11 @@
             \end{cases}
     \end{equation}
 
+    As M\"uller stated\cite{muller2003particle}, if the kernel is used for the computation of pressure forces, particles tend to build cluster under high pressure because `as particles get very close to each other, the repulsive force vanishes because the gradient of the kerbek approaches zero to the center.', which we can see in Figure \ref{fg:gradient}. Another kernel, spiky kernel, is proposed by Desbrum and Gascuel\cite{desbrun1996smoothed} to solve this problem.
+
     \subsubsection{Spicky}
 
-    The kernel proposed by Desbrum\cite{desbrun1996smoothed}
+    The kernel proposed by Desbrum and Gascuel\cite{desbrun1996smoothed}
     \begin{equation}
         W_{spiky}(\textbf{r}, h) = \frac{15}{\pi h^6}
             \begin{cases}
@@ -131,6 +133,7 @@
         \centering
         \includegraphics[scale = 0.5]{Figures/kenels_de}
         \caption{Comparation of gradient of different kernels, we set $h = 1$ here. }
+        \label{fg:gradient}
     \end{figure}
 
     \subsection{Grid size and smoothing length}
