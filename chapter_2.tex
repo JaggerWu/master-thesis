@@ -104,14 +104,20 @@ Then, we can conclude the simulation algorithm
 \end{algorithm}
 
 \subsection{Twist/Wrench}
-We will now introduce vectors called twists, which describe velocities, and wrenches, which describe forces, and explain how these objects transform from one coordinate frame to another one.
-    \subsubsection{Twist}
+We will now introduce vectors called twists, which describe velocities, and wrenches, which describe forces, and explain how these objects transform from one coordinate frame to another one. 
+    \subsubsection{Twist} 
+        A twist is a vector that expresses rigid motion or velocity. In Section 2.2, we saw how to parameterize the velocity of a rigid body as a linear velocity vector and an angular velocity vector. The coordinates of a twist are given as a 4-vector in $2$-D simulation, which we can check in \ref{twist}
+            \begin{equation}
+                \mathbf{v} = \left( \begin{array}{c} \pmb{\omega} \\ \pmb{v} \\ \end{array} \right )
+                \label{twist}
+            \end{equation}.
+        The defination can be found in \ref{twist}, containing a linear velocity vector \(\pmb{v}\) and an angular velocity \(\pmb{\omega}\). According to 
 
     \subsubsection{Wrench}
         A wrench is a vector that expresses force and torque acting on a body. A wrench can be defined by 
             $$\mathbf{f} = \left( \begin{array}{c} \tau \\ f \\ \end{array} \right )$$ 
 
-        A wrench contains an angular component $\tau$ and a linear component $f$, which are applied at the origin of the coordinate frame they are specified in.
+        A wrench contains an angular component $\tau$ and a linear component $f$, which are applied at the origin of the coordinate frame they are specified in. 
 
 
 \section{Constrained Dynamics}
