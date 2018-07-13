@@ -6,13 +6,13 @@ This chapter mainly introduces rigid body simulation to help you understand how 
 
 \subsection{Simulation Basics}
 
-Simulating the motion of a rigid body is almost the same as simulating the motion of a particle, so I will start with partcle simulation. For particle simulation, we let function $x(t)$ describe the particle's location in world space at time $t$. Then we use $v(t)=\frac{\dif}{\dif(t)}x(t)$
+Simulating the motion of a rigid body is almost the same as simulating the motion of a particle, so I will start with partcle simulation. For particle simulation, we let function $\pmb{x}(t)$ describe the particle's location in world space at time $t$. Then we use $\pmb{v}(t)=\frac{\dif}{\dif(t)}\pmb{x}(t)$
 to denote the velocity of the particle at time t. So, the state of a particle at a time t is the particle's position and velocity. We generalize this concept by defining a state vector $\textbf{Y}(t)$ for a system: for a single particle,
 \begin{equation}
     \textbf{Y}(t) = \left(
         \begin{array}{c}
-            x_{1}(t) \\
-            v_{1}(t) \\
+            \pmb{x}_{1}(t) \\
+            \pmb{v}_{1}(t) \\
         \end{array}
     \right)
 \end{equation}
@@ -21,49 +21,67 @@ For a system with $n$ particles, we enlarge $\textbf{Y}(t)$ to be
 \begin{equation}
     \textbf{Y}(t) = \left(
     \begin{array}{c}
-        x_{1}(t) \\
-        v_{1}(t) \\
+        \pmb{x}_{1}(t) \\
+        \pmb{v}_{1}(t) \\
         ... \\
-        x_{n}(t) \\
-        v_{n}(t) \\
+        \pmb{x}_{n}(t) \\
+        \pmb{v}_{n}(t) \\
     \end{array}
     \right)
 \end{equation}
 
-However, to simulate the motion of particles actually, we need to know one more thing -- the forces. $F(t)$ is defined as the force acting on the particle. If the mass of the particle is $m$, then the changes of $\textbf{Y}(t)$ will be given by
+However, to simulate the motion of particles actually, we need to know one more thing -- the forces. $\pmb{F}(t)$ is defined as the force acting on the particle. If the mass of the particle is $m$, then the changes of $\textbf{Y}(t)$ will be given by
 \begin{equation}
     \frac{\dif}{\dif(t)}\textbf{Y}(t) = \frac{\dif}{\dif(t)}\left(
         \begin{array}{c}
-            x(t) \\
-            v(t) \\
+            \pmb{x}(t) \\
+            \pmb{v}(t) \\
         \end{array} \right) = \left(
         \begin{array}{c}
-            v(t) \\
-            F(t)/m \\
+            \pmb{v}(t) \\
+            \pmb{F}(t)/m \\
         \end{array} \right)
 \end{equation}
 
 \subsection{Rigid Body Concepts}
-Unlike a particle, a rigid body occupies a volume of space and has a particular shape. Rigid bodies are more complicated, beside translating them, we can rotate them as well. To locate a rigid body, we use $x(t)$ to denote their translation and a rotation matrix $R(t)$ to describe their rotation.
+Unlike a particle, a rigid body occupies a volume of space and has a particular shape. Rigid bodies are more complicated, beside translating them, we can rotate them as well. To locate a rigid body, we use $\pmb{x}(t)$ to denote their translation and a rotation matrix $\pmb{R}(t)$ to describe their rotation.
 
 \subsection{Rigid Body Equations of Motions}
-Finally, we can covert all concepts we need to define the state $\textbf{Y}(t)$ for a rigid body.
+ Whereas linear momentum $\pmb{P}(t)$ is related to linear velocity with a scalar (the mass), angular momentum is related to angular velocity with a matrix \(\pmb{I}\), called the angular inertia matrix. The reason for this is that objects generally have different angular inertias around different axes of rotation. Angular momentum is defined as \(\pmb{L}\). The linear momentum is defined as \ref{lm}, and angular momentum is defined as \ref{am}
+\begin{equation}
+    \pmb{P}(t) = m \pmb{v} (t)
+    \label{lm}
+\end{equation}
+
+\begin{equation}
+    \pmb{L}(t) = \pmb{I}(t)\pmb{\omega}(t)
+    \label{am}
+\end{equation}
+
+The total torque $\tau$ applied to the body is equal to the rate of change of the angular momentum:
+\begin{equation}
+    \pmb{\tau}(t) = \frac{\dif}{\dif(t)}\pmb{L}(t)
+\end{equation}
+
+
+ Then we can covert all concepts we need to define stare $\textbf{Y}$ for a rigid body.
+
 \begin{equation}
     \textbf{Y}(t) = \left(
         \begin{array}{c}
-            x(t) \\
-            R(t) \\
-            P(t) \\
-            L(t) \\
+            \pmb{x}(t) \\
+            \pmb{R}(t) \\
+            \pmb{P}(t) \\
+            \pmb{L}(t) \\
         \end{array}
     \right)
 \end{equation}
-Like what is epressed in $\textbf{Y}(t)$, the state of a rigid body is mainly consist by its position and orientation (describing spatial information), and its linear and angualr momentum(describe velocity information). Since mass $M$ and bodyspace inertia tensor $I_{body}$ are constants, we can the auxiliary quantities $I(t)$, $\omega(t)$ at any given time.
+Like what is epressed in $\textbf{Y}(t)$, the state of a rigid body is mainly consist by its position and orientation (describing spatial information), and its linear and angualr momentum(describe velocity information). Since mass $m$ and bodyspace inertia tensor $\pmb{I}_{body}$ are constants, we can the auxiliary quantities $\pmb{I}(t)$, $\pmb{\omega}(t)$ at any given time.
 
 \begin{equation}
-    v(t) = \frac{P(t)}{M} \quad
-    {I(t)} = R(t)I_{body}R(t)^{T} \quad
-    \omega(t) = I(t)^{-1}L(t)
+    \pmb{v}(t) = \frac{P(t)}{m} \quad
+    \pmb{I}(t) = \pmb{R}(t)\pmb{I}_{body}\pmb{R}(t)^{T} \quad
+    \pmb{\omega}(t) = \pmb{I}(t)^{-1}\pmb{L}(t)
 \end{equation}
 
 The derivative $\frac{\dif}{\dif t}\textbf{Y}(t)$ is
@@ -72,7 +90,7 @@ The derivative $\frac{\dif}{\dif t}\textbf{Y}(t)$ is
         \begin{array}{c}
             x(t) \\
             R(t) \\
-            M v(t) \\
+            m v(t) \\
             L(t) \\
         \end{array}
     \right) = \frac{\dif}{\dif t}\left(
@@ -84,24 +102,6 @@ The derivative $\frac{\dif}{\dif t}\textbf{Y}(t)$ is
         \end{array}
     \right)
 \end{equation}
-
-Then, we can conclude the simulation algorithm
-
-\begin{algorithm}[H]
- \KwData{this text}
- \KwResult{how to write algorithm with \LaTeX2e }
- initialization\;
- \While{running the simulation world}{
-  read current\;
-  \eIf{understand}{
-   go to next section\;
-   current section becomes this one\;
-   }{
-   go back to the beginning of current section\;
-  }
- }
- \caption{How to write algorithms}
-\end{algorithm}
 
 \subsection{Twist/Wrench}
 We will now introduce vectors called twists, which describe velocities, and wrenches, which describe forces, and explain how these objects transform from one coordinate frame to another one. 
@@ -121,7 +121,7 @@ We will now introduce vectors called twists, which describe velocities, and wren
 
 
 \section{Constrained Dynamics}
-    Most interesting simulations of rigid bodies involve some kind of constraints. Usually we want to model systems of bodies that are interacting in some way. Some bodies may be in contact with each other, or attached together by some types of joint. Since this report mainly research contact forces, we 
+    most interesting simulations of rigid bodies involve some kind of constraints. Usually we want to model systems of bodies that are interacting in some way. Some bodies may be in contact with each other, or attached together by some types of joint. Since this report mainly research contact forces, we 
     \subsection{Expressing Constraints as Equations}
         We express constraints mathematically as algebraic matrix equations with position, velocity, or acceleration vectors as the unknowns. In general, the configuration space of a set of n rigid bodies has dimension 6n. Adding constraint equations restricts the position (or velocity, or acceleration) to a subspace of smaller dimension.\\
 
