@@ -79,7 +79,7 @@ The total torque $\tau$ applied to the body is equal to the rate of change of th
 Like what is epressed in $\textbf{Y}(t)$, the state of a rigid body is mainly consist by its position and orientation (describing spatial information), and its linear and angualr momentum(describe velocity information). Since mass $m$ and bodyspace inertia tensor $\pmb{I}_{body}$ are constants, we can the auxiliary quantities $\pmb{I}(t)$, $\pmb{\omega}(t)$ at any given time.
 
 \begin{equation}
-    \pmb{v}(t) = \frac{P(t)}{m} \quad
+    \pmb{v}(t) = \frac{\pmb{P}(t)}{m} \quad
     \pmb{I}(t) = \pmb{R}(t)\pmb{I}_{body}\pmb{R}(t)^{T} \quad
     \pmb{\omega}(t) = \pmb{I}(t)^{-1}\pmb{L}(t)
 \end{equation}
@@ -88,17 +88,17 @@ The derivative $\frac{\dif}{\dif t}\textbf{Y}(t)$ is
 \begin{equation}
     \frac{\dif}{\dif{t}}\textbf{Y}(t) = \frac{\dif}{\dif t}\left(
         \begin{array}{c}
-            x(t) \\
-            R(t) \\
-            m v(t) \\
-            L(t) \\
+            \pmb{x}(t) \\
+            \pmb{R}(t) \\
+            m \pmb{v}(t) \\
+            \pmb{L}(t) \\
         \end{array}
     \right) = \frac{\dif}{\dif t}\left(
         \begin{array}{c}
-            v(t) \\
-            \omega(t)*R(t) \\
-            F(t) \\
-            \tau(t) \\
+            \pmb{v}(t) \\
+            \pmb{\omega}(t)\times\pmb{R}(t) \\
+            \pmb{F}(t) \\
+            \pmb{\tau}(t) \\
         \end{array}
     \right)
 \end{equation}
