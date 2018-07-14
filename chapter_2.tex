@@ -58,11 +58,11 @@ Unlike a particle, a rigid body occupies a volume of space and has a particular 
     \label{am}
 \end{equation}
 
-The total torque $\tau$ applied to the body is equal to the rate of change of the angular momentum:
+The total torque $\pmb{\tau}$ applied to the body is equal to the rate of change of the angular momentum, as defined in \ref{tau}:
 \begin{equation}
-    \pmb{\tau}(t) = \frac{\dif}{\dif(t)}\pmb{L}(t)
+    \pmb{\tau} = \frac{\dif}{\dif t }\pmb{L} = \frac{\dif}{\dif t }(\pmb{I}\pmb{\omega})
+    \label{tau}
 \end{equation}
-
 
  Then we can covert all concepts we need to define stare $\textbf{Y}$ for a rigid body.
 
@@ -76,6 +76,7 @@ The total torque $\tau$ applied to the body is equal to the rate of change of th
         \end{array}
     \right)
 \end{equation}
+
 Like what is epressed in $\textbf{Y}(t)$, the state of a rigid body is mainly consist by its position and orientation (describing spatial information), and its linear and angualr momentum(describe velocity information). Since mass $m$ and bodyspace inertia tensor $\pmb{I}_{body}$ are constants, we can the auxiliary quantities $\pmb{I}(t)$, $\pmb{\omega}(t)$ at any given time.
 
 \begin{equation}
@@ -103,6 +104,25 @@ The derivative $\frac{\dif}{\dif t}\textbf{Y}(t)$ is
     \right)
 \end{equation}
 
+Then, we can evaluate Equation \ref{tau_ev} as follows:
+\begin{equation}
+    \begin{aligned}
+        \pmb{\tau} &= \frac{\dif}{\dif t}(\pmb{I}\pmb{\omega}) \\
+        &= \pmb{I}\dot{\pmb{\omega}} + \dot{\pmb{I}}\pmb{\omega} \\
+        &= \pmb{I}\dot{\pmb{\omega}} + \frac{\dif}{\dif t}(\pmb{R}\pmb{I}_{body}\pmb{R}^{T})\pmb{\omega} \\
+        &= \pmb{I}\dot{\pmb{\omega}} + (\dot{\pmb{R}}\pmb{I}_{body}\pmb{R}^{T} + \pmb{R}\pmb{I}_{body}\dot{\pmb{R}}^{T})\pmb{\omega} \\
+        &= \pmb{I}\dot{\pmb{\omega}} + ([\pmb{\omega}]\pmb{R}\pmb{I}_{body}\pmb{R}^{T} + \pmb{R}\pmb{I}_{body}\pmb{R}^{T} \hat{\pmb{\omega}})\pmb{\omega} \\
+        &= \pmb{I}\dot{\pmb{\omega}} + [\pmb{\omega}]\pmb{I}\pmb{\omega} - \pmb{I}[\pmb{\omega}]\pmb{\omega}
+    \end{aligned}
+    \label{tau_ev}
+\end{equation}
+
+Since $\pmb{\omega} \times \pmb{\omega}$ is zero, the final term can be cancels out. This relationship left is knowned as :
+\begin{equation}
+    \pmb{\tau} = \pmb{I}\dot{\pmb{\omega}} + [\pmb{\omega}]\pmb{I}\pmb{\omega}
+\end{equation}
+
+
 \subsection{Twist/Wrench}
 We will now introduce vectors called twists, which describe velocities, and wrenches, which describe forces, and explain how these objects transform from one coordinate frame to another one. 
     \subsubsection{Twist} 
@@ -115,7 +135,7 @@ We will now introduce vectors called twists, which describe velocities, and wren
 
     \subsubsection{Wrench}
         A wrench is a vector that expresses force and torque acting on a body. A wrench can be defined by 
-            $$\mathbf{f} = \left( \begin{array}{c} \tau \\ f \\ \end{array} \right )$$ 
+            $$\mathbf{f} = \left( \begin{array}{c} \pmb{\tau} \\ \pmb{f} \\ \end{array} \right )$$ 
 
         A wrench contains an angular component $\tau$ and a linear component $f$, which are applied at the origin of the coordinate frame they are specified in. 
 
