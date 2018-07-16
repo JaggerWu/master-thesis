@@ -134,20 +134,46 @@ We will now introduce vectors called twists, which describe velocities, and wren
         The defination can be found in \ref{twist}, containing a linear velocity vector \(\pmb{v}\) and an angular velocity \(\pmb{\omega}\). According to 
 
     \subsubsection{Wrench}
-        A wrench is a vector that expresses force and torque acting on a body. A wrench can be defined by 
-            $$\mathbf{f} = \left( \begin{array}{c} \pmb{\tau} \\ \pmb{f} \\ \end{array} \right )$$ 
+        A wrench is a vector that expresses force and torque acting on a body. A wrench can be defined by
+        \begin{equation}
+            \mathbf{f} = \left( \begin{array}{c} \pmb{\tau} \\ \pmb{f} \\ \end{array} \right ) 
+        \end{equation}
 
-        A wrench contains an angular component $\tau$ and a linear component $f$, which are applied at the origin of the coordinate frame they are specified in. 
+        A wrench contains an angular component $\pmb{\tau}$ and a linear component $f$, which are applied at the origin of the coordinate frame they are specified in.
+
+
+\subsection{Newton-Euler Equation}
+    The Newton-Euler equations for a rigid body can now be written in terms of the body's acceleration twist $\mathbf{v}$ methioned in \ref{twist} and the wrench $\mathbf{f}$ metioned in \ref{wrench} acting on the body. We can simply write the Newton and Eular equations,
+
+    \begin{equation}
+        \left( \begin{array}{c} \pmb{\tau} - \pmb{\omega} \times \pmb{I} \pmb{\omega}\\ \pmb{f} \end{array}\right) = \left( \begin{array}{cc} \pmb{I} & \pmb{0} \\ \pmb{0}& m\pmb{1}_{2\times 2}\end{array} \right ) \dot{\mathbf{v}}
+    \end{equation}
+    if we define $\pmb{M}$ and $\pmb{g}$ as Equation \ref{} and \ref{}
+
+    \begin{equation}
+        \pmb{M} = \begin{bmatrix}\end{bmatrix}
+    \end{equation}
 
 
 \section{Constrained Dynamics}
     most interesting simulations of rigid bodies involve some kind of constraints. Usually we want to model systems of bodies that are interacting in some way. Some bodies may be in contact with each other, or attached together by some types of joint. Since this report mainly research contact forces, we 
     \subsection{Expressing Constraints as Equations}
         We express constraints mathematically as algebraic matrix equations with position, velocity, or acceleration vectors as the unknowns. In general, the configuration space of a set of n rigid bodies has dimension 6n. Adding constraint equations restricts the position (or velocity, or acceleration) to a subspace of smaller dimension.\\
-
         The constraints discussed in this thesis will all be holonomic constraints, which means the constraint on the velocity can be found by taking the derivative of a position constraint. Constraints that do not fit this description are called nonholonomic. An example of a nonholonomic constraint is a ball rolling on a table without slipping. The position of the ball has five degrees of freedom, so there is only one degree of constraint (only the height is constrained). Taking the derivative of the position constraint would only give a velocity constraint of degree one. Additional constraints on the velocity are needed to prevent the ball from slipping.\\
-
-        We will describe position constraints with a constraint function $g(\mathbf{p})$, which is a function from the space of possible positions of the rigid bodies, to R , where
+        We will describe position constraints with a constraint function $g(\mathbf{p})$, which is a function from the space of possible positions of the rigid bodies, to $\mathbf{R}^d$, where $d$ is the number of degrees of freedom that constraint removes from the dynamic system. If the constraint function returns a zero vector, then 
     \subsection{contact Constraints}
+        \begin{itemize}
+            \item A contract consist of a pair of contact points, one point attached, one point attached to one rigid body, and the other point attached to another rigid body. The contact points are sufficiently close together for our collision detection algorithm to report a collision.
+            \item A contact normal is a unit vector that is normal to one or both of the surfaces at the contact points.
+            \item The contact constraint Jacobian for constraint $i$, denoted by $\pmb{J}_{c_i}$, is a 1 x 6n matrix, where n is the number of bodies (the subscript `$c$' here stands for `contact').
+            \item A contact force $\pmb{J}_{c_i}^{T}\lambda _{c_i}$ is a force acting in the direction of the contact normal which prevents the two rigid bodies from interpenetrating.
+            \item The separation distance of a contact is the normal component of the distance between the two contact points. It is negative when the bodies are interpenetrating at the contact. The constraint function $g_{i}(\pmb{p})$ for a contact constraint returns the separation distance. In other words, $g_i \ge 0$.
+            \item The relative normal acceleration $a_i$ of a contact is the second derivative of the separation distance with respect to time ($a_i = \ddot{g}_i$). The acceleration constrait is satisfied when $a_i = \pmb{J}_{c_i} \dot{\mathbf{v}}+ k_i \ge 0$
+        \end{itemize}
+        Let $\pmb{a}$ be a vector containing the relative normal accelerations $\{a_1,...,a_n\}$ for all contacts and $\pmb{\lambda}_c$ be a vector of contact force multipliers$\{\lambda_{c_1},..., \lambda_{c_n}\}$. The vectors $\pmb{a}$ and $\pmb{\lambda}_c$ are linearly related at a given $\mathbf{P}$. Additionally, we have three constraints:
+        \begin{enumerate}
+            \item The relative normal accelerations must be nongative: $\pmb{a} = \mathcal{J}_c\dot{\mathbf{v}}+k \ge 0$. Since $g$ and $\dot{g}$ are zero, a negative acceleration would cause interpenetration.
+            \item The contact force magnitudes must be nonnegative (so as to push the bodies apart): $\pmb{\lambda}_c \ge 0$
+        \end{enumerate}
 
-\subsection{}
+        \subsection{}
