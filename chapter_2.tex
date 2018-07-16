@@ -162,6 +162,12 @@ We will now introduce vectors called twists, which describe velocities, and wren
         The constraints discussed in this thesis will all be holonomic constraints, which means the constraint on the velocity can be found by taking the derivative of a position constraint. Constraints that do not fit this description are called nonholonomic. An example of a nonholonomic constraint is a ball rolling on a table without slipping. The position of the ball has five degrees of freedom, so there is only one degree of constraint (only the height is constrained). Taking the derivative of the position constraint would only give a velocity constraint of degree one. Additional constraints on the velocity are needed to prevent the ball from slipping.\\
         We will describe position constraints with a constraint function $g(\mathbf{p})$, which is a function from the space of possible positions of the rigid bodies, to $\mathbf{R}^d$, where $d$ is the number of degrees of freedom that constraint removes from the dynamic system. If the constraint function returns a zero vector, then 
     \subsection{contact Constraints}
+        From other papers \cite{bender2014interactive}, we can conclude some import features of contact constraint:
+        \begin{itemize}
+            \item Contact forces can push bodies apart, but cannot pull bodies towards each other. This leads to inequalities in the constraint equations.
+            \item Contact are transient - they come and go. Contacts can appear suddenly when bodies are moving towards each other, resulting in an impact.
+        \end{itemize}
+        Impacts between rigid bodies in reality result in large forces applied in over a very short time period, leading to a sudden changes in velocity. There are serveral methods for handling contact in rigid body simulations. Mirtich\cite{mirtich1998rigid} give a summary of serval different methods, and explains the advantages and disadvantages of each. We mainly introduced one  method called .... from Kenny\cite{erleben2017rigid}
         \begin{itemize}
             \item A contract consist of a pair of contact points, one point attached, one point attached to one rigid body, and the other point attached to another rigid body. The contact points are sufficiently close together for our collision detection algorithm to report a collision.
             \item A contact normal is a unit vector that is normal to one or both of the surfaces at the contact points.
@@ -174,6 +180,11 @@ We will now introduce vectors called twists, which describe velocities, and wren
         \begin{enumerate}
             \item The relative normal accelerations must be nongative: $\pmb{a} = \mathcal{J}_c\dot{\mathbf{v}}+k \ge 0$. Since $g$ and $\dot{g}$ are zero, a negative acceleration would cause interpenetration.
             \item The contact force magnitudes must be nonnegative (so as to push the bodies apart): $\pmb{\lambda}_c \ge 0$
+            \item For each contact $i$, at least one of $a_i, \lambda_{c_i}$ must be zero, we can write that
+            \begin{equation}
+                \pmb{a}^{T}\lambda_{c} = 0
+            \end{equation}
+            Since there can only be a contact force if the bodies are actually touching(g_i\lambda_{c_i} = 0). Differentiating rh
         \end{enumerate}
 
         \subsection{}
