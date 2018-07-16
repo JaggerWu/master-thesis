@@ -160,7 +160,12 @@ We will now introduce vectors called twists, which describe velocities, and wren
     \subsection{Expressing Constraints as Equations}
         We express constraints mathematically as algebraic matrix equations with position, velocity, or acceleration vectors as the unknowns. In general, the configuration space of a set of n rigid bodies has dimension 6n. Adding constraint equations restricts the position (or velocity, or acceleration) to a subspace of smaller dimension.\\
         The constraints discussed in this thesis will all be holonomic constraints, which means the constraint on the velocity can be found by taking the derivative of a position constraint. Constraints that do not fit this description are called nonholonomic. An example of a nonholonomic constraint is a ball rolling on a table without slipping. The position of the ball has five degrees of freedom, so there is only one degree of constraint (only the height is constrained). Taking the derivative of the position constraint would only give a velocity constraint of degree one. Additional constraints on the velocity are needed to prevent the ball from slipping.\\
-        We will describe position constraints with a constraint function $g(\mathbf{p})$, which is a function from the space of possible positions of the rigid bodies, to $\mathbf{R}^d$, where $d$ is the number of degrees of freedom that constraint removes from the dynamic system. If the constraint function returns a zero vector, then 
+        We will describe position constraints with a constraint function $g(\mathbf{p})$, which is a function from the space of possible positions of the rigid bodies, to $\mathbf{R}^d$, where $d$ is the number of degrees of freedom that constraint removes from the dynamic system. If the constraint function returns a zero vector, then the position $\mathbf{p}$ satifies the constraint. \\
+        Position constraint can be divided into \slshape{equality constraint}(e.g., joint constraints), where the constraint is $g(\mathbf{p}) = 0$, and \slshape{inequality constraints}(e.g., contact constraints), where $g(\mathbf{p}) \ge 0$. \\
+        Constraining the position of an object also constrains its velocity. The velocity constraint function can be found by taking the time derivative of the constraint function. We want the velocity constraint function to be a linear function of the twists representing the velocities of all of the rigid bodies in the system. We let $\pmb{v}$ to be:
+        \begin{equation}
+            \pmb{v} = \left( \begin{array}{c}\pmb{v}_1 \\ ... \\ \pmb{v}_n \end{array}\right)
+        \end{equation}
     \subsection{contact Constraints}
         From other papers \cite{bender2014interactive}, we can conclude some import features of contact constraint:
         \begin{itemize}
@@ -184,7 +189,7 @@ We will now introduce vectors called twists, which describe velocities, and wren
             \begin{equation}
                 \pmb{a}^{T}\lambda_{c} = 0
             \end{equation}
-            Since there can only be a contact force if the bodies are actually touching(g_i\lambda_{c_i} = 0). Differentiating rh
+            Since there can only be a contact force if the bodies are actually touching($g_i\lambda_{c_i} = 0$). Differentiating rh
         \end{enumerate}
 
         \subsection{}
