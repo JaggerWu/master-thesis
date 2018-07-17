@@ -159,13 +159,33 @@ We will now introduce vectors called twists, which describe velocities, and wren
     most interesting simulations of rigid bodies involve some kind of constraints. Usually we want to model systems of bodies that are interacting in some way. Some bodies may be in contact with each other, or attached together by some types of joint. Since this report mainly research contact forces, we 
     \subsection{Expressing Constraints as Equations}
         We express constraints mathematically as algebraic matrix equations with position, velocity, or acceleration vectors as the unknowns. In general, the configuration space of a set of n rigid bodies has dimension 6n. Adding constraint equations restricts the position (or velocity, or acceleration) to a subspace of smaller dimension.\\
+
         The constraints discussed in this thesis will all be holonomic constraints, which means the constraint on the velocity can be found by taking the derivative of a position constraint. Constraints that do not fit this description are called nonholonomic. An example of a nonholonomic constraint is a ball rolling on a table without slipping. The position of the ball has five degrees of freedom, so there is only one degree of constraint (only the height is constrained). Taking the derivative of the position constraint would only give a velocity constraint of degree one. Additional constraints on the velocity are needed to prevent the ball from slipping.\\
+
         We will describe position constraints with a constraint function $g(\mathbf{p})$, which is a function from the space of possible positions of the rigid bodies, to $\mathbf{R}^d$, where $d$ is the number of degrees of freedom that constraint removes from the dynamic system. If the constraint function returns a zero vector, then the position $\mathbf{p}$ satifies the constraint. \\
-        Position constraint can be divided into \slshape{equality constraint}(e.g., joint constraints), where the constraint is $g(\mathbf{p}) = 0$, and \slshape{inequality constraints}(e.g., contact constraints), where $g(\mathbf{p}) \ge 0$. \\
-        Constraining the position of an object also constrains its velocity. The velocity constraint function can be found by taking the time derivative of the constraint function. We want the velocity constraint function to be a linear function of the twists representing the velocities of all of the rigid bodies in the system. We let $\pmb{v}$ to be:
+
+        Position constraint can be divided into \textit{equality constraint}(e.g., joint constraints), where the constraint is $g(\mathbf{p}) = 0$, and \textit{inequality constraints}(e.g., contact constraints), where $g(\mathbf{p}) \ge 0$. \\
+        Constraining the position of an object also constrains its velocity. The velocity constraint function can be found by taking the time derivative of the constraint function. We want the velocity constraint function to be a linear function of the twists representing the velocities of all of the rigid bodies in the system. We let $\mathbf{v}$ to be:
         \begin{equation}
-            \pmb{v} = \left( \begin{array}{c}\pmb{v}_1 \\ ... \\ \pmb{v}_n \end{array}\right)
+            \mathbf{v} = \left( \begin{array}{c}\mathbf{v}_1 \\\mathbf{v}_2 \\ ... \\ \mathbf{v}_n \end{array}\right)
         \end{equation}
+        Velocity constraints are of the form
+        \begin{equation}
+            \frac{\dif g_i}{\dif t} = J_i \mathbf{v} = (\mathbf{J}_{i1} ,...,\mathbf{J}_{in} )\left(\ \right)
+        \end{equation}
+        where $i$ is unique for each constraint. The matrix $J$ is called the constraint's \textit{Jacobian matrix}, which we will refer to simply as the Jacobian. \\
+
+        When there are many constraints, like a system with $n$ bodies, $m$ constraints, the velocity constraint equation looks like
+        \begin{equation}
+            \frac{\dif g}{\dif} = \left( \begin{array}{c} g_1 \\g_2 \\ ...\\g_m\end{array}\right)= \mathcal{J}\mathbf{v} = \left( \begin{array}{c} J_1 \\ ... \\ J_n \end{array} \right) \left( \begin{array}{c} \mathbf{v}_1 \\ ... \\ \mathbf{v}_n \end{array} \right)
+        \end{equation}
+        Notes:
+        \begin{itemize}
+            \item $\pmb{J}$ is used for Jacobians that relate the velocity of a single body to a single constraint.
+            \item $J$ is used for Jacobians that relate the velocity of mant bodies with many bodies to a single constraint.
+            \item $\mathcal{J}$ is used for Jacobians that relate velocity of many bodies to many constraints. 
+        \end{itemize}
+
     \subsection{contact Constraints}
         From other papers \cite{bender2014interactive}, we can conclude some import features of contact constraint:
         \begin{itemize}
@@ -181,15 +201,17 @@ We will now introduce vectors called twists, which describe velocities, and wren
             \item The separation distance of a contact is the normal component of the distance between the two contact points. It is negative when the bodies are interpenetrating at the contact. The constraint function $g_{i}(\pmb{p})$ for a contact constraint returns the separation distance. In other words, $g_i \ge 0$.
             \item The relative normal acceleration $a_i$ of a contact is the second derivative of the separation distance with respect to time ($a_i = \ddot{g}_i$). The acceleration constrait is satisfied when $a_i = \pmb{J}_{c_i} \dot{\mathbf{v}}+ k_i \ge 0$
         \end{itemize}
-        Let $\pmb{a}$ be a vector containing the relative normal accelerations $\{a_1,...,a_n\}$ for all contacts and $\pmb{\lambda}_c$ be a vector of contact force multipliers$\{\lambda_{c_1},..., \lambda_{c_n}\}$. The vectors $\pmb{a}$ and $\pmb{\lambda}_c$ are linearly related at a given $\mathbf{P}$. Additionally, we have three constraints:
+        When $g$ or $\dot{g}$ are positive, it indicates that the bodies are not touching, or moving apart at that contact, respectively, in other words, no acceleration is needed. The assumption that at each resting contact $g = 0$ and $\dot{g} = 0 $ are critical to the constraint that we enumerate below.\\
+
+        Let $\pmb{a}$ be a vector containing the relative normal accelerations \{$a_1,...,a_n$\} for all contacts and $\pmb{\lambda}_c$ be a vector of contact force multipliers \{$\lambda_{c_1},..., \lambda_{c_n}$\}. The vectors $\pmb{a}$ and $\pmb{\lambda}_c$ are linearly related at a given $\mathbf{P}$. Additionally, we have three constraints:
         \begin{enumerate}
-            \item The relative normal accelerations must be nongative: $\pmb{a} = \mathcal{J}_c\dot{\mathbf{v}}+k \ge 0$. Since $g$ and $\dot{g}$ are zero, a negative acceleration would cause interpenetration.
-            \item The contact force magnitudes must be nonnegative (so as to push the bodies apart): $\pmb{\lambda}_c \ge 0$
+            \item The relative normal accelerations must be nongative: $\pmb{a} = \mathcal{J}_c\dot{\mathbf{v}}+\pmb{k} \ge 0$. Since $g$ and $\dot{g}$ are zero, a negative acceleration would cause interpenetration.
+            \item The contact force magnitudes must be nonnegative (so as to push the bodies apart): $\pmb{\lambda}_c \ge \pmb{0}$
             \item For each contact $i$, at least one of $a_i, \lambda_{c_i}$ must be zero, we can write that
             \begin{equation}
-                \pmb{a}^{T}\lambda_{c} = 0
+                a^{T}\lambda_{c} = 0
             \end{equation}
-            Since there can only be a contact force if the bodies are actually touching($g_i\lambda_{c_i} = 0$). Differentiating rh
+            Since there can only be a contact force if the bodies are actually touching($g_i\lambda_{c_i} = 0$). Differentiating this twice using chain rule, we get $\ddot{g_i}\lambda_{c_i} + 2\dot{g}\dot{\lambda_{c_i}} + g_i\lambda_{i} = 0$. Since we assume $g_i = 0$ and $\dot{g}_i = 0$, the second and third term cancel out leaving simply $\ddot{g}_i \lambda_{c_i}=0$.   
         \end{enumerate}
 
         \subsection{}
