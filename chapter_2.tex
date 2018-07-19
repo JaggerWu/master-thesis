@@ -256,5 +256,21 @@ We will now introduce vectors called twists, which describe velocities, and wren
         \end{enumerate}
 
         Then we can write the whole system equation as Equation \ref{w}
+    
+    \subsection{Linear Complementarity Problems}
+        A \textit{Linear Complementarity Problem}(LCP) is, given a $n \times n$ matrix $\pmb{M}$ and a $n$-vector $\pmb{q}$, the problem of finding values for the variables $\{z_1, z_2 ... z_n\}$ and $\{\omega_1, \omega_2, ... , \omega_n\}$ like,
+
+        \begin{equation}
+            \left(\begin{array}{c} \omega_1 \\ \omega_2 \\ ... \\ \omega_n \end{array} \right) = \pmb{M} \left(\begin{array}{c} z_1 \\ z_2 \\ ... \\ z_n \end{array}\right) + \pmb{q}
+        \end{equation}
+
+        and for all i from $1$ to $n$, \textit{complementarity constraints} can be,
+        \begin{equation}
+            \begin{cases}
+                z_i \ge 0 \\
+                \omega_i \ge 0 \\
+                z_i \omega_i = 0 \\
+            \end{cases}
+        \end{equation}
 
       
