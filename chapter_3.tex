@@ -154,7 +154,8 @@
 
 
 \section{Grid to particle}
-    After getting the grid image for simulation state in time $t$, we will use the grid cells as input and renew the grid image based on trained model. Once the grid image in $t+\Delta t$ have been renewed, the next step is to transfer the grid to particles which will instore all information including velocity,  
+    SPH will be used for us to transform current state of dynamic system to grid images. After getting the grid image for simulation state in time $t$, we will use the grid cells as input and renew the contact grid image based on trained model. Once the contact force image is obtained, we will use contact position to interpolate image values. The interpolated values will be stored in the contact points and used as starting iterates for contact force solver. Then we can update states of all rigid bodies in time $t+\Delta{t}$.
+
     \subsection{Bilinear interpolation}
     We applied bilinear interpolation in our case, since we did mainly research on a rectilinear $2-D$ grid.
     \begin{figure}
@@ -187,4 +188,5 @@
         \end{aligned}
     \end{equation}
 
-\section{Conclution}
+\section{Experiment and Conclution}
+    Our hope is that strating iterates will be close to "solution" of the contact problem, which can indicate the contact force solvers will coverage very rapidly or maybe not even need to iterate. In order to test whether the sph method can be applied in our case, the contact force solution is mapped to image and interpolated values are generated and used to re-start the contact force solver. Our hyposis is that iterative solver quickly recovers an iteration close to the original solution before mapping to force grid image.
