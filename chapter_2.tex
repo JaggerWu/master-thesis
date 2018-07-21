@@ -61,6 +61,10 @@ Unlike a particle, a rigid body occupies a volume of space and has a particular 
 \subsection{Rigid Body Equations of Motions}
  Whereas linear momentum $\pmb{P}(t)$ is related to linear velocity with a scalar (the mass), angular momentum is related to angular velocity with a matrix \(\pmb{I}\), called the angular inertia matrix. The reason for this is that objects generally have different angular inertias around different axes of rotation. Angular momentum is defined as \(\pmb{L}\). The linear momentum is defined as \ref{lm}, and angular momentum is defined as \ref{am}
 \begin{equation}
+    m \dot{\pmb{v}(t)} = \pmb{f}(t)
+    \label{force}
+\end{equation}
+\begin{equation}
     \pmb{P}(t) = m \pmb{v} (t)
     \label{lm}
 \end{equation}
@@ -132,8 +136,13 @@ Then, we can evaluate Equation \ref{tau_ev} as follows:
 Since $\pmb{\omega} \times \pmb{\omega}$ is zero, the final term can be cancels out. This relationship left is knowned as :
 \begin{equation}
     \pmb{\tau} = \pmb{I}\dot{\pmb{\omega}} + [\pmb{\omega}]\pmb{I}\pmb{\omega}
+    \label{tau}
 \end{equation}
 
+\subsection{Impulse}
+When two bodies collide, those bodies and any other bodies, they are touching, experience very high forces of very short duration. In the case of ideal rigid bodies, the force magnitudes become infinite and the duration becomes infinitesimal. These forces are referred to as impulsive forces or shocks. One can see from Equation \ref{force} that shocks cause infinite accelerations, which makes direct numerical integration of the Newton–Euler equations impossible. One way to deal with this problem during simulation is to use a standard integration method up to the time of impact, then use an impulse–momentum law to determine the jump discontinuities in the velocities, and finally restart the integrator. \\
+
+Let $[t, t+\Delta t]$ be a time step during which a collision occurs. Further, define $\mathbf{p}=\int_{t}^{t+\Delta t}\dif t$ as the impulse of the net force and $m\pmb{v}$ as translational momentum. Integrating Equation \ref{force} from $t$ to $t+\Delta t$ yields $m(\pmb{v}(t+\Delta t)-\pmb{v}(t))=\int_{t}^{t+\Delta t}\pmb{f}\dif t$, which states that $\Delta t$ impulse of the net applied force equals the change of translational momentum of the body. In rigid body collisions, $\Delta t$ approaches zero. Taking the limit as $\Delta t$ goes to zero, one obtains an impulse momentum law that is applied at the instant of impact to compute post-collision velocities. Since $\Delta t$ goes to zero and the velocities remain finite, the generalized position of the bodies are fixed during the impact. After processing the collision, one has the values of the generalized positions and velocities, which are the initial conditions to restart the integrator. Note that integration of the rotational Equation \ref{tau} yields an impulse–momentum law for determining jump discontinuities in the rotational velocities.
 
 \subsection{Twist/Wrench}
 We will now introduce vectors called twists, which describe velocities, and wrenches, which describe forces, and explain how these objects transform from one coordinate frame to another one. 
@@ -148,7 +157,8 @@ We will now introduce vectors called twists, which describe velocities, and wren
     \subsubsection{Wrench}
         A wrench is a vector that expresses force and torque acting on a body. A wrench can be defined by
         \begin{equation}
-            \mathbf{f} = \left( \begin{array}{c} \pmb{\tau} \\ \pmb{f} \\ \end{array} \right ) 
+            \mathbf{f} = \left( \begin{array}{c} \pmb{\tau} \\ \pmb{f} \\ \end{array} \right )
+            \label{wrench} 
         \end{equation}
 
         A wrench contains an angular component $\pmb{\tau}$ and a linear component $f$, which are applied at the origin of the coordinate frame they are specified in.
@@ -243,7 +253,7 @@ We will now introduce vectors called twists, which describe velocities, and wren
         \end{itemize}
         When $g$ or $\dot{g}$ are positive, it indicates that the bodies are not touching, or moving apart at that contact, respectively, in other words, no acceleration is needed. The assumption that at each resting contact $g = 0$ and $\dot{g} = 0 $ are critical to the constraint that we enumerate below.\\
 
-        Let $\pmb{a}$ be a vector containing the relative normal accelerations \{$a_1,...,a_n$\} for all contacts and $\pmb{\lambda}_c$ be a vector of contact force multipliers \{$\lambda_{c_1},..., \lambda_{c_n}$\}. The vectors $\pmb{a}$ and $\pmb{\lambda}_c$ are linearly related at a given $\mathbf{P}$. Additionally, we have three constraints:
+        Let $\pmb{a}$ be a vector containing the relative normal accelerations \{$a_1,...,a_n$\} for all contacts and $\pmb{\lambda}_c$ be a vector of contact force multipliers \{$\lambda_{c_1},..., \lambda_{c_n}$\}. The vectors $\pmb{a}$ and $\pmb{\lambda}_c$ are linearly related at a given $\mathbf{p}$. Additionally, we have three constraints:
         \begin{enumerate}
             \item The relative normal accelerations must be nongative:
             \begin{equation}
@@ -311,8 +321,25 @@ We will now introduce vectors called twists, which describe velocities, and wren
             \begin{equation}
                 \dot{\mathbf{v}} \approx \frac{(\mathbf{v}_{t+h} - \mathbf{v}_t)}{h}
             \end{equation}
-        $\mathbf{v}_t$ and $\mathbf{v}_{t+h}$ are the velocities at the beginning of the current time step, and the next time step, $h$ is the time step.
+        $\mathbf{v}_t$ and $\mathbf{v}_{t+h}$ are the velocities at the beginning of the current time step, and the next time step, $h$ is the time step. We then arrive at the mixed LCP
 
+        \begin{equation}
+            \left(\begin{array}{c}\pmb{0} \\ \pmb{a} \end{array}\right) = \left(\begin{array}{cc} \mathcal{M} & -\mathcal{J}_{c}^{T} \\ \mathcal{J}_{c} & 0 \end{array}\right) \left(\begin{array}{c} \mathbf{v}_{t+h} \\ \pmb{\lambda}_{c} \end{array}\right) + 
+            \label{lcp}
+        \end{equation}
+
+    \subsection{Friction Constraints}
+        Coulomb friction is intrdiced by adding some addtional forces and constraints to the LCP \ref{lcp} \\
+
+        In true Coulomb friction, the magnitude of the friction force must be less than $\mu$ times the magnitude of the normal force:
+        \begin{equation}
+            \|\pmb{f}_f\| \le \mu\|\pmb{f}_n\|
+        \end{equation}
+
+        Geometrically, the contact forces is restricted to lie inside of a cone. However, to fit friction into our linear algebraic framework, it helps to approximate the friction cone with a ployhedral cone. We do this by choosing a set of direction vectors \(\pmb{d}_{i1}, \pmb{d}_{i2}...\pmb{d}_{in}\). The expected frictional impulse for contact $i$ as:
+        \begin{equation}
+            J_{f_i}^{T}\pmb{\lambda}_{f_i} = (\begin{array}{cccc} \pmb{d}_{i1} & \pmb{d}_{i2} & ... & \pmb{d}_{in} \end{array})\left(\begin{array}{c} \lambda_{f_{i1}} \\ \lambda_{f_{i2}} \\ ... \\ \lambda_{f_{in}}\end{array}\right)
+        \end{equation}
 
 
     \subsection{Projected Gauss–Seidel(PGS) solver for contact}
