@@ -6,14 +6,41 @@
         \caption{visulization of one simple $3$-layers neural networks, including input layer, hidden layer and output layer, \textit{retrieved from Wikipedia}}
     \end{figure}
 
-    With deep learning becoming more and more popular in many fields of researching, some classical methods can be replaced by deep learning. Many successful application of deep learning can be found in computer vision part, like image segmentation\cite{lecun2015deep},objection recognition\cite{he2016deep}. 
+    With deep learning becoming more and more popular in many fields of researching, some classical methods can be replaced by deep learning. Many successful application of deep learning can be found in computer vision part, like image segmentation\cite{lecun2015deep},objection recognition\cite{he2016deep}.
 
+\section{Convolutions}
+    It turns out that there is a very efficient way of pulling this off, and it makes advantage of the structure of the information encoded within an image – it is assumed that pixels that are spatially closer together will ``cooperate'' on forming a particular feature of interest much more than ones on opposite corners of the image. Also, if a particular (smaller) feature is found to be of great importance when defining an image's label, it will be equally important if this feature was found anywhere within the image, regardless of location. \\
+
+    Enter the convolution operator. Given a two-dimensional image, I, and a small matrix, $\pmb{K}$ of size $h \times w$, (known as a convolution kernel), which we assume encodes a way of extracting an interesting image feature, we compute the convolved image, $\pmb{I} * \pmb{K}$ , by overlaying the kernel on top of the image in all possible ways, and recording the sum of elementwise products between the image and the kernel:
+
+    \begin{equation}
+        (\pmb{I} * \pmb{K})_{xy} = \sum_{i=1}^{h}\sum_{j=1}^{w} \pmb{K}_{ij}\cdot \pmb{I}_{x+i-1, y+j-1}
+    \end{equation}
+
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[]{Figures/convolve.png}
+        \caption{}
+        \label{}
+    \end{figure}
 \section{Convolutional Neural Networks}
     An entire convolutional neural network consists of an input and output layer, as well as multiple hidden layers. Normally, the hidden layers consist of convolutional layer, pooling layers, fully conneted layers and normalization layers. \\
 
     Description of the process as a convolution in neural networks is by convention. Mathematically it is a cross-correlation rather than a convolution. This only has significance for the indices in the matrix, and thus which weights are placed at which index. 
     \subsection{Convolutional layers}
-    Normal RGB images are represented by matrices containing color information in the form of Red-Gray-Blue color codes.
+    Normal RGB images are represented by matrices containing color information in the form of Red-Gray-Blue color codes. An image therefore has size $h\times w \times d$, where $d$ is the number of channel of image, in normal RGB images, $d=3$. However, in the case of this thesis, channels consist of $[m, v_x, v_y, \omega, n_x]$, therefore in its case, $d=5$. Convolutional layers are essential layers in CNNs, producing feature maps from input images or lower level feature maps. \\
+
+    Convolutional layers includes a kernel (or filter). Let $K$ be a kernel with $x$ rows, $y$ columns and depth $d$. Then the kernel with size ($K_x \times K_y \times d$) works on a receptive field ($K_x \times K_Y$) on the image. The kernel height and width are smaller than the input image height and width. The kernel slides over (convolves with) the image, producing an feature map (Figure \ref{}). Convolution is the sum of the element-wise multiplication of the kernel and the original image. Note that the depth d of the kernel is equal to the depth of its input. Therefore, it varies within the network. Usually the depth of an image is the number of color channels, the three RGB channels. In this case, $d=5$. \\
+
+    The kernel stride is a free parameter in convolutional layers which has to be defined before training. The stride is the number of pixels by which the kernel shifts at a time. A drawback of using convolutional layers is that it decreases the output map size. A larger stride will result in a smaller sized output. Equations \ref{out} show the relationship between output size $O$ and input size of an image $I$ after convolution with stride $s$ and kernel $K$. Furthermore, the feature map size decreases as the number of convolutional layers increases. Row output size $O_x$ and column output size $O_y$ of convolutional layers are determined as follows:
+    \begin{equation}
+        \begin{cases}
+            O_x = \frac{I_x-K_x}{s} + 1 \\
+            O_y = \frac{I_y - K_Y}{s} + 1 \\
+        \end{cases}
+        \label{out}
+    \end{equation}
+    As an example, an image of size ($32\times 32 \times 3$), a kernel of size ($3\times 3\times 3$) and a stride $s=1$ result in an activation map of size ($30 \times 30 \times 1$). Using additional $n$ kernels, the activation map becomes ($30\times30\times n$). So, additional kernels will increase the depth of the convolutional layer output. \\
 
     \begin{figure}[!h]
         \centering
@@ -48,6 +75,21 @@
         \caption{A nerual network structure before and after applying dropout}
         \label{dropout}
     \end{figure}
+    \subsection{Loss Function}
+    The value of the loss function $L$ represents the difference between the training image after it has propagated through the network and desired annotated output image.\\ 
+
+    Two assumptions are made about this loss function. 
+    \begin{enumerate}
+        \item It be able to be defined as the average over the loss functions for individual training images, as the training often is carried out in batches.
+        \item It should be able to be defined as a function of the network outputs. 
+    \end{enumerate}
+
+    Below a brief overview is given of some widely used loss functions, where $x_i$ are the neuron outputs and $\hat{x}_i$ are the desired outputs.
+    \subsubsection{Quadratic Cost Function}
+    The Mean Squared Error (MSE) cost function is one of the simplest cost functions. Normally it will be used in estimation problems\cite{boureau2008sparse}.
+    \begin{equation}
+        L =\frac{1}{N}\sum_{n=1}^{N}(x_i -\hat{x}_i)^2
+    \end{equation}
 
     \subsection{Backpropagation}
     The CNN requires to adjust and update its kernel parameters, or weights, for the given training data. Backpropagation\cite{werbos1990backpropagation} is an efficient method for computing gradients required to perform gradient-based optimization of the weights in neural networks [19]. The specific combination of weights which minimize the loss function (or error function) is the solution of the optimization problem. The method requires the computation of the gradient of the error function at each iteration, therefore the loss function should be both continue and differentiable at all iteration steps.\\
@@ -65,9 +107,44 @@
         \item \textbf{Weight update} In the final part all weights are updated in the negative direction of the loss function gradient.
     \end{enumerate}
     
-    Therefore the core of the backpropagation problem is to compute the gradient of the loss function with respect to the network weights. Computing the partial derivative $\frac{\partial L}{\partial \omega}$ is essential(carried out in the backward pass) to minimize the loss function value. Stochastic Gradient Descent(SGD) is the most common way to optimize nerual networks.  
+    Therefore the core of the backpropagation problem is to compute the gradient of the loss function with respect to the network weights. Computing the partial derivative $\frac{\partial L}{\partial \omega}$ is essential(carried out in the backward pass) to minimize the loss function value. Stochastic Gradient Descent(SGD) is the most common way to optimize nerual networks.
+
+    \subsubsection{Backpropagation Example for a Multi-Layer Network}
+    I describe the details of backpropagation algorithm for one simple example in Figure \ref{bp}. The cost function $L$ is given below, el is the error between the true outpt $d_l$ and network output $y_l$. The network output $y_l$ is computed in the forward pass and depends on outputs of the previous layer $v_j$ and the output layer weights $w_j$.
+    \begin{figure}[!h]
+        \centering
+        \includegraphics{Figures/bp.pdf}
+        \caption{The example for showing the details of backpropagation}
+        \label{bp}
+    \end{figure}
+    Some mathesmatical equations we can get:
+    \begin{equation}
+        \begin{aligned}
+            L &= \frac{1}{2} \sum_{l}(e_l)^2 \\
+            e_l &= d_l -y_l \\
+            y_l &= \sum_{j}w_j v_j 
+        \end{aligned}
+        \label{me}
+    \end{equation}
+
+    The Jacobian is given by:
+    \begin{equation}
+        \frac{\partial L}{\partial w_{jl}} = \frac{\partial L}{\partial e_l} \cdot \frac{\partial e_l}{\partial y_l} \cdot \frac{\partial y_l}{\partial w_{jl}}
+        \label{par_w}
+    \end{equation}
+    Then combining Equation \ref{me} and \ref{par_w}, we can caculate that,
+    \begin{equation}
+        \frac{\partial L}{\partial w_{jl}} = -v_j e_l
+    \end{equation}
+
+    Using SGD updating rules \textbf{Momentum} mentioned in section \ref{sgd} Equation \ref{mo}, the output weights are updated using:
+    \begin{equation}
+        w_{jl}(n+1) = w_{jl}(n) + \alpha(n)v_j e_j
+    \end{equation}
+
 
     \subsection{Stochastic Gradient Descent Variants}
+    \label{sgd}
     In both Gradient Descent (GD) and Stochastic Gradient Descent (SGD) parameters are updated according to an update rule to minimize a loss function in an iterative manner. Computing the exact gradient using GD in large datasets is expensive (GD is deterministic), as this method runs through all training samples to perform a single update for one iteration step. In Stochastic Gradient Descent (or on-line Gradient Descent) an approximation of the true gradient is computed. This is done by using only one or a subset of training samples for a parameter update. When using a subset of training samples, this method is called mini-batch SGD. \\
 
     SGD is a method to minize the loss function \(L(\theta)\)  parametrized by $\theta$. This is achieved by updating $\theta$ in the negative gradient direction of the loss function $\nabla_{\theta}L(\theta)$ with respect to the parameters, in order to decrease the loss function value. The learning rate $\eta$ determins the step size to get to the local or global minumum. 
@@ -77,6 +154,21 @@
 
     \subsubsection{Mini-batch Stochatic Gradient Descent}
     This method performs an update for every mini-batch of n training samples. Mini-batch SGD reduces the variance of the parameter updates. Larger mini-batches reduce the variance of SGD updates by taking the average of the gradients in the mini batch. This allows taking bigger step sizes. In the limit, if each batch contains one training sample, it is the same as regular SGD.
+
+    \subsection{Learning Rate Scheduling in Gradient Optimization}
+    There are serval variants of SGD available. Determining the approciate learning rate, or step size, often is a complex problem. Applying too high learning rate cause suboptimal performance, too low learning rate caused slow covergence. Learning rate scheduling is used as an extension of the SGD algorithm to improve performance. In learning rate scheduling, the learning rate is a decreasing function of the iteration number. Therefore, the first iterations have larger learning rate and consequently cause bigger parameter changes. Later iterations have similar learning rates, responsible for fine-tuning. Below an overview of some gradient descent optimizztion algoritms is given.
+
+    \subsubsection{Momentum}
+    Momentum method is a method to speed up the SGD in the relevant direction.  A fraction $\gamma$ of the previous update is added to the current update. The mathesmatical details are shown in Equation \ref{mo}.
+    \begin{equation}
+        \begin{aligned}
+            & v_t = \gamma v_{t-1} + \eta \nabla_{\theta}L(\theta) \\
+            & \theta = \theta - v_{t}
+        \end{aligned}
+        \label{mo}
+    \end{equation} 
+    \subsubsection{Nesterov Accelerated Gradient}
+    \subsubsection{Adagrad}
 
     
 
