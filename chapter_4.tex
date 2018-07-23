@@ -8,7 +8,12 @@
 
     With deep learning becoming more and more popular in many fields of researching, some classical methods can be replaced by deep learning. Many successful application of deep learning can be found in computer vision part, like image segmentation\cite{lecun2015deep},objection recognition\cite{he2016deep}.
 
-\section{Convolutions}
+\section{Convolutional Neural Networks}
+    An entire convolutional neural network consists of an input and output layer, as well as multiple hidden layers. Normally, the hidden layers consist of convolutional layer, pooling layers, fully conneted layers and normalization layers. \\
+
+    Description of the process as a convolution in neural networks is by convention. Mathematically it is a cross-correlation rather than a convolution. This only has significance for the indices in the matrix, and thus which weights are placed at which index. 
+
+    \subsection{Convolutions}
     It turns out that there is a very efficient way of pulling this off, and it makes advantage of the structure of the information encoded within an image – it is assumed that pixels that are spatially closer together will ``cooperate'' on forming a particular feature of interest much more than ones on opposite corners of the image. Also, if a particular (smaller) feature is found to be of great importance when defining an image's label, it will be equally important if this feature was found anywhere within the image, regardless of location. \\
 
     Enter the convolution operator. Given a two-dimensional image, I, and a small matrix, $\pmb{K}$ of size $h \times w$, (known as a convolution kernel), which we assume encodes a way of extracting an interesting image feature, we compute the convolved image, $\pmb{I} * \pmb{K}$ , by overlaying the kernel on top of the image in all possible ways, and recording the sum of elementwise products between the image and the kernel:
@@ -23,10 +28,7 @@
         \caption{}
         \label{}
     \end{figure}
-\section{Convolutional Neural Networks}
-    An entire convolutional neural network consists of an input and output layer, as well as multiple hidden layers. Normally, the hidden layers consist of convolutional layer, pooling layers, fully conneted layers and normalization layers. \\
 
-    Description of the process as a convolution in neural networks is by convention. Mathematically it is a cross-correlation rather than a convolution. This only has significance for the indices in the matrix, and thus which weights are placed at which index. 
     \subsection{Convolutional layers}
     Normal RGB images are represented by matrices containing color information in the form of Red-Gray-Blue color codes. An image therefore has size $h\times w \times d$, where $d$ is the number of channel of image, in normal RGB images, $d=3$. However, in the case of this thesis, channels consist of $[m, v_x, v_y, \omega, n_x]$, therefore in its case, $d=5$. Convolutional layers are essential layers in CNNs, producing feature maps from input images or lower level feature maps. \\
 
@@ -40,13 +42,37 @@
         \end{cases}
         \label{out}
     \end{equation}
-    As an example, an image of size ($32\times 32 \times 3$), a kernel of size ($3\times 3\times 3$) and a stride $s=1$ result in an activation map of size ($30 \times 30 \times 1$). Using additional $n$ kernels, the activation map becomes ($30\times30\times n$). So, additional kernels will increase the depth of the convolutional layer output. \\
+    As an example, an image of size ($32\times 32 \times 3$), a kernel of size ($3\times 3\times 3$) and a stride $s=1$ result in an activation map of size ($30 \times 30 \times 1$). Using additional $n$ kernels, the activation map becomes ($30\times30\times n$). So, additional kernels will increase the depth of the convolutional layer output. Animations showing different kind of convolution can be viewed on line\footnote{\url{https://github.com/vdumoulin/conv_arithmetic}}.\\
 
     \begin{figure}[!h]
         \centering
         \includegraphics[scale = 0.3]{Figures/Conv_layers.png}
         \caption{Visualization of convolutions network, \textit{retrieved from Wikipedia}}
     \end{figure}
+
+    \subsection{Activation Layer}
+    The Activation functions are an extremely important feature of the artificial neural networks. They basically decide whether a neuron should be activated or not. Whether the information that the neuron is receiving is relevant for the given information or should it be ignored. Normally, we can express the general function as Equation \ref{ac}. And one mathematical model is shown in Figure \ref{action} to describe how activation function is.
+
+    \begin{equation}
+        y = f_{Activation}(\sum_{i}(w_i \cdot x_i) + bias)
+        \label{ac}
+    \end{equation}
+
+    \begin{figure}
+        \centering
+        \includegraphics[scale=0.3]{Figures/action.pdf}
+        \caption{Mathematical model for describing activation function}
+        \label{action}
+    \end{figure}
+
+    The activation function is the non linear transformation that we do over the input signal. This transformed output is then sen to the next layer of neurons as input. The most widely used activation function in networks today is Rectified Linear Unit(ReLU). More details will be talked below. 
+
+    \subsubsection{Rectified Linear Unit}
+    The ReLU has the following mathematical form,
+    \begin{equation}
+        y = max(0, x)
+    \end{equation}
+    The ReLU has become very popular in the last few years, because it was found to greatly accelerate the convergence of stochastic gradient descent compared to the $sigmoid$/$tanh$ functions due to its linear non-saturating form (e.g. a factor of 6 in \cite{krizhevsky2012imagenet}). In fact, it does not suffer from the vanishing or exploding gradient. An other advantage is that it involves cheap operations compared to the expensive exponentials. However, the ReLU removes all the negative informations and thus appears not suited for all datasets and architectures.
 
     \subsection{Pooling Layer}
     Pooling layers are also known as downsampling layers. A commonly used pooling is maxpooling(figure \ref{maxpooling}). The downsampled output is produced by taking the maxium input value within the kernel, resulting in output a decreased size. There are several other methods which are commonly used in neural networks, such as average pooling and L2-norm pooling. Average pooling was often used historically but has recently fallen out of favor compared to max pooling, which works better in practice\cite{scherer2010evaluation}.\\
@@ -63,18 +89,15 @@
         \label{maxpooling}
     \end{figure}
 
-    \subsection{Fully connected Layer}
-    Finally, after several convolutional and max pooling layers, the high-level reasoning in the neural network is done via fully connected layers. Neurons in a fully connected layer have connections to all activations in the previous layer, as seen in regular neural networks. Their activations can hence be computed with a matrix multiplication followed by a bias offset.
+    \subsection{Fully Connected Layer}
+    Finally, after several convolutional and max pooling layers, the high-level reasoning in the neural network is done via fully connected layers. Neurons in a fully connected layer have connections to all activations in the previous layer, as seen in regular neural networks. Their activations can hence be computed with a matrix multiplication followed by a bias offset. 
 
-    \subsection{Overfitting}
-    Overfitting is a problem that arises in neural network training. When a model is overfitted to the training data, it loses its capability of generalization. The model has learned the training data, including noise, in such a great extend that it has failed to capture underlying general information. CNNs have a large number of weights to be trained, therefore overfitting can occur due to training too few training examples. Dropout layers\cite{srivastava2014dropout} are a tool to prevent overfitting (Figure \ref{dropout}). In dropout, nodes and its connections are randomly dropped from the network. Dropout constrains the network adaptation to the training set, consequently it prevents that the weights are not too much fitted this data. The difference in performance between training data and validation data will decrease. Dropout layers are used during training only, not during validation or testing.
+    \subsection{Batch Normalization}
+    This layer quickly became very popular mostly because it helps to converge faster\cite{ioffe2015batch}. It adds a normalization step (shifting inputs to zero-mean and unit variance) to make the inputs of each trainable layers comparable across features. By doing this it ensures a high learning rate while keeping the network learning. \\
 
-    \begin{figure}[!h]
-        \centering
-        \includegraphics[scale=0.7]{Figures/dropout.pdf}
-        \caption{A nerual network structure before and after applying dropout}
-        \label{dropout}
-    \end{figure}
+    Also it allows activations functions such as TanH and Sigmoid to not get stuck in the saturation mode (e.g. gradient equal to $0$).
+
+    \section{Training Method}
     \subsection{Loss Function}
     The value of the loss function $L$ represents the difference between the training image after it has propagated through the network and desired annotated output image.\\ 
 
@@ -91,57 +114,31 @@
         L =\frac{1}{N}\sum_{n=1}^{N}(x_i -\hat{x}_i)^2
     \end{equation}
 
-    \subsection{Backpropagation}
-    The CNN requires to adjust and update its kernel parameters, or weights, for the given training data. Backpropagation\cite{werbos1990backpropagation} is an efficient method for computing gradients required to perform gradient-based optimization of the weights in neural networks [19]. The specific combination of weights which minimize the loss function (or error function) is the solution of the optimization problem. The method requires the computation of the gradient of the error function at each iteration, therefore the loss function should be both continue and differentiable at all iteration steps.\\
 
-    The initial weights of an untrained CNN are randomly chosen. Consequently before training, the neural network cannot make meaningful predictions for network input, as there is no relation between an image and the its labeled output yet. By exposing the network to a training data set, comprising images and their labeled outputs with correct classes, the weights are adjusted. Training is the adaptation of the weights in such way that the difference between desired output and network output is minimized, which means that the network is trained to find the right features required for classification. There are two computational phases in a neural network, the forward pass and the backward pass in which the weights are adapted.
+    \subsection{Overfitting}
+    Overfitting is a problem that arises in neural network training. When a model is overfitted to the training data, it loses its capability of generalization. The model has learned the training data, including noise, in such a great extend that it has failed to capture underlying general information. CNNs have a large number of weights to be trained, therefore overfitting can occur due to training too few training examples. 
 
-    \subsubsection{Forward pass}
-    An image is fed into a network. The first network layer outputs an activation map. Then, this activation map is the input to the first hidden layer, which computes another activation map. Using the values of this activation map as inputs to the second hidden layer, again another activation map is computed. Carrying out this process for every layer will eventually yield the network output.
+    \subsubsection{Regularization  L2}
+    The  first  main  approach  to  overcome  overfitting  is  the  classical weight decay, which adds a term to the cost function to penalize the parameters in each dimension, preventing the network from exactly modeling the training data and therefore help generalize to new examples:
+    \begin{equation}
+        Error(x, y) =  Loss(x, y) + \sum_{i}\theta_i
+    \end{equation}
+    where $\theta$ is with a vector containing all the network parameters.
+    \subsubsection{Data augmentation}
+    It is a method of boosting the size of the training set so that the model cannot memorize all of it.  This can take several forms depending of the dataset. For  instance,  if  the  objects  are  supposed  to  be  invariant  to  rotation  such  as  galaxies  or planktons, it is well suited to apply different kind of rotations to the original images.
 
-    \subsubsection{Backward pass}
-    In this phase the weights are updated by backpropagation. One epoch of backpropagation consists of multiple parts, usually multiple epochs are carried out for a training image:
-    \begin{enumerate}
-        \item \textbf{Loss Function} In forward pass, the inputs and desired outputs are presented. A pre-defined loss function $L$ is used to minimize the difference between the input and desired output. The goal is to adjust the weights so that the loss function value decreases, this is achieved by calculating the derivative with respect to the weights of the loss function.
-        \item \textbf{Backward pass} During the backward pass, the weights that have contributed the most to the loss are chosen in order to adjust them so that the total loss decreases.
-        \item \textbf{Weight update} In the final part all weights are updated in the negative direction of the loss function gradient.
-    \end{enumerate}
-    
-    Therefore the core of the backpropagation problem is to compute the gradient of the loss function with respect to the network weights. Computing the partial derivative $\frac{\partial L}{\partial \omega}$ is essential(carried out in the backward pass) to minimize the loss function value. Stochastic Gradient Descent(SGD) is the most common way to optimize nerual networks.
+    \subsubsection{Dropout}
+    Dropout layers\cite{srivastava2014dropout} are a tool to prevent overfitting (Figure \ref{dropout}). In dropout, nodes and its connections are randomly dropped from the network. Dropout constrains the network adaptation to the training set, consequently it prevents that the weights are not too much fitted this data. The difference in performance between training data and validation data will decrease. Dropout layers are used during training only, not during validation or testing. Nowadays, dropout method has been the main method to prevent overfitting.
 
-    \subsubsection{Backpropagation Example for a Multi-Layer Network}
-    I describe the details of backpropagation algorithm for one simple example in Figure \ref{bp}. The cost function $L$ is given below, el is the error between the true outpt $d_l$ and network output $y_l$. The network output $y_l$ is computed in the forward pass and depends on outputs of the previous layer $v_j$ and the output layer weights $w_j$.
+    \subsubsection{Early Stopping}
+    It consists in stopping the training before the model begins to overfit the training set.  In practice, it is used a lot during the training of neural networks.
+
     \begin{figure}[!h]
         \centering
-        \includegraphics{Figures/bp.pdf}
-        \caption{The example for showing the details of backpropagation}
-        \label{bp}
+        \includegraphics[scale=0.7]{Figures/dropout.pdf}
+        \caption{A nerual network structure before and after applying dropout}
+        \label{dropout}
     \end{figure}
-    Some mathesmatical equations we can get:
-    \begin{equation}
-        \begin{aligned}
-            L &= \frac{1}{2} \sum_{l}(e_l)^2 \\
-            e_l &= d_l -y_l \\
-            y_l &= \sum_{j}w_j v_j 
-        \end{aligned}
-        \label{me}
-    \end{equation}
-
-    The Jacobian is given by:
-    \begin{equation}
-        \frac{\partial L}{\partial w_{jl}} = \frac{\partial L}{\partial e_l} \cdot \frac{\partial e_l}{\partial y_l} \cdot \frac{\partial y_l}{\partial w_{jl}}
-        \label{par_w}
-    \end{equation}
-    Then combining Equation \ref{me} and \ref{par_w}, we can caculate that,
-    \begin{equation}
-        \frac{\partial L}{\partial w_{jl}} = -v_j e_l
-    \end{equation}
-
-    Using SGD updating rules \textbf{Momentum} mentioned in section \ref{sgd} Equation \ref{mo}, the output weights are updated using:
-    \begin{equation}
-        w_{jl}(n+1) = w_{jl}(n) + \alpha(n)v_j e_j
-    \end{equation}
-
 
     \subsection{Stochastic Gradient Descent Variants}
     \label{sgd}
@@ -169,6 +166,83 @@
     \end{equation} 
     \subsubsection{Nesterov Accelerated Gradient}
     \subsubsection{Adagrad}
+    \subsection{Backpropagation}
+    The CNN requires to adjust and update its kernel parameters, or weights, for the given training data. Backpropagation\cite{werbos1990backpropagation} is an efficient method for computing gradients required to perform gradient-based optimization of the weights in neural networks [19]. The specific combination of weights which minimize the loss function (or error function) is the solution of the optimization problem. The method requires the computation of the gradient of the error function at each iteration, therefore the loss function should be both continue and differentiable at all iteration steps.\\
+
+    The initial weights of an untrained CNN are randomly chosen. Consequently before training, the neural network cannot make meaningful predictions for network input, as there is no relation between an image and the its labeled output yet. By exposing the network to a training data set, comprising images and their labeled outputs with correct classes, the weights are adjusted. Training is the adaptation of the weights in such way that the difference between desired output and network output is minimized, which means that the network is trained to find the right features required for classification. There are two computational phases in a neural network, the forward pass and the backward pass in which the weights are adapted.
+
+    \subsubsection{Forward pass}
+    An image is fed into a network. The first network layer outputs an activation map. Then, this activation map is the input to the first hidden layer, which computes another activation map. Using the values of this activation map as inputs to the second hidden layer, again another activation map is computed. Carrying out this process for every layer will eventually yield the network output.
+
+    \subsubsection{Backward pass}
+    In this phase the weights are updated by backpropagation. One epoch of backpropagation consists of multiple parts, usually multiple epochs are carried out for a training image:
+    \begin{enumerate}
+        \item \textbf{Loss Function} In forward pass, the inputs and desired outputs are presented. A pre-defined loss function $L$ is used to minimize the difference between the input and desired output. The goal is to adjust the weights so that the loss function value decreases, this is achieved by calculating the derivative with respect to the weights of the loss function.
+        \item \textbf{Backward pass} During the backward pass, the weights that have contributed the most to the loss are chosen in order to adjust them so that the total loss decreases.
+        \item \textbf{Weight update} In the final part all weights are updated in the negative direction of the loss function gradient.
+    \end{enumerate}
+    
+    Therefore the core of the backpropagation problem is to compute the gradient of the loss function with respect to the network weights. Computing the partial derivative $\frac{\partial L}{\partial \omega}$ is essential(carried out in the backward pass) to minimize the loss function value. Stochastic Gradient Descent(SGD) is the most common way to optimize nerual networks.
+
+    \subsubsection{Backpropagation Example for a Multi-Layer Network}
+    I describe the details of backpropagation algorithm for one simple example in Figure \ref{bp}. The cost function $L$ is given below, el is the error between the true outpt $d_l$ and network output $y_l$. The network output $y_l$ is computed in the forward pass and depends on outputs of the previous layer $v_j$ and the output layer weights $w^{o}_j$.
+    \begin{figure}[!h]
+        \centering
+        \includegraphics{Figures/bp.pdf}
+        \caption{The example for showing the details of backpropagation}
+        \label{bp}
+    \end{figure}
+    Some mathesmatical equations we can get:
+    \begin{equation}
+        \begin{aligned}
+            L &= \frac{1}{2} \sum_{l}(e_l)^2 \\
+            e_l &= d_l -y_l \\
+            y_l &= \sum_{j}w^{o}_j v_j 
+        \end{aligned}
+        \label{me}
+    \end{equation}
+
+    The Jacobian is given by:
+    \begin{equation}
+        \frac{\partial L}{\partial w_{j}} = \frac{\partial L}{\partial e_l} \cdot \frac{\partial e_l}{\partial y_l} \cdot \frac{\partial y_l}{\partial w_{j}}
+        \label{par_w}
+    \end{equation}
+    Then combining Equation \ref{me} and \ref{par_w}, we can caculate that,
+    \begin{equation}
+        \frac{\partial L}{\partial w^{o}_{j}} = -v_j e_l
+    \end{equation}
+
+    Using SGD updating rules \textbf{Momentum} mentioned in section \ref{sgd} Equation \ref{mo}, the output weights are updated using:
+    \begin{equation}
+        w^{o}_{j}(n+1) = w^{o}_{j}(n) + \alpha(n)v_j e_j
+    \end{equation}
+    $\alpha(n)$ stands for the learning rate in $n$th-iteration, you can see more details in section \ref{sgd}.
+
+    After having updated the output weights, the weights in the hidden layers can be updated. As it is a backward pass, first gradients of the output layers are computed, then the gradients of the hidden layers. The Jacobian is given by:
+
+    \begin{equation}
+        \frac{\partial L}{\partial w^{h}_{ij}} = \frac{\partial L}{\partial e_l} \cdot \frac{\partial e_l}{\partial y_l} \cdot \frac{\partial y_l}{\partial v_{j}} \cdot \frac{\partial v_j}{\partial w^{h}_{ij}}
+        \label{par_w}
+    \end{equation}
+
+    Based on the networks shown in Figure \ref{bp}, we can define $v_j$ based on $w_ij$ and input $x_i$
+    \begin{equation}
+        v_j = \sum_{i=1}^{N_{input}}x_i\cdot w^{h}_{ij}
+        \label{vj}
+    \end{equation}
+
+
+    Then combining Equation \ref{par_w} and \ref{vj}, we can caculate the Jacbian,
+    \begin{equation}
+        \frac{\partial L}{\partial w_{ij}^{h}} = -e_l w_j^{o} x_i
+    \end{equation} 
+
+    Which yields the update rule for the hidden layers:
+    \begin{equation}
+        w_{ij}^{h}(n+1) = w_{ij}^{h}(n)+ \alpha(n)e_l w_j^{o} x_i
+    \end{equation}
+    Finally the network is tested using a test dataset, this dataset contains data that differ from the ones in the training dataset. By increasing the amount of training data, the more training iterations are carried out, the better the weights are tuned.
+
 
     
 
