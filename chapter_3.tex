@@ -1,6 +1,11 @@
 
 \chapter{Partcle-grid-particle}
-    The basic method for generating training data which is more accessible to learning is that we will map a discrete element method(DEM) into a continuum setting use techniques from smooth particle hydrodynamics. Given a set of bodies $\delta$ and a set of contacts between these bodies $C$.
+    Training data is always one import part to normal deep learning cases. Commonly, many important visual 
+
+\section{Overview}
+    Deep learning methods have been widely applied in computer vision, like segmentation, objects recognision. Howver, there are not too many cases for making deep learning work for rigid simulation. The biggest difficulty of applying neural networks in rigid simulation is to make learning networks extract essential information from visualization images of simulation. For example, there is more \\
+
+    The basic method for generating training data which is more accessible to learning is that we will map a discrete element method(DEM) into a continuum setting use techniques from smooth particle hydrodynamics. Given a set of bodies $\delta$ and a set of contacts between these bodies $C$.  
 
 \section{Grid-Based method}
     Traditional rigid motion simulation mainly use particle-based method. However, if we want to replace traditional contact solver with deep learning model, it is hard for cnn model to recognize the original image and do learning. Grid-based methos is a good to transfer original image to a grid-cells and then use
@@ -8,11 +13,11 @@
     \begin{figure}
         \centering
         \includegraphics[scale = 0.4]{Figures/grid_method.png}
-        \caption{Grid description, $retrieved from MIT(2011)$}
+        \caption{Grid description, \textit{retrieved from MIT}(2011)}
     \end{figure}
 
 \section{Smoothed Particle Hydrodynamics}
-    Smoothed particle hydrodynamics (SPH) was invented to simulate nonaxisymmetric phenoma in astrophysis initially. The principal idea of SPH is to treat hydrodynamics in a completely mesh-free fashion, in terms of a set of sampling particles. It turns out that the particle presentation of SPH has excellent conservation properties. Energy, linear momentum, angular momentum, mass and velocity.
+    Smoothed particle hydrodynamics (SPH) was invented to simulate nonaxisymmetric phenoma in astrophysis initially \cite{DBLP:journals/corr/GuWKMSSLWW15}. The principal idea of SPH is to treat hydrodynamics in a completely mesh-free fashion, in terms of a set of sampling particles. It turns out that the particle presentation of SPH has excellent conservation properties. Energy, linear momentum, angular momentum, mass and velocity.
 
     \subsection{Fundamentals}
 

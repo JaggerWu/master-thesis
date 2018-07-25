@@ -1,1 +1,36 @@
-\chapter{Implementation}
+\chapter{Implementation Details}
+
+This chapter mainly talk about 
+\begin{enumerate}
+    \item Do the simulation based one computer physics library. Totally, 100 different rigid motion simulation should be finished. For every simulation, fixed steps should be recorded.
+    \item Restore information of each state of per simulation by using \textbf{XML} formats, including positions, velocities, contact forces, etc.
+    \item Read \textbf{XML} file, and then generate some grid images for training.
+    \item Do the deep learning based on training dataset which is created by last step.
+    \item Apply the trained model to initialize the values of contact forces($\lambda$). Then compare deep learning method and classical methods.
+\end{enumerate}
+
+\section{Rigid Motion Simulation}
+
+I chose \textbf{pybox2d}\footnote{\url{https://github.com/pybox2d/pybox2d}} as the main physics engine to implemente computer simulation. \textbf{pybox2d} is a 2D physics library for your games and simple simulations. It's based on the Box2D library, written in \textit{C++}. It supports several shape types (circle, polygon, thin line segments), and quite a few joint types (revolute, prismatic, wheel, etc.).
+
+\subsection{Simulation Configuration}
+
+\subsection{Simulation Details}
+
+
+\section{Data Generation}
+
+\subsection{XML Restoration}
+\subsection{XML to grid}
+
+
+\section{CNN Training}
+
+\subsection{CNN  Structure Design}
+
+\subsection{Traing Configuration}
+\subsubsection{Loss Function}
+
+\subsection{Training Details}
+
+\section{Simualtion based on Trained Model}

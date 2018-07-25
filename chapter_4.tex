@@ -1,10 +1,10 @@
-\chapter{Deep Learning For Simulation}
-This Chapter consist of Four parts. The first section gives a brief introduction to deep learning neural networks, including its history, its development and current application. The second section mainly talks about Convolutional Neural Networks, including different types of layers applied in this article. 
+\chapter{Deep Learning}
+This chapter consists of Four parts. The first section gives a brief introduction to deep learning neural networks, including its history, development and current application. The second section mainly decribes details of about Convolutional Neural Networks, including different types of layers and their functionas. The last section talks about the techqiues used in deep learning training process, which make training get convagence faster and more accurate.  
 
 \section{Introduction}
     Deep Learning can be summed up as a sub field of Machine Learning studying statical models called deep neural networks. The latter are able to learn complex and hierarchical representations from raw data, unlike hand crafted models which are made of an essential features engineering step. This scientific field has been known under a variety of names and has seen a long history of research, experiencing alternatively waves of excitement and periods of oblivion \cite{schmidhuber2015deep}. Early works on Deep Learning, or rather on Cybernetics, as it used to be called back then, have been made in 1940-1960s, and describe biologically inspired models such as the Perceptron, Adaline, or Multi Mayer Perceptron \cite{rosenblatt2000probabilistic,schmidhuber2015deep}. Then, a second wave called Connectionism came in the 1960s-1980s with the invention of backpropagation \cite{rumelhart1986learning}. This algorithm persists to the present day and is currently the algorithm of choice to optimize Deep Neural Networks. A notable contribution is the Convolutional Neural Networks (CNNs) designed, at this time, to recognize relatively simple visual patterns, such as handwritten characters \cite{lecun1995convolutional}. Finally, the modern era of Deep Learning has started in 2006 with the creation of more complex architectures \cite{hinton2006fast,bengio2007greedy,huang2007unsupervised}. Since a breakthrough in speech and natural language processing in 2011, and also in image classification during the scientific competition ILSVRC in 2012, Deep Learning has conquered many Ma- chine Learning communities, such as Reddit, and won challenges beyond their conventional applications area \footnote{\url{http://blog.kaggle.com/2014/04/18/winning-the-galaxy-challenge-with-convnets}}. \\
 
-    Especially during the last four years, Deep Learning has made a tremendous impact in computer vision reaching previously unattainable performance on many tasks such as image classification, objects detection, object localization, object tracking, pose estimation, image segmentation or image captioning \cite{DBLP:journals/corr/GuWKMSSLWW15}. This progress have been made possible by the increase in computational resources, thanks to frameworks such as Torch7, modern GPUs implementations such as Cudnn, the increase in available annotated data, and the community-based involvement to open source codes and to share models. These facts allowed for a much larger audience to acquire the expertise needed to train modern convo- lutional networks. Thus, larger and deeper architectures are trained on bigger datasets to achieve better accuracy each year. Also, already trained models have shown astonishing results when transfered on smaller datasets and evaluated on different visual tasks. Hence, a lot of pretrained models are available on the web. However, CNNs still possess inherent
+    Especially during the last four years, Deep Learning has made a tremendous impact in computer vision reaching previously unattainable performance on many tasks such as image classification, objects detection, image segmentation or image captioning \cite{DBLP:journals/corr/GuWKMSSLWW15}. This progress have been made possible by the increase in computational resources, thanks to frameworks such as TensorFlow\footnote{\url{https://www.tensorflow.org/}}, modern GPUs implementations such as Cudnn\footnote{\url{https://developer.nvidia.com/cudnn}}, the increase in available annotated data, and the community-based involvement to open source codes and to share models. These facts allowed for a much larger audience to acquire the expertise needed to train modern convolutional networks. Thus, larger and deeper architectures are trained on bigger datasets to achieve better accuracy each year. Also, already trained models have shown astonishing results when transfered on smaller datasets and evaluated on different visual tasks. 
     \begin{figure}[!ht]
         \centering
         \includegraphics[scale = 0.5]{Figures/Colored_neural_network}
@@ -29,15 +29,15 @@ This Chapter consist of Four parts. The first section gives a brief introduction
 
     \begin{figure}[!h]
         \centering
-        \includegraphics[]{Figures/convolve.png}
-        \caption{}
-        \label{}
+        \includegraphics[scale=1.3]{Figures/convolve.png}
+        \caption{One simple example of convolution.}
+        \label{con}
     \end{figure}
 
     \subsection{Convolutional layers}
     Normal RGB images are represented by matrices containing color information in the form of Red-Gray-Blue color codes. An image therefore has size $h\times w \times d$, where $d$ is the number of channel of image, in normal RGB images, $d=3$. However, in the case of this thesis, channels consist of $[m, v_x, v_y, \omega, n_x]$, therefore in its case, $d=5$. Convolutional layers are essential layers in CNNs, producing feature maps from input images or lower level feature maps. \\
 
-    Convolutional layers includes a kernel (or filter). Let $K$ be a kernel with $x$ rows, $y$ columns and depth $d$. Then the kernel with size ($K_x \times K_y \times d$) works on a receptive field ($K_x \times K_Y$) on the image. The kernel height and width are smaller than the input image height and width. The kernel slides over (convolves with) the image, producing an feature map (Figure \ref{}). Convolution is the sum of the element-wise multiplication of the kernel and the original image. Note that the depth d of the kernel is equal to the depth of its input. Therefore, it varies within the network. Usually the depth of an image is the number of color channels, the three RGB channels. In this case, $d=5$. \\
+    Convolutional layers includes a kernel (or filter). Let $K$ be a kernel with $x$ rows, $y$ columns and depth $d$. Then the kernel with size ($K_x \times K_y \times d$) works on a receptive field ($K_x \times K_Y$) on the image. The kernel height and width are smaller than the input image height and width. The kernel slides over (convolves with) the image, producing an feature map (Figure \ref{con}). Convolution is the sum of the element-wise multiplication of the kernel and the original image. Note that the depth d of the kernel is equal to the depth of its input. Therefore, it varies within the network. Usually the depth of an image is the number of color channels, the three RGB channels. In this case, $d=5$. \\
 
     The kernel stride is a free parameter in convolutional layers which has to be defined before training. The stride is the number of pixels by which the kernel shifts at a time. A drawback of using convolutional layers is that it decreases the output map size. A larger stride will result in a smaller sized output. Equations \ref{out} show the relationship between output size $O$ and input size of an image $I$ after convolution with stride $s$ and kernel $K$. Furthermore, the feature map size decreases as the number of convolutional layers increases. Row output size $O_x$ and column output size $O_y$ of convolutional layers are determined as follows:
     \begin{equation}
@@ -167,13 +167,30 @@ This Chapter consist of Four parts. The first section gives a brief introduction
     Momentum method is a method to speed up the SGD in the relevant direction.  A fraction $\gamma$ of the previous update is added to the current update. The mathesmatical details are shown in Equation \ref{mo}.
     \begin{equation}
         \begin{aligned}
-            & v_t = \gamma v_{t-1} + \eta \nabla_{\theta}L(\theta) \\
-            & \theta = \theta - v_{t}
+            & v_n = \gamma v_{n-1} + \eta \nabla_{\theta}L(\theta) \\
+            & \theta= \theta - v_{n}
         \end{aligned}
         \label{mo}
     \end{equation} 
+
     \subsubsection{Nesterov Accelerated Gradient}
-    \subsubsection{Adagrad}
+    The Momentum method does not take into the direction it is going in, while the Nesterov Accelerated Gradient method computes an approximation of the next position of the parameters. The update rule is given in Equation \ref{nag}.
+
+    \begin{equation}
+        \begin{aligned}
+            & v_n = \gamma v_{n-1} + \eta \nabla_{\theta}L(\theta - \gamma v_{n-1}) \\
+            & \theta= \theta - v_{n}
+        \end{aligned}
+        \label{nag}
+    \end{equation}
+
+    \subsubsection{Adam}
+    The Adaptive Moment Estimation (Adam) optimizer \cite{DBLP:journals/corr/KingmaB14} determines an adaptive learning rate for each parameter. Besides decaying average of past squared gradients $v_n$, Adam keeps an exponentially decaying average of past gradients $m_n$. Vectors $v_n$ and $m_n$ are estimates of the mean and the uncentered variance of the gradients respectively which are biased towards zero. Bias-corrected estimates $\hat{v}_t$ and $\hat{m}_t$ are computed for the update rule in Equation \ref{adam}.
+
+    \begin{equation}
+        \theta_{n+1} = \theta_{n} - \frac{\eta}{\sqrt{\hat{v}_n} + \epsilon}\cdot \hat{m}_n
+    \end{equation}
+
     \subsection{Backpropagation}
     The CNN requires to adjust and update its kernel parameters, or weights, for the given training data. Backpropagation\cite{werbos1990backpropagation} is an efficient method for computing gradients required to perform gradient-based optimization of the weights in neural networks [19]. The specific combination of weights which minimize the loss function (or error function) is the solution of the optimization problem. The method requires the computation of the gradient of the error function at each iteration, therefore the loss function should be both continue and differentiable at all iteration steps.\\
 
@@ -250,20 +267,3 @@ This Chapter consist of Four parts. The first section gives a brief introduction
         w_{ij}^{h}(n+1) = w_{ij}^{h}(n)+ \alpha(n)e_l w_j^{o} x_i
     \end{equation}
     Finally the network is tested using a test dataset, this dataset contains data that differ from the ones in the training dataset. By increasing the amount of training data, the more training iterations are carried out, the better the weights are tuned.
-
-
-    
-
-\section{CNN Constructure}
-    \subsection{Convolutional layers}
-
-    \subsection{Full-connected layers}
-
-\section{Traing configuration}
-    \subsection{Loss Function}
-
-    \subsection{Optimizer(SGD)}
-
-\section{Training Results}
-
-\section{Simulation based on Trained model}
