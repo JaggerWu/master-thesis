@@ -1,5 +1,7 @@
 \documentclass[12pt, a4paper]{report}
 
+\usepackage{fancyhdr}
+\usepackage{titlesec}
 \usepackage{listings}
 
 \lstset{
@@ -58,10 +60,11 @@
 \vejleder{Supervisor: Kenny Erleben} 
 
 \begin{document}
-
     \maketitle
     \clearpage
 
+    \pagestyle{fancy}
+    \lhead{}
     \setcounter{page}{1}
     \pagenumbering{roman}
 
