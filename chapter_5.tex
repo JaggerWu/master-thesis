@@ -22,19 +22,32 @@ I chose \textbf{pybox2d}\footnote{\url{https://github.com/pybox2d/pybox2d}} as t
 
 \subsection{XML Restoration}
 
+An example for one body information is given below.
 \begin{lstlisting}[language=XML]
     <body index="86" type="free">
-    <mass value="3.14159274101"/>
-    <position x="7.79289388657" y="2.62924313545"/>
-    <velocity x="2.7878344059" y="-1.45545887947"/>
-    <orientation theta="-0.115291565657"/>
-    <inertia value="1.57079637051"/>
-    <spin omega="-2.33787894249"/>
-    <shape value="circle"/>
+        <mass value="3.14159274101"/>
+        <position x="7.79289388657" y="2.62924313545"/>
+        <velocity x="2.7878344059" y="-1.45545887947"/>
+        <orientation theta="-0.115291565657"/>
+        <inertia value="1.57079637051"/>
+        <spin omega="-2.33787894249"/>
+        <shape value="circle"/>
     </body>
+    ...
+\end{lstlisting}
+
+Another example \textit{XML} code is for contatc force.
+\begin{lstlisting}[language=XML]
+    <contact index="1" master="2" master_shape="b2CircleShape(childCount=1, pos=b2Vec2(0,0), radius=1.2000000476837158, type=0,)" slave="97" slave_shape="b2CircleShape(childCount=1, pos=b2Vec2(0,0), radius=1.2000000476837158, type=0, )">
+        <position x="0.21963849663734436" y="13.875240325927734"/>
+        <normal normal="b2Vec2(-1,2.9819e-05)"/>
+        <impulse n="0.005236322991549969" t="-0.002184529323130846"/>
+    </contact>
+    ...
 \end{lstlisting}
 
 \subsection{XML to grid}
+After each state has been stored in \textit{XML} file, then 
 
 
 \section{CNN Training}
@@ -43,6 +56,14 @@ I chose \textbf{pybox2d}\footnote{\url{https://github.com/pybox2d/pybox2d}} as t
 
 \subsection{Traing Configuration}
 \subsubsection{Loss Function}
+Firstly, we difine a filter funtion,
+\begin{equation}
+    f(x)= \begin{cases} 0, \quad x = 0 \\ 1, \quad x \ne 0 \end{cases}
+\end{equation}
+Then, we can update the loss function based on Euqation \ref{eq:mse}
+
+\begin{equation}
+\end{equation}
 
 \subsection{Training Details}
 

@@ -116,7 +116,8 @@ This chapter consists of Four parts. The first section gives a brief introductio
     \subsubsection{Quadratic Cost Function}
     The Mean Squared Error (MSE) cost function is one of the simplest cost functions. Normally it will be used in estimation problems\cite{boureau2008sparse}.
     \begin{equation}
-        L =\frac{1}{N}\sum_{n=1}^{N}(x_i -\hat{x}_i)^2
+        L =\frac{1}{N}\sum_{n=1}^{N}(f_{\theta}(x_i) - y_i)^2
+        \label{eq:mse}
     \end{equation}
 
 
