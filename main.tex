@@ -26,6 +26,22 @@
   keywordstyle=\color{cyan},
   morekeywords={xmlns,version,type}% list your attributes here
 }
+\lstdefinelanguage{Matlab}
+{
+    breaklines=true,%
+    morekeywords={matlab2tikz},
+    keywordstyle=\color{blue},%
+    morekeywords=[2]{1}, keywordstyle=[2]{\color{black}},
+    identifierstyle=\color{black},%
+    stringstyle=\color{mylilas},
+    commentstyle=\color{mygreen},%
+    showstringspaces=false,%without this there will be a symbol in the places where there is a space
+    numbers=left,%
+    numberstyle={\tiny \color{black}},% size of the numbers
+    numbersep=9pt, % this defines how far the numbers are from the text
+    emph=[1]{for,end,break},emphstyle=[1]\color{red}, %some words to emphasise
+    %emph=[2]{word1,word2}, emphstyle=[2]{style},  
+}
 
 \usepackage[hyphens]{url}
 \usepackage[
@@ -64,7 +80,6 @@
     \clearpage
 
     \pagestyle{fancy}
-    \lhead{}
     \setcounter{page}{1}
     \pagenumbering{roman}
 
@@ -80,15 +95,19 @@
 
     \setcounter{page}{1}
     \pagenumbering{arabic}
+    \lhead{} % Some chapter name is too long
+    \lfoot{Deep Contact}
+    \cfoot{}
+    \rfoot{\thepage}
 
     \include{chapter_1}
-    \include{chapter_2}
+    \include{chapter_2_math}
     \include{chapter_3}
     \include{chapter_4}
     \include{chapter_5}
     \include{chapter_6}
-    % \include{appendix}
 
     \printbibliography[heading=bibintoc, title={References}]
+    \include{appendix}
 
 \end{document}

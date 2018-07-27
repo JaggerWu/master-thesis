@@ -1,0 +1,260 @@
+% new chapter for contact models
+
+\chapter{Contact Models}
+
+In order to try applying deep learning on rigid dynamic simulating process, the first step is to know the details related to rigid dynamic simulation. So, this chapter mainly introduces rigid body simulation to help readers understand how computer simulate rigid dynamics based on traditional \textit{Newton-Euler} equations, including how \textit{Newton-Euler} decribe rigid dynamics, how constraint equations are set and how to solve mathsmatical rigid dynamic system. Afterwards, we will use one of solver to run some simulation and get the image data for the next step, grids-transfer. All the discussion about rigid simulation and contacts solver are based on 2-$D$ view.
+
+\section{Overview}
+
+In rigid body simulation, contact forces are applied to prevent rigid bodies from penetrating each other. The fidelity of the simulation is highly affected by the accuracy of the computed contact forces. To achieve physical plausi- bility, frictional forces are essential. The formulation of a frictional contact force problem includes the modeling of both normal force constraints and friction force constraints. Henceforth, the frictional contact force problem will simply be referred to as the contact force problem. Before deriving the contact model, it should be noted that the simulation system is constraint–based using a velocity–based position update\cite{Erleben:2007:VSP:1243980.1243986}.
+
+As this is a thesis on contact problems, and not collision detection, the following models are given under the assumption that contact determination has already been performed.
+
+\section{Rigid dynamics Simulation}
+
+\subsection{Classical mechanics}
+Simulation of the motion of a system of rigid bodies is based on a famous system of differential equations, the \textit{Newton–Euler equations}, which can be derived from Newton’s laws and other basic concepts from classical mechanics:
+
+\begin{enumerate}
+    \item Newton’s first law: The velocity of a body remains unchanged r unless acted upon by a force.
+    \item Newton’s second law: The time rate of change of momentum of r a body is equal to the applied force.
+    \item Newton’s third law: For every force, there is an equal and opposite force.
+\end{enumerate}
+
+Before presenting the Newton–Euler equations, we need to introduce a number of concepts from classical mechanics. We will start with one simple simulation with only position vector $x(t)$ and velocity vector $\pmb{v}$. Then, we will introduce some concepts by adding rotatiopn to pur simulation, rotational velocity $\pmb{\omega}$, and moment $\pmb{\tau}$ (also known as a torque.
+
+
+\subsection{Simulation Basics}
+
+Firstly, we can start with a simple simulation with only position and velocity. Simulating the motion of a rigid body is almost the same as simulating the motion of a particle, so I will start with partcle simulation. For particle simulation, we let function $\pmb{q}(t)$ describe the particle's location in world space at time $t$. Then we use $\pmb{v}(t)=\frac{\dif}{\dif(t)}\pmb{q}(t)$
+to denote the velocity of the particle at time t. So, the state of a particle at a time t is the particle's position and velocity. We generalize this concept by defining a state vector $\textbf{Y}(t)$ for a system: for a single particle,
+\begin{equation}
+    \textbf{Y}(t) = \left[
+        \begin{array}{c}
+            \pmb{q}_{1}(t) \\
+            \pmb{v}_{1}(t) \\
+        \end{array}
+    \right]
+\end{equation}
+
+For a system with $n$ particles, we enlarge $\textbf{Y}(t)$ to be
+\begin{equation}
+    \textbf{Y}(t) = \left[
+    \begin{array}{c}
+        \pmb{q}_{1}(t) \\
+        \pmb{v}_{1}(t) \\
+        ... \\
+        \pmb{q}_{n}(t) \\
+        \pmb{v}_{n}(t) \\
+    \end{array}
+    \right]
+\end{equation}
+
+However, to simulate the motion of particles actually, we need to know one more thing -- the forces. $\pmb{f}(t)$ is defined as the force acting on the particle. If the mass of the particle is $m$, then the changes of $\textbf{Y}(t)$ will be given by
+\begin{equation}
+    \frac{\dif}{\dif(t)}\textbf{Y}(t) = \frac{\dif}{\dif(t)}\left[
+        \begin{array}{c}
+            \pmb{q}(t) \\
+            \pmb{v}(t) \\
+        \end{array} \right] = \left[
+        \begin{array}{c}
+            \pmb{v}(t) \\
+            \pmb{f}(t)/m \\
+        \end{array} \right]
+\end{equation}
+
+\subsection{Rigid Body Concepts}
+Unlike a particle, a rigid body occupies a volume of space and has a particular shape. Rigid bodies are more complicated, beside translating them, we can rotate them as well. To locate a rigid body, we use $\pmb{q}(t)$ to denote their translation and a rotation matrix $\pmb{R}(t)$ to describe their rotation.
+
+\subsection{Rigid Body Equations of Motions}
+\label{sec:rigid_rm}
+ Whereas linear momentum $\pmb{P}(t)$ is related to linear velocity with a scalar (the mass), angular momentum is related to angular velocity with a matrix \(\pmb{I}\), called the angular inertia matrix. The reason for this is that objects generally have different angular inertias around different axes of rotation. Angular momentum is defined as \(\pmb{L}\). The linear momentum is defined as \ref{lm}, and angular momentum is defined as \ref{am}
+\begin{subequations}
+\begin{align}
+    m \dot{\pmb{v}(t)} = \pmb{f}(t) & \\
+    \pmb{P}(t) = m \pmb{v} (t)  & \\
+    \pmb{L}(t) = \pmb{I}(t)\pmb{\omega}(t) & 
+\end{align}
+\end{subequations}
+
+The total torque $\pmb{\tau}$ applied to the body is equal to the rate of change of the angular momentum, as defined in \ref{tau}:
+\begin{equation}
+    \pmb{\tau} = \frac{\dif}{\dif t }\pmb{L} = \frac{\dif}{\dif t }(\pmb{I}\pmb{\omega})
+    \label{tau}
+\end{equation}
+
+ Then we can covert all concepts we need to define stare $\textbf{Y}$ for a rigid body.
+
+\begin{equation}
+    \textbf{Y}(t) = \left[
+        \begin{array}{c}
+            \pmb{q}(t) \\
+            \pmb{R}(t) \\
+            \pmb{P}(t) \\
+            \pmb{L}(t) \\
+        \end{array}
+    \right]
+\end{equation}
+
+Like what is epressed in $\textbf{Y}(t)$, the state of a rigid body is mainly consist by its position and orientation (describing spatial information), and its linear and angualr momentum(describe velocity information). Since mass $m$ and bodyspace inertia tensor $\pmb{I}_{body}$ are constants, we can the auxiliary quantities $\pmb{I}(t)$, $\pmb{\omega}(t)$ at any given time.
+
+\begin{equation}
+    \pmb{v}(t) = \frac{\pmb{P}(t)}{m} \quad
+    \pmb{I}(t) = \pmb{R}(t)\pmb{I}_{body}\pmb{R}(t)^{T} \quad
+    \pmb{\omega}(t) = \pmb{I}(t)^{-1}\pmb{L}(t)
+\end{equation}
+
+The derivative $\frac{\dif}{\dif t}\textbf{Y}(t)$ is
+\begin{equation}
+    \frac{\dif}{\dif{t}}\textbf{Y}(t) = \frac{\dif}{\dif t}\left[
+        \begin{array}{c}
+            \pmb{q}(t) \\
+            \pmb{R}(t) \\
+            m \pmb{v}(t) \\
+            \pmb{L}(t) \\
+        \end{array}
+    \right] = \left[
+        \begin{array}{c}
+            \pmb{v}(t) \\
+            \pmb{\omega}(t)\times\pmb{R}(t) \\
+            \pmb{f}(t) \\
+            \pmb{\tau}(t) \\
+        \end{array}
+    \right]
+\end{equation}
+
+Then, we can evaluate Equation \ref{tau_ev} as follows:
+\begin{equation}
+    \begin{aligned}
+        \pmb{\tau} &= \frac{\dif}{\dif t}(\pmb{I}\pmb{\omega}) \\
+        &= \pmb{I}\dot{\pmb{\omega}} + \dot{\pmb{I}}\pmb{\omega} \\
+        &= \pmb{I}\dot{\pmb{\omega}} + \frac{\dif}{\dif t}(\pmb{R}\pmb{I}_{body}\pmb{R}^{T})\pmb{\omega} \\
+        &= \pmb{I}\dot{\pmb{\omega}} + (\dot{\pmb{R}}\pmb{I}_{body}\pmb{R}^{T} + \pmb{R}\pmb{I}_{body}\dot{\pmb{R}}^{T})\pmb{\omega} \\
+        &= \pmb{I}\dot{\pmb{\omega}} + ([\pmb{\omega}]\pmb{R}\pmb{I}_{body}\pmb{R}^{T} + \pmb{R}\pmb{I}_{body}\pmb{R}^{T} \hat{\pmb{\omega}})\pmb{\omega} \\
+        &= \pmb{I}\dot{\pmb{\omega}} + [\pmb{\omega}]\pmb{I}\pmb{\omega} - \pmb{I}[\pmb{\omega}]\pmb{\omega}
+    \end{aligned}
+    \label{tau_ev}
+\end{equation}
+
+Since $\pmb{\omega} \times \pmb{\omega}$ is zero, the final term can be cancels out. This relationship left is knowned as :
+\begin{equation}
+    \pmb{\tau} = \pmb{I}\dot{\pmb{\omega}} + [\pmb{\omega}]\pmb{I}\pmb{\omega}
+    \label{tau}
+\end{equation}
+
+\subsection{Twist/Wrench}
+We will now introduce vectors called twists, which describe velocities, and wrenches, which describe forces, and explain how these objects transform from one coordinate frame to another one. 
+    \subsubsection{Twist} 
+        A twist is a vector that expresses rigid motion or velocity. In Section \ref{sec:rigid_rm}, we saw how to parameterize the velocity of a rigid body as a linear velocity vector and an angular velocity vector. The coordinates of a twist are given as a 4-vector in $2$-D simulation, which we can check in \ref{twist}
+            \begin{equation}
+                \mathbf{v} = \left[ \begin{array}{c} \pmb{\omega} \\ \pmb{v} \\ \end{array} \right]
+                \label{twist}
+            \end{equation}.
+        The defination can be found in \ref{twist}, containing a linear velocity vector \(\pmb{v}\) and an angular velocity \(\pmb{\omega}\). According to 
+
+    \subsubsection{Wrench}
+        A wrench is a vector that expresses force and torque acting on a body. A wrench can be defined by
+        \begin{equation}
+            \mathbf{f} = \left[ \begin{array}{c} \pmb{\tau} \\ \pmb{f} \\ \end{array} \right]
+            \label{wrench} 
+        \end{equation}
+
+        A wrench contains an angular component $\pmb{\tau}$ and a linear component $f$, which are applied at the origin of the coordinate frame they are specified in.
+
+
+\subsection{Newton-Euler Equation}
+    The Newton-Euler equations for a rigid body can now be written in terms of the body's acceleration twist $\mathbf{v}$ methioned in \ref{twist} and the wrench $\mathbf{f}$ metioned in \ref{wrench} acting on the body. We can simply write the Newton and Eular equations,
+
+    \begin{equation}
+        \left[ \begin{array}{c} \pmb{\tau} - \pmb{\omega} \times \pmb{I} \pmb{\omega}\\ \pmb{f} \end{array}\right] = \left[ \begin{array}{cc} \pmb{I} & \pmb{0} \\ \pmb{0}& m\pmb{1}_{d\times d}\end{array} \right] \dot{\mathbf{v}}
+    \end{equation}
+    $d$ stands for the number pf dimensions, like $d=2$ in $2$-D simulation. \\
+
+    If we define $\pmb{M}$ and $\mathbf{h}$ as Equation \ref{M} and \ref{F}
+
+    \begin{equation}
+        \pmb{M} = \left[ \begin{array}{cc} \pmb{I} & \pmb{0} \\ \pmb{0} & m\pmb{1}_{d \times d}\end{array} \right]
+        \label{M}
+    \end{equation}
+
+    \begin{equation}
+        \mathbf{F} = \left[ \begin{array}{c} \pmb{\tau} - \pmb{\omega} \times \pmb{I} \pmb{\omega}\\ \pmb{f} \end{array}\right]
+        \label{F}
+    \end{equation}
+    So, we can rewrite Newton-Euler equation as,
+    \begin{equation}
+        \pmb{M}\dot{\mathbf{v}} = \mathbf{F}
+        \label{eq:newton}
+    \end{equation}
+
+
+\section{VELOCITY-BASED COMPLEMENTARITY FORMULATION}
+    After get some basic physical and mathematical knowledge about dynamic system. Then, I will describe the equation of motion for system with contact forces. 
+    When objects collide, their interactions are modeled using contact forces. The contact forces consist of both normal forces and frictional forces, and are subject to a set of constraints. Without specifying the individual constraints, I define the set of constraint functions,
+    \begin{equation}
+        \pmb{c}(\pmb{q}) = [c_n(\pmb{q}),c_n(\pmb{q}),...,c_n(\pmb{q})]
+        \label{eq:constraint}
+    \end{equation}
+
+    the Jacobian, $\pmb{J}_{c}$ of Equation \ref{eq:constraint} is,
+    \begin{equation}
+        \pmb{J}_{c} = 
+        \begin{bmatrix}
+            \frac{\partial{c_1}}{\partial{q_1}} & \frac{\partial{c_1}}{\partial{q_1}} & ... & \frac{\partial{c_1}}{\partial{q_1}} \\
+            \frac{\partial{c_1}}{\partial{q_1}} & \frac{\partial{c_1}}{\partial{q_1}} & ... & \frac{\partial{c_1}}{\partial{q_1}} \\
+            \vdots & \vdots & & \vdots\\
+            \frac{\partial{c_1}}{\partial{q_1}} & \frac{\partial{c_1}}{\partial{q_1}} & ... & \frac{\partial{c_1}}{\partial{q_1}} \\
+        \end{bmatrix}
+        \label{Jacobianb}
+    \end{equation}
+
+    The constraints are added to Equation \ref{eq:newton} by applying the Lagrange multiplier method such that,
+    \begin{equation}
+        \pmb{M}\dot{\mathbf{v}} = \pmb{J}_{c}^{T}\pmb{\lambda} + \mathbf{F}_{ext}
+        \label{eq:cone}
+    \end{equation}
+    where $\pmb{\lambda} = [\lambda_1, \lambda_2, ... , \lambda_n]^T$ are the Lagrange multipliers.
+
+\subsection{Modeling contact}
+    The frictional contact force problem can be stated as a linear complementarity problem (LCP) [19]. However, a slightly different formulation is used in interactive physical simulations, we will derive this formulation. Without loss of generality, we will only consider a single contact point. The focus of this paper is on the contact force model, so the time stepping scheme and matrix layouts are based on the velocity-based formulation in [5]. Then we can rewirte the Newton–Euler equations based on Equation \ref{eq:cone},
+
+    \begin{equation}
+        \pmb{M}\dot{\mathbf{v}} = \pmb{J}_{n}^{T}\lambda_n + \pmb{J}_{t}^{T}\lambda_{t} + \mathbf{F}_{ext}
+    \end{equation}
+
+    then we can get,
+
+    \begin{equation}
+        \dot{\mathbf{v}} = \pmb{M}^{-1}\mathbf{F}_{ext} + \pmb{M}^{-1}\pmb{J}_{n}^{T}\lambda_{n} + \pmb{M}^{-1}\pmb{J}_{t}^{T}\lambda_{t}
+        \label{sys}
+    \end{equation}
+
+    Let the Lagrange multipliers $\pmb{\lambda} = [\lambda_n~\lambda_t]^{T}$ and contact Jacobian $\pmb{J} = [\pmb{J}_n, \pmb{J}_{t}]$, then we can rewrite Equation \ref{sys} as, 
+    \begin{equation}
+        \dot{\mathbf{v}} = \pmb{M}^{-1}\pmb{J}^{T}\pmb{\lambda} + \pmb{M}^{-1}\mathbf{F}_{ext}
+    \end{equation}
+
+    The laws of physics must be combined into what we term an `instantaneous-time' model, which describes the continuous-time motions of the rigid bodies. Following this, we discretize this model over time to obtain a ‘discrete-time’ model, which is a sequence of time-stepping subproblems. The subproblems are formulated and numerically solved at every time step to simulate the system. \\
+    It is well known that when friction is added to the acceleration-level dynamics equations (Equation \ref{sys}).Anitescu and Potra \cite{anitescu1997modeling} present a time-step method that combines the acceleration-level LCP with an intergration step for the velocities, arriving at a method having method having velocities and impulses as unknowns, rather tham acceleration and forces. the methud is guaranteed to have a solution, regardless of the number of contacts. \\
+    To discretize the system \ref{sys}, the acceleration can be approximated by \cite{anitescu1997modeling} as:
+    \begin{equation}
+        \dot{\mathbf{v}} \approx \frac{(\mathbf{v}_{t+1} - \mathbf{v}_t)}{\Delta t}
+    \end{equation}
+    $\mathbf{v}_t$ and $\mathbf{v}_{t+v}$ are the velocities at the beginning of the current time step, and the next time step, $\Delta t$ is the time step. Then we can get,
+    \begin{equation}
+        \mathbf{v}^{t+1} = \mathbf{v}^{t} + \pmb{M}^{-1}\pmb{J}^{T}\Delta{t}\pmb{\lambda} + \Delta{t}\pmb{M}^{-1}\mathbf{F}_{ext}
+    \end{equation}
+
+    Then we can define,
+    \begin{equation}
+    \begin{aligned}
+        \mathbf{w} & = \pmb{J}\mathbf{v} \\
+        & =  \underbrace{\pmb{J}\pmb{M}^{-1}\pmb{J}^{T}\Delta{t}}_{\pmb{A}}\pmb{\lambda} + \underbrace{\pmb{J}(\Delta{t}\pmb{M}^{-1}\mathbf{F}_{ext} + \mathbf{v}^{t})}_{b} \\
+        & = \pmb{A}\pmb{\lambda} + \pmb{b} 
+    \end{aligned} 
+    \end{equation}
+
+\section{The Numercial Solution Method}
+    nce discrete-time models have been obtained, numerical methods must be applied to compute solutions. We start with how to integrate the motion of free moving rigid bodies such as bodies in ballistic motion without any collisions or contact. Subsequently, in Sec- tions 4.1- 4.4 we cover numerical methods for computing solutions of the discrete LCP contact model from Section 3.1 and approaches for simulating articulated bodies. The methods are presented in a general setting; hence, A and b are arbitrary as defined in (23).
+    \subsection{Projected Gauss–Seidel(PGS) solver for contact forces}
+    Most open-source software for interactive real-time rigid body simulation uses the Projected Gauss–Seidel (PGS) method for computing contact forces has been widely used by many open-source software and computer physics engine, like \textit{Box2D}\footnote{\url{http://box2d.org/}} for 2-$D$ and \textit{Bullet}\footnote{\url{https://pybullet.org/wordpress/}} for 3-$D$. PGS is computationally very efficient with an iteration cost of $O(n)$, using a careful memory layout of sparse matrices allows for a memory footprint of $O(n)$. In addition to being computationally and memory-wise efficient, PGS is very robust and can deal gracefully with ill-conditioned problems (due to many redundant constraints) or ill-posed problems (due to badly defined constraints). For these reasons, PGS is well suited for interactive applications like computer games. \\
