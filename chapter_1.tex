@@ -1,10 +1,19 @@
 \chapter{Introdustion}
 
 \section{Motivation}
+    Multibody dynamics is the art of simulating the physical interactions of rigid bodies in a virtual world. Depending on the application, the importance of physical correctness may vary greatly. For engineering purposes, the level of physical correctness will take top priority, which is often at the expense of interactivity. On the other hand, when used in a computer game, the phys- ical simulations only need to be plausible whereas interactivity is of utmost importance. \\
+
+    Using the terminology physical correctness is problematic for many rea- sons. Each step from real world observation to the final simulation consists of idealizations and discretizations. The mathematical models are idealized descriptions of empirical observations, the numerical model is a discretiza- tion of the mathematical model and so forth. In this context, the rigid body assumption is just another approximation. Still, there exist cases where the rigid body assumption is a fair approach, examples include assembly line simulation [FAS] and robot simulation [Gaz]. Instead of physical correct- ness, I shall use the terminology plausibility.\\
+
+    A multibody dynamics simulator is a complex system of many parts, the focus of this thesis is on the specific problem of determining contact forces. When two rigid bodies are in contact, the resulting interactions can be described as a set of contact forces or impulses acting on the two bodies. Contact forces ensure that my tea mug stays firmly on the table, rather than sinking into it or sliding along it. When a brick is thrown at a wall,\\
+
     Movies studies have been pushing facial and character animation to a level where machine learning can  automize a large part of this work in a production pipeline. Research community is exploring machine learning for gait control too and quite successfully or for upscaling of liquid simulation\cite{CNNFluid2016}. \\
 
-    However, for rigid body problems it is not quite clear how to approach the technicalities in applying deep learning. Some work have been done in terms of inverse simulations or pilings to control rigid bodies to perform a given artistic `target'. These thechniques are more in spirit of inverse problems that maps initial conditions to a well defined outcome(number of bounces or which face up on a cude) or level of detail idea replacing interiors of piles with stracks of cylinders pf decreasing radius to make an overall apparent pile have a given angle of of repose.
+    However, for rigid body problems it is not quite clear how to approach the technicalities in applying deep learning. Some work have been done in terms of inverse simulations or pilings to control rigid bodies to perform a given artistic `target'. These thechniques are more in spirit of inverse problems that maps initial conditions to a well defined outcome(number of bounces or which face up on a cude) or level of detail idea replacing interiors of piles with stracks of cylinders pf decreasing radius to make an overall apparent pile have a given angle of of repose. contact forces determine what happens to both brick and wall. The accuracy of the computed contact forces affects both plausibility and stability of the final simulation [Erl07]. For this reason, good contact force determination methods are wanted in physical simulation, whether it is used in engineering systems or computer games.
+\section{Motivation and Goals}
+    Taking a master’s degree is a specialization process, a fine tuning of skills. Early on, I had an idea that my specialization would be computer vision and deep learning. Deep learning methods have got great successes in mnay fields, like computer vision, natual language processing. However, they s
+\section{Work Process}
+    
 
-\section{Thesis Overview}
-
-    This thesis explore the application of convolutional neural networks in Computer Simulation. 
+\section{Outline}
+    Some topics are beyond the scope of this thesis, and are therefore assumed known by the reader. The following is a list of such topics and references to literature where the topics are covered more extensively:

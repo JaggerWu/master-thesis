@@ -194,4 +194,21 @@
     \end{equation}
 
 \section{Experiment and Conclution}
+    \label{sec:sph-exp}
     Our hope is that strating iterates will be close to "solution" of the contact problem, which can indicate the contact force solvers will coverage very rapidly or maybe not even need to iterate. In order to test whether the sph method can be applied in our case, the contact force solution is mapped to image and interpolated values are generated and used to re-start the contact force solver. Our hyposis is that iterative solver quickly recovers an iteration close to the original solution before mapping to force grid image.
+
+\subsection{pybox2d simulation}
+    We will use \textit{pybox2d} as our basis physical engine for all experiment I will run. Firstly, it is possible to how the build-in contact solver in \textit{pybox2d} works compared with different initials. We define different models as,
+    \begin{itemize}
+        \item \textbf{Non-model} In each step of the simulation, before the contact solver starts iteration to make resolution for current dynamic system equation, the initial $\lambda_{f}$ abd $\lambda_{t}$ will be given value $\pmb{0}$.
+        \item \textbf{Builtin-model} In each step of the simuation, before the contact solver starts iterations to make resolution for current dynamic state equation, the initial value of $\lambda_f$ and $\lambda_{t}$ will be determined by built-in algoritm. In other words, this model is default solution built in \textit{pybox2d}.
+        \item \textbf{Copy-model} In each step of simulation, before the contact solver starts iteration to make resolution for current dynamic system equation, the initial value of $\lambda_f$ and $\lambda_t$ will be the actual solution after exact iterations sover.
+    \end{itemize}
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[scale = 0.4]{Figures/nosph}
+        \caption{Comparation of gradient of different kernels, we set $h = 1$ here. }
+        \label{fg:nosph}
+    \end{figure}
+
+
