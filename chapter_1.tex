@@ -1,7 +1,7 @@
 \chapter{Introdustion}
 
 \section{Motivation}
-    Multibody dynamics is the art of simulating the physical interactions of rigid bodies in a virtual world. Depending on the application, the importance of physical correctness may vary greatly. For engineering purposes, the level of physical correctness will take top priority, which is often at the expense of interactivity. On the other hand, when used in a computer game, the phys- ical simulations only need to be plausible whereas interactivity is of utmost importance. \\
+    Multibody dynamics is the art of simulating the physical interactions of rigid bodies in a virtual world. Depending on the application, the importance of physical correctness may vary greatly. For engineering purposes, the level of physical correctness will take top priority, which is often at the expense of interactivity. On the other hand, when used in a computer game, the physical simulations only need to be plausible whereas interactivity is of utmost importance. \\
 
     Using the terminology physical correctness is problematic for many rea- sons. Each step from real world observation to the final simulation consists of idealizations and discretizations. The mathematical models are idealized descriptions of empirical observations, the numerical model is a discretiza- tion of the mathematical model and so forth. In this context, the rigid body assumption is just another approximation. Still, there exist cases where the rigid body assumption is a fair approach, examples include assembly line simulation [FAS] and robot simulation [Gaz]. Instead of physical correct- ness, I shall use the terminology plausibility.\\
 
@@ -9,11 +9,36 @@
 
     Movies studies have been pushing facial and character animation to a level where machine learning can  automize a large part of this work in a production pipeline. Research community is exploring machine learning for gait control too and quite successfully or for upscaling of liquid simulation\cite{CNNFluid2016}. \\
 
-    However, for rigid body problems it is not quite clear how to approach the technicalities in applying deep learning. Some work have been done in terms of inverse simulations or pilings to control rigid bodies to perform a given artistic `target'. These thechniques are more in spirit of inverse problems that maps initial conditions to a well defined outcome(number of bounces or which face up on a cude) or level of detail idea replacing interiors of piles with stracks of cylinders pf decreasing radius to make an overall apparent pile have a given angle of of repose. contact forces determine what happens to both brick and wall. The accuracy of the computed contact forces affects both plausibility and stability of the final simulation [Erl07]. For this reason, good contact force determination methods are wanted in physical simulation, whether it is used in engineering systems or computer games.
-\section{Motivation and Goals}
-    Taking a master’s degree is a specialization process, a fine tuning of skills. Early on, I had an idea that my specialization would be computer vision and deep learning. Deep learning methods have got great successes in mnay fields, like computer vision, natual language processing. However, they s
-\section{Work Process}
-    
+    However, for rigid body problems it is not quite clear how to approach the technicalities in applying deep learning. Some work have been done in terms of inverse simulations or pilings to control rigid bodies to perform a given artistic `target'. These thechniques are more in spirit of inverse problems that maps initial conditions to a well defined outcome(number of bounces or which face up on a cude) or level of detail idea replacing interiors of piles with stracks of cylinders pf decreasing radius to make an overall apparent pile have a given angle of of repose. \\
 
-\section{Outline}
-    Some topics are beyond the scope of this thesis, and are therefore assumed known by the reader. The following is a list of such topics and references to literature where the topics are covered more extensively:
+    Contact forces determine what happens to both brick and wall. The accuracy of the computed contact forces affects both plausibility and stability of the final simulation. For this reason, good contact force determination methods are wanted in physical simulation, whether it is used in engineering systems or computer games.
+
+\section{Goals}
+    Taking a master’s degree is a specialization process, a fine tuning of skills. Early on, I had an idea that my specialization would be computer vision and deep learning. Deep learning methods have got great successes in mnay fields, like computer vision, natual language processing. However, they s
+
+    \begin{enumerate}
+        \item Describe the contact force problem among rigid objects by building Newton-Euler equations.
+        \item Analyze possible kernels which can work for simulator and compare the performances of different kernels on mapping the state of the simulator onto a grid.
+        \item Analyze and compare the performance of different grid-sizes on the chosen kernel. 
+        \item Design one convolution neural network to transfer momentum images into contact force images.
+        \item Design one experiment to determine the accuracy of several force solutions.
+        \item Describe the questions and issues during the learning process, and reflect on how to make learning model work better.
+        \item Design one experiment about training both normal forces and friction forces  as one map.
+        \item Design one experiment about training normal forces and friction forces as two maps.
+        \item Compare the two results from two experiments.
+    \end{enumerate}
+
+
+\section{Overview and Outline}
+    \subsection{Overview}
+        This master project aims to apply deep leaning in rigid simulation, specificly improving the speed of computing contact forces. Basicly, now researchers mainly use iterative solver to compute contact forces for each time step. Our idea is to use deep learning to give a available initial value which is close to final solution. This project can be devided to two parts. The first part is to find a method to generate assessible data for deep learning then test it whether it is available. The second part is to train one learning model and apply it to check its performance. \\
+
+        The paper mainly covers topics from computer simulation and deep learning. Try to improve the simulation of rigid dynamics. I gave an oueline as following,
+    \begin{itemize}
+        \item \textbf{Chapter 1}, is the introduction to the whole paper, including motuvation, learning goals, work process and outline. 
+        \item \textbf{Chapter 2}, mainly gives a brief description for contact models, inlcuding how to applied classic \textit{Newton-Euler} equation with constraints. 
+        \item \textbf{Chapter 3}, is another import part to analize the main interpolation method used for the project, Smoothed Particle Hydrodynamics(SPH). At the end of the chapter, some experiments are taken to analize whether SPH is good to this case.
+        \item \textbf{Chapter 4}, leads to some description for one of current hot techniques, deep learning, including a brief history of deep learning, some basic mathematic concepts, and optimization methods for training process.
+        \item \textbf{Chapter 5}, does describe implementation details specificly, from data generation to model design and training. Analysis about SPH kernel determine, grid size and smoothing length choice, model training process and comparation between learning model and built-in algorithm in simulation software can be found in this chapter. 
+        \item \textbf{Chapter 6}, is the end of this paper. In the chapter, some conclusions will be made based on experiments implementation. Finally, I will make a future work, which can be a improvement for current project.
+    \end{itemize}

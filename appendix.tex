@@ -1,7 +1,7 @@
 \begin{appendices}
-    \renewcommand{\thechapter}{\Alph{chapter}.}
-    \chapter{Contact Model Simulation}
-    \begin{lstlisting}[language=Matlab]
+\renewcommand{\thechapter}{\Alph{chapter}.}
+\chapter{Contact Model Simulation}
+\begin{lstlisting}[language=Matlab]
     function [lambda, theta] = pgs(A, b, lambda)
 
     N = length(b);
@@ -28,7 +28,142 @@
 
     end
 
-    \end{lstlisting}
-    \chapter{Secondappendix}
-    somemoretext
+\end{lstlisting}
+\chapter{Smooth}
+
+\chapter{Deep Learning}
+
+\begin{lstlisting}[language=python]
+    def build_model(self, input_shape, output_shape):
+        self.model.add(Conv2D(32,
+                              (3, 3),
+                              padding='same',
+                              kernel_regularizer=keras.regularizers.l2(self.weight_decay),
+                              kernel_initializer='he_normal',
+                              input_shape=input_shape))
+        self.model.add(Activation('relu'))
+
+        self.model.add(Conv2D(32,
+                              (3, 3),
+                              padding='same',
+                              kernel_regularizer=keras.regularizers.l2(self.weight_decay),
+                              kernel_initializer='he_normal',
+                              input_shape=input_shape))
+        self.model.add(Activation('relu'))
+
+        self.model.add(MaxPooling2D(pool_size=(2, 2),
+                                    strides=(2, 2),
+                                    padding='same'))
+
+        self.model.add(Conv2D(64,
+                              (3, 3),
+                              padding='same',
+                              kernel_regularizer=keras.regularizers.l2(self.weight_decay),
+                              kernel_initializer='he_normal'))
+        self.model.add(Activation('relu'))
+
+        self.model.add(Conv2D(64,
+                              (3, 3),
+                              padding='same',
+                              kernel_regularizer=keras.regularizers.l2(self.weight_decay),
+                              kernel_initializer='he_normal'))
+        self.model.add(Activation('relu'))
+
+        self.model.add(Conv2D(64,
+                              (2, 2),
+                              padding='same',
+                              kernel_regularizer=keras.regularizers.l2(self.weight_decay),
+                              kernel_initializer='he_normal'))
+        self.model.add(Activation('relu'))
+
+        self.model.add(MaxPooling2D(pool_size=(2, 2),
+                                    strides=(2, 2),
+                                    padding='same'))
+
+        self.model.add(BatchNormalization())
+        self.model.add(Conv2D(128,
+                              (2, 2),
+                              padding='same',
+                              kernel_regularizer=keras.regularizers.l2(self.weight_decay),
+                              kernel_initializer='he_normal'))
+        self.model.add(Activation('relu'))
+
+        self.model.add(Conv2D(128,
+                              (2, 2),
+                              padding='same',
+                              kernel_regularizer=keras.regularizers.l2(self.weight_decay),
+                              kernel_initializer='he_normal'))
+        self.model.add(Activation('relu'))
+
+        self.model.add(Conv2D(128,
+                              (2, 2),
+                              padding='same',
+                              kernel_regularizer=keras.regularizers.l2(self.weight_decay),
+                              kernel_initializer='he_normal'))
+        self.model.add(Activation('relu'))
+
+        self.model.add(MaxPooling2D(pool_size=(2, 2),
+                                    strides=(2, 2),
+                                    padding='same'))
+
+        self.model.add(Conv2D(256,
+                              (2, 2),
+                              padding='same',
+                              kernel_regularizer=keras.regularizers.l2(self.weight_decay),
+                              kernel_initializer='he_normal'))
+        self.model.add(Activation('relu'))
+
+        self.model.add(Conv2D(256,
+                              (2, 2),
+                              padding='same',
+                              kernel_regularizer=keras.regularizers.l2(self.weight_decay),
+                              kernel_initializer='he_normal'))
+        self.model.add(Activation('relu'))
+
+        self.model.add(Conv2D(256,
+                              (2, 2),
+                              padding='same',
+                              kernel_regularizer=keras.regularizers.l2(self.weight_decay),
+                              kernel_initializer='he_normal'))
+        self.model.add(Activation('relu'))
+
+        self.model.add(MaxPooling2D(pool_size=(2, 2),
+                                    strides=(2, 2),
+                                    padding='same'))
+
+        self.model.add(BatchNormalization())
+        self.model.add(Conv2D(512,
+                              (2, 2),
+                              padding='same',
+                              kernel_regularizer=keras.regularizers.l2(self.weight_decay),
+                              kernel_initializer='he_normal'))
+        self.model.add(Activation('relu'))
+        self.model.add(Conv2D(512,
+                              (2, 2),
+                              padding='same',
+                              kernel_regularizer=keras.regularizers.l2(self.weight_decay),
+                              kernel_initializer='he_normal'))
+        self.model.add(Activation('relu'))
+        self.model.add(Conv2D(512,
+                              (2, 2),
+                              padding='same',
+                              kernel_regularizer=keras.regularizers.l2(self.weight_decay),
+                              kernel_initializer='he_normal'))
+        self.model.add(Activation('relu'))
+
+        self.model.add(Dropout(self.dropout))
+        self.model.add(Flatten())
+        
+        output_size = output_shape[0]
+
+        self.model.add(Dense(output_size))
+        self.model.add(Activation('relu'))
+
+        self.model.compile(
+            loss=self.loss_func,
+            optimizer=self.optimizer,
+            metrics=self.metrics,
+        )
+\end{lstlisting}
+    
 \end{appendices}

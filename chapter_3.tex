@@ -1,10 +1,11 @@
 \chapter{Partcle-grid-particle}
 \section{Overview}
     Deep learning methods have been widely applied in computer vision, like segmentation, objects recognition.Training data is always important to the whole learning process. Normally, researchers prefer using original image as the input images for training. However, researchers in DeepMind\footnote{\url{https://deepmind.com/}} found that when deep neural networks are applied in physics motion prediction, the most difficult thing is to recognize different objects and get state data, like $m$, $\pmb{v}$, $\pmb{q}$, etc. In their new paper, they give different colors to diffent moving bodies, using a squence of frames as training data to make DNN get state information($\pmb{v}, m, \pmb{q}$) \cite{DBLP:journals/corr/WattersTWPBZ17}.  Although visual interact networks works good to predict physics motion. However, it does not work well for many bodies. In our view, we do not need CNN replace the contact solver entirely. We only hope deep neural network can accerlate the speed of simulation. In other words, we hope the learning model can give a reasonable values which are close to the correct ones. Afterward, the iteractive contact solver will converage rapidly.\\
-    The advanages of using grid-based method is,
+
+    Overall, the advanages of using grid-based method is,
     \begin{enumerate}
         \item Grid map can describe the mass distribution so that neural netwok can understand the distribution of objects. In other words, it is possible for CNN to recognize the rigids in the simulation.
-        \item Grid map image can restore assessible data for deep learning neural networks, while the visualization image of simulation can only shown the position of rigids.
+        \item Grid map image can restore assessible data(mass, linear velocity, angular velocity) for deep learning neural networks, while the visualization image of simulation can only shown the position of rigids.
     \end{enumerate}
 
     The basic method for generating training data which is more accessible to learning is that we will map a discrete element method(DEM) into a continuum setting use techniques from smooth particle hydrodynamics. Given a set of bodies $\mathcal{B}$ and a set of contacts between these bodies $\mathcal{C}$. \\
@@ -76,9 +77,11 @@
     \end{equation}
 
     \subsection{Kernels}
-    Smoothing kernels functions are one of the most important points in SPH. Stability, accurancy and speed of the whole method depends on these fuctions. Different kernels are being used for different purposes. One possibilyty for $W$ is a Gaussian. However, most current SPH implementations are based on kernels with finite support. We mainly introduce gaussian, poly6 and spicky kernel here. And compare the different kernels and their property.
+    \label{sec:kernels}
+    Smoothing kernels functions are one of the most important points in SPH. Stability, accurancy and speed of the whole method depends on these fuctions. Different kernels are being used for different purposes. One possibilyty for $W$ is a Gaussian. However, most current SPH implementations are based on kernels with finite support. We mainly introduce gaussian, poly6 and spicy kernel here. And compare the different kernels and their property.
 
     \subsubsection{Poly6}
+    \label{poly6}
     The kernel is also known as the 6th degree polynomial kernel.
     \begin{equation}
         W_{poly 6}(\textbf{r}, h) = \frac{315}{64\pi h^{9}}
@@ -108,7 +111,7 @@
 
     As M\"uller stated\cite{muller2003particle}, if the kernel is used for the computation of pressure forces, particles tend to build cluster under high pressure because `as particles get very close to each other, the repulsive force vanishes because the gradient of the kerbek approaches zero to the center.', which we can see in Figure \ref{fg:gradient}. Another kernel, spiky kernel, is proposed by Desbrum and Gascuel\cite{desbrun1996smoothed} to solve this problem.
 
-    \subsubsection{Spicky}
+    \subsubsection{Spiky}
 
     The kernel proposed by Desbrum and Gascuel\cite{desbrun1996smoothed}
     \begin{equation}
@@ -150,7 +153,7 @@
     \end{figure}
 
     \subsection{Grid size and smoothing length}
-
+    \label{gs}
     The grid should be also fine enough to capture the variation in our simulation. In our case, it is reasonable to have a grid fine enough such that no two contact points are mapped into the same cell. \\
 
     Smoothing length, $h$, is one of the most important parameters that affects the whole SPH method by changing the kernel value results abd neighbor searching results. Too small or too big values might cause lose essencail information in the simulation.
@@ -248,6 +251,7 @@
     \end{itemize}
 
 \subsection{SPH-based method test}
+    \label{sphtest}
     The \textbf{SPH-Model} is defined as follow, as well as the experiment algorithm in \ref{testsph},
     \begin{itemize}
          \item \textbf{SPH-Model} In each step of simulation, one grid map $G(\mathbf{\pmb{\lambda}})~~\pmb{\lambda} = [\lambda_n, \lambda_t]$ will be created based on given rigid bodies $\mathcal{B}$ and contacts $\mathcal{C}$ between the bodies. Then, interpolated values will be generated by given contact point position $(x_j, y_j)~~j \in \mathcal{C}$ and will be used as initial values for iterative contact solver in \textit{pybox2D}. 

@@ -2,13 +2,11 @@
 
 \chapter{Contact Models}
 
-In order to try applying deep learning on rigid dynamic simulating process, the first step is to know the details related to rigid dynamic simulation. So, this chapter mainly introduces rigid body simulation to help readers understand how computer simulate rigid dynamics based on traditional \textit{Newton-Euler} equations, including how \textit{Newton-Euler} decribe rigid dynamics, how constraint equations are set and how to solve mathsmatical rigid dynamic system. Afterwards, we will use one of solver to run some simulation and get the image data for the next step, grids-transfer. All the discussion about rigid simulation and contacts solver are based on 2-$D$ view.
+In an attempt to apply deep learning in a rigid dynamic simulation process, the first step is to understand the details associated with rigid dynamic simulation. Therefore, this chapter focuses on rigid body simulations to help readers understand how computers simulate rigid dynamics based on traditional \textit {Newton-Euler} equations, including how \textit {Newton-Euler} describes rigid dynamics, how to set constraint equations, and numercial solution for dynamic system equation.
 
 \section{Overview}
 
-In rigid body simulation, contact forces are applied to prevent rigid bodies from penetrating each other. The fidelity of the simulation is highly affected by the accuracy of the computed contact forces. To achieve physical plausi- bility, frictional forces are essential. The formulation of a frictional contact force problem includes the modeling of both normal force constraints and friction force constraints. Henceforth, the frictional contact force problem will simply be referred to as the contact force problem. Before deriving the contact model, it should be noted that the simulation system is constraint–based using a velocity–based position update\cite{Erleben:2007:VSP:1243980.1243986}.
-
-As this is a thesis on contact problems, and not collision detection, the following models are given under the assumption that contact determination has already been performed.
+In rigid body simulation, contact force is used to prevent rigid body from penetrating each other. The accuracy of calculated contact force has great influence on the fidelity of simulation. In order to achieve physical rationality, frictional forces are essential. The formulae of friction contact force problems include the modeling of normal force constraint and friction force constraint. In the future, friction contact force problem will be simply called contact force problem. Before exporting the contact model, it is important to note that the simulation system is constrained by velocity-based location updates\cite{Erleben:2007:VSP:1243980.1243986}. Since collision detection is another big acedamic topic\cite{boulic2007collision} and this is a thesis on contact problems, the following models are given under the assumption that contact determination has already been performed.
 
 \section{Rigid dynamics Simulation}
 
@@ -21,13 +19,17 @@ Simulation of the motion of a system of rigid bodies is based on a famous system
     \item Newton’s third law: For every force, there is an equal and opposite force.
 \end{enumerate}
 
-Before presenting the Newton–Euler equations, we need to introduce a number of concepts from classical mechanics. We will start with one simple simulation with only position vector $x(t)$ and velocity vector $\pmb{v}$. Then, we will introduce some concepts by adding rotatiopn to pur simulation, rotational velocity $\pmb{\omega}$, and moment $\pmb{\tau}$ (also known as a torque.
+Before presenting the \textit{Newton–Euler} equations, we need to introduce a number of concepts from classical mechanics. We will start with one simple simulation with only position vector $\pmb{q}(t)$ and velocity vector $\pmb{v}(t)$. Then, we will introduce some concepts by adding rotatiopn to pure simulation, rotational velocity $\pmb{\omega}(t)$, and moment $\pmb{\tau}$ (also known as a torque).
 
 
 \subsection{Simulation Basics}
 
-Firstly, we can start with a simple simulation with only position and velocity. Simulating the motion of a rigid body is almost the same as simulating the motion of a particle, so I will start with partcle simulation. For particle simulation, we let function $\pmb{q}(t)$ describe the particle's location in world space at time $t$. Then we use $\pmb{v}(t)=\frac{\dif}{\dif(t)}\pmb{q}(t)$
-to denote the velocity of the particle at time t. So, the state of a particle at a time t is the particle's position and velocity. We generalize this concept by defining a state vector $\textbf{Y}(t)$ for a system: for a single particle,
+Firstly, we can start with a simple simulation with only position and velocity. Simulating the motion of a rigid body is almost the same as simulating the motion of a particle, so I will start with partcle simulation. For particle simulation, we let function $\pmb{q}(t)$ describe the particle's location in world space at time $t$. Then we use the change of $\pmb{q}(t)$
+to denote the velocity of the particle at time $t$. 
+\begin{equation}
+    \pmb{v}(t) = \dot{\pmb{q}}(t)
+\end{equation}
+So, the state of a particle at a time $t$ is the particle's position and velocity. We generalize this concept by defining a state vector $\textbf{Y}(t)$ for a system: for a single particle,
 \begin{equation}
     \textbf{Y}(t) = \left[
         \begin{array}{c}
@@ -52,7 +54,7 @@ For a system with $n$ particles, we enlarge $\textbf{Y}(t)$ to be
 
 However, to simulate the motion of particles actually, we need to know one more thing -- the forces. $\pmb{f}(t)$ is defined as the force acting on the particle. If the mass of the particle is $m$, then the changes of $\textbf{Y}(t)$ will be given by
 \begin{equation}
-    \frac{\dif}{\dif(t)}\textbf{Y}(t) = \frac{\dif}{\dif(t)}\left[
+    \dot{\mathbf{Y}}(t) = \frac{\dif}{\dif(t)}\textbf{Y}(t) = \frac{\dif}{\dif(t)}\left[
         \begin{array}{c}
             \pmb{q}(t) \\
             \pmb{v}(t) \\
@@ -68,13 +70,14 @@ Unlike a particle, a rigid body occupies a volume of space and has a particular 
 
 \subsection{Rigid Body Equations of Motions}
 \label{sec:rigid_rm}
- Whereas linear momentum $\pmb{P}(t)$ is related to linear velocity with a scalar (the mass), angular momentum is related to angular velocity with a matrix \(\pmb{I}\), called the angular inertia matrix. The reason for this is that objects generally have different angular inertias around different axes of rotation. Angular momentum is defined as \(\pmb{L}\). The linear momentum is defined as \ref{lm}, and angular momentum is defined as \ref{am}
+ Whereas linear momentum $\pmb{P}(t)$ is related to linear velocity with a scalar (the mass), angular momentum is related to angular velocity with a matrix \(\pmb{I}\), called the angular inertia matrix. The reason for this is that objects generally have different angular inertias around different axes of rotation. Angular momentum is defined as \(\pmb{L}\). The linear momentum and angular momentum are defined in Equation \ref{mom}.
 \begin{subequations}
 \begin{align}
-    m \dot{\pmb{v}(t)} = \pmb{f}(t) & \\
+    m \dot{\pmb{v}}(t) = \pmb{f}(t) & \\
     \pmb{P}(t) = m \pmb{v} (t)  & \\
     \pmb{L}(t) = \pmb{I}(t)\pmb{\omega}(t) & 
 \end{align}
+\label{mom}
 \end{subequations}
 
 The total torque $\pmb{\tau}$ applied to the body is equal to the rate of change of the angular momentum, as defined in \ref{tau}:
@@ -96,17 +99,18 @@ The total torque $\pmb{\tau}$ applied to the body is equal to the rate of change
     \right]
 \end{equation}
 
-Like what is epressed in $\textbf{Y}(t)$, the state of a rigid body is mainly consist by its position and orientation (describing spatial information), and its linear and angualr momentum(describe velocity information). Since mass $m$ and bodyspace inertia tensor $\pmb{I}_{body}$ are constants, we can the auxiliary quantities $\pmb{I}(t)$, $\pmb{\omega}(t)$ at any given time.
+Like what is expressed in $\textbf{Y}(t)$, the state of a rigid body is mainly consist by its position and orientation (describing spatial information), and its linear and angualr momentum(describe velocity information). Since mass $m$ and bodyspace inertia tensor $\pmb{I}_{body}$ are constants, we can the auxiliary quantities $\pmb{I}(t)$, $\pmb{\omega}(t)$ at any given time.
+\begin{subequations}
+\begin{align}
+    \pmb{v}(t) & = \frac{\pmb{P}(t)}{m} \quad \\
+    \pmb{I}(t) & = \pmb{R}(t)\pmb{I}_{body}\pmb{R}(t)^{T} \quad \\
+    \pmb{\omega}(t) & = \pmb{I}(t)^{-1}\pmb{L}(t) 
+\end{align}
+\end{subequations}
 
+Then, the derivative $\dot{\textbf{Y}}(t)$ is
 \begin{equation}
-    \pmb{v}(t) = \frac{\pmb{P}(t)}{m} \quad
-    \pmb{I}(t) = \pmb{R}(t)\pmb{I}_{body}\pmb{R}(t)^{T} \quad
-    \pmb{\omega}(t) = \pmb{I}(t)^{-1}\pmb{L}(t)
-\end{equation}
-
-The derivative $\frac{\dif}{\dif t}\textbf{Y}(t)$ is
-\begin{equation}
-    \frac{\dif}{\dif{t}}\textbf{Y}(t) = \frac{\dif}{\dif t}\left[
+    \dot{\textbf{Y}}(t) = \frac{\dif}{\dif{t}}\textbf{Y}(t) = \frac{\dif}{\dif t}\left[
         \begin{array}{c}
             \pmb{q}(t) \\
             \pmb{R}(t) \\
@@ -170,7 +174,7 @@ We will now introduce vectors called twists, which describe velocities, and wren
     \end{equation}
     $d$ stands for the number pf dimensions, like $d=2$ in $2$-D simulation. \\
 
-    If we define $\pmb{M}$ and $\mathbf{h}$ as Equation \ref{M} and \ref{F}
+    If we define $\pmb{M}$ and $\mathbf{F}$ as Equation \ref{M} and \ref{F}
 
     \begin{equation}
         \pmb{M} = \left[ \begin{array}{cc} \pmb{I} & \pmb{0} \\ \pmb{0} & m\pmb{1}_{d \times d}\end{array} \right]
@@ -255,6 +259,19 @@ We will now introduce vectors called twists, which describe velocities, and wren
     \end{equation}
 
 \section{The Numercial Solution Method}
-    nce discrete-time models have been obtained, numerical methods must be applied to compute solutions. We start with how to integrate the motion of free moving rigid bodies such as bodies in ballistic motion without any collisions or contact. Subsequently, in Sec- tions 4.1- 4.4 we cover numerical methods for computing solutions of the discrete LCP contact model from Section 3.1 and approaches for simulating articulated bodies. The methods are presented in a general setting; hence, A and b are arbitrary as defined in (23).
+    nce discrete-time models have been obtained, numerical methods must be applied to compute solutions. We start with how to integrate the motion of free moving rigid bodies such as bodies in ballistic motion without any collisions or contact. Subsequently, in Sec- tions 4.1- 4.4 we cover numerical methods for computing solutions of the discrete LCP contact model from Section 3.1 and approaches for simulating articulated bodies. The methods are presented in a general setting; hence, A and b are arbitrary as defined in (23)
+
     \subsection{Projected Gauss–Seidel(PGS) solver for contact forces}
-    Most open-source software for interactive real-time rigid body simulation uses the Projected Gauss–Seidel (PGS) method for computing contact forces has been widely used by many open-source software and computer physics engine, like \textit{Box2D}\footnote{\url{http://box2d.org/}} for 2-$D$ and \textit{Bullet}\footnote{\url{https://pybullet.org/wordpress/}} for 3-$D$. PGS is computationally very efficient with an iteration cost of $O(n)$, using a careful memory layout of sparse matrices allows for a memory footprint of $O(n)$. In addition to being computationally and memory-wise efficient, PGS is very robust and can deal gracefully with ill-conditioned problems (due to many redundant constraints) or ill-posed problems (due to badly defined constraints). For these reasons, PGS is well suited for interactive applications like computer games. \\
+    Most open-source software for interactive real-time rigid body simulation uses the Projected Gauss–Seidel (PGS) method for computing contact forces has been widely used by many open-source software and computer physics engine, like \textit{Box2D}\footnote{\url{http://box2d.org/}} for 2-$D$ and \textit{Bullet}\footnote{\url{https://pybullet.org/wordpress/}} for 3-$D$. PGS is computationally very efficient with an iteration cost of $O(n)$, using a careful memory layout of sparse matrices allows for a memory footprint of $O(n)$. In addition to being computationally and memory-wise efficient, PGS is very robust and can deal gracefully with ill-conditioned problems (due to many redundant constraints) or ill-posed problems (due to badly defined constraints). For these reasons, PGS is well suited for interactive applications like computer games. 
+
+    \begin{algorithm}[!h]
+        \KwData{$N, \pmb{\lambda}, \pmb{A}, \pmb{b}$}
+        \KwResult{Compute the values of $\pmb{\lambda}$}
+        \For{$ k = 1~\textbf{To}~N$}{
+            \For{all $i$}{
+                $\pmb{r}_i \gets \pmb{A}_{i*}\pmb{\lambda} + \pmb{b}_i$ \;
+                $\pmb{\lambda}_{i} \gets \text{max}(0, \pmb{\lambda}_i - \frac{\pmb{r}_i}{\pmb{A}_{ii}})$ \;
+            }
+        }
+        \caption{pgc($\pmb{A}, \pmb{b}, \pmb{\lambda}$)}
+    \end{algorithm}

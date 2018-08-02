@@ -1,20 +1,29 @@
 \chapter{Deep Learning}
 \label{cp:dp}
-This chapter consists of Four parts. The first section gives a brief introduction to deep learning neural networks, including its history, development and current application. The second section mainly decribes details of about Convolutional Neural Networks, including different types of layers and their functionas. The last section talks about the techqiues used in deep learning training process, which make training get convagence faster and more accurate.  
+This chapter consists of four sections. 
+\begin{itemize}
+    \item \textbf{Section} \ref{dpintro}, a brief introduction to deep learning neural networks, including its history, development and current application.
+    \item \textbf{Section} \ref{cnn}, decribing details of about Convolutional Neural Networks, including different types of layers and their functionas.
+    \item \textbf{Section} \ref{training}, talking about the techqiues used in deep learning training process, which make training get convagence faster and more accurate.  
+\end{itemize} 
 
 \section{Introduction}
-    Deep Learning can be summed up as a sub field of Machine Learning studying statical models called deep neural networks. The latter are able to learn complex and hierarchical representations from raw data, unlike hand crafted models which are made of an essential features engineering step. This scientific field has been known under a variety of names and has seen a long history of research, experiencing alternatively waves of excitement and periods of oblivion \cite{schmidhuber2015deep}. Early works on Deep Learning, or rather on Cybernetics, as it used to be called back then, have been made in 1940-1960s, and describe biologically inspired models such as the Perceptron, Adaline, or Multi Mayer Perceptron \cite{rosenblatt2000probabilistic,schmidhuber2015deep}. Then, a second wave called Connectionism came in the 1960s-1980s with the invention of backpropagation \cite{rumelhart1986learning}. This algorithm persists to the present day and is currently the algorithm of choice to optimize Deep Neural Networks. A notable contribution is the Convolutional Neural Networks (CNNs) designed, at this time, to recognize relatively simple visual patterns, such as handwritten characters \cite{lecun1995convolutional}. Finally, the modern era of Deep Learning has started in 2006 with the creation of more complex architectures \cite{hinton2006fast,bengio2007greedy,huang2007unsupervised}. Since a breakthrough in speech and natural language processing in 2011, and also in image classification during the scientific competition ILSVRC in 2012, Deep Learning has conquered many Ma- chine Learning communities, such as Reddit, and won challenges beyond their conventional applications area \footnote{\url{http://blog.kaggle.com/2014/04/18/winning-the-galaxy-challenge-with-convnets}}. \\
+    \label{dpintro}
+    Deep learning is a branch of machine learning. It is an algorithm that attempts to use high-level abstraction of data using multiple processing layers consisting of complex structures or multiple nonlinear transforms. Deep learning is an algorithm based on the representation learning of data in machine learning. Observations (e.g., an image) can be represented in a variety of ways, such as a vector of each pixel intensity value, or more abstractly represented as a series of edges, regions of a particular shape, and the like. It is easier to learn tasks from instances using some specific representation methods (for example, face recognition or facial expression recognition). The advantage of deep learning is to replace the manual acquisition feature with unsupervised or semi-supervised feature learning and hierarchical feature extraction efficient algorithms \cite{schmidhuber2015deep}. \\
 
-    Especially during the last four years, Deep Learning has made a tremendous impact in computer vision reaching previously unattainable performance on many tasks such as image classification, objects detection, image segmentation or image captioning \cite{DBLP:journals/corr/GuWKMSSLWW15}. This progress have been made possible by the increase in computational resources, thanks to frameworks such as TensorFlow\footnote{\url{https://www.tensorflow.org/}}, modern GPUs implementations such as Cudnn\footnote{\url{https://developer.nvidia.com/cudnn}}, the increase in available annotated data, and the community-based involvement to open source codes and to share models. These facts allowed for a much larger audience to acquire the expertise needed to train modern convolutional networks. Thus, larger and deeper architectures are trained on bigger datasets to achieve better accuracy each year. Also, already trained models have shown astonishing results when transfered on smaller datasets and evaluated on different visual tasks. 
-    \begin{figure}[!ht]
+    Early works on Deep Learning, or rather on Cybernetics, as it used to be called back then, have been made in 1940-1960s, and describe biologically inspired models such as the Perceptron, Adaline, or Multi Mayer Perceptron \cite{rosenblatt2000probabilistic,schmidhuber2015deep}. Then, a second wave called Connectionism came in the 1960s-1980s with the invention of backpropagation \cite{rumelhart1986learning}. This algorithm persists to the present day and is currently the algorithm of choice to optimize Deep Neural Networks. A notable contribution is the Convolutional Neural Networks (CNNs) designed, at this time, to recognize relatively simple visual patterns, such as handwritten characters \cite{lecun1995convolutional}. Finally, the modern era of Deep Learning has started in 2006 with the creation of more complex architectures \cite{hinton2006fast,bengio2007greedy,huang2007unsupervised}. Since a breakthrough in speech and natural language processing in 2011, and also in image classification during the scientific competition ILSVRC in 2012, Deep Learning has conquered many Machine Learning communities, such as Reddit, and won challenges beyond their conventional applications area \footnote{\url{http://blog.kaggle.com/2014/04/18/winning-the-galaxy-challenge-with-convnets}}. \\
+
+    Especially during the last four years, Deep Learning has made a tremendous impact in computer vision reaching previously unattainable performance on many tasks such as image classification, objects detection, image segmentation or image captioning \cite{DBLP:journals/corr/GuWKMSSLWW15}. This progress have been made possible by the increase in computational resources, thanks to frameworks such as TensorFlow\footnote{\url{https://www.tensorflow.org/}}, modern GPUs implementations such as Cudnn\footnote{\url{https://developer.nvidia.com/cudnn}}, the increase in available annotated data, and the community-based involvement to open source codes and to share models. These facts allowed for a much larger audience to acquire the expertise needed to train modern convolutional networks. Thus, larger and deeper architectures are trained on bigger datasets to achieve better accuracy each year. Also, already trained models have shown astonishing results when transfered on smaller datasets and evaluated on different visual tasks. \\
+
+    With deep learning becoming more and more popular in many fields of researching, some classical methods can be replaced by deep learning. Many successful application of deep learning can be found in computer vision part, like image segmentation\cite{lecun2015deep},objection recognition\cite{he2016deep}.
+     \begin{figure}[!ht]
         \centering
         \includegraphics[scale = 0.5]{Figures/Colored_neural_network}
         \caption{visulization of one simple $3$-layers neural networks, including input layer, hidden layer and output layer, \textit{retrieved from Wikipedia}}
     \end{figure}
 
-    With deep learning becoming more and more popular in many fields of researching, some classical methods can be replaced by deep learning. Many successful application of deep learning can be found in computer vision part, like image segmentation\cite{lecun2015deep},objection recognition\cite{he2016deep}.
-
 \section{Convolutional Neural Networks}
+    \label{cnn}
     An entire convolutional neural network consists of an input and output layer, as well as multiple hidden layers. Normally, the hidden layers consist of convolutional layer, pooling layers, fully conneted layers and normalization layers. \\
 
     Description of the process as a convolution in neural networks is by convention. Mathematically it is a cross-correlation rather than a convolution. This only has significance for the indices in the matrix, and thus which weights are placed at which index. 
@@ -99,11 +108,13 @@ This chapter consists of Four parts. The first section gives a brief introductio
     Finally, after several convolutional and max pooling layers, the high-level reasoning in the neural network is done via fully connected layers. Neurons in a fully connected layer have connections to all activations in the previous layer, as seen in regular neural networks. Their activations can hence be computed with a matrix multiplication followed by a bias offset. 
 
     \subsection{Batch Normalization}
+    \label{batchnor}
     This layer quickly became very popular mostly because it helps to converge faster\cite{ioffe2015batch}. It adds a normalization step (shifting inputs to zero-mean and unit variance) to make the inputs of each trainable layers comparable across features. By doing this it ensures a high learning rate while keeping the network learning. \\
 
     Also it allows activations functions such as TanH and Sigmoid to not get stuck in the saturation mode (e.g. gradient equal to $0$).
 
     \section{Training Method}
+    \label{training}
     \subsection{Loss Function}
     The value of the loss function $L$ represents the difference between the training image after it has propagated through the network and desired annotated output image.\\ 
 
@@ -125,7 +136,7 @@ This chapter consists of Four parts. The first section gives a brief introductio
     \subsection{Overfitting}
     Overfitting is a problem that arises in neural network training. When a model is overfitted to the training data, it loses its capability of generalization. The model has learned the training data, including noise, in such a great extend that it has failed to capture underlying general information. CNNs have a large number of weights to be trained, therefore overfitting can occur due to training too few training examples. 
 
-    \subsubsection{Regularization  L2}
+    \subsubsection{Regularization L2}
     The  first  main  approach  to  overcome  overfitting  is  the  classical weight decay, which adds a term to the cost function to penalize the parameters in each dimension, preventing the network from exactly modeling the training data and therefore help generalize to new examples:
     \begin{equation}
         Error(x, y) =  Loss(x, y) + \sum_{i}\theta_i
@@ -163,6 +174,7 @@ This chapter consists of Four parts. The first section gives a brief introductio
     It is the kind of optimization used in parallel computing environments. Different computers train the same architecture with almost the same parameters values. It allows more exploration of the parameters space, which can lead to improved performance \cite{zhang2015deep}.
 
     \subsection{Learning Rate Scheduling in Gradient Optimization}
+    \label{learning}
     There are serval variants of SGD available. Determining the approciate learning rate, or step size, often is a complex problem. Applying too high learning rate cause suboptimal performance, too low learning rate caused slow covergence. Learning rate scheduling is used as an extension of the SGD algorithm to improve performance. In learning rate scheduling, the learning rate is a decreasing function of the iteration number. Therefore, the first iterations have larger learning rate and consequently cause bigger parameter changes. Later iterations have similar learning rates, responsible for fine-tuning. Below an overview of some gradient descent optimizztion algoritms is given.
 
     \subsubsection{Momentum}
