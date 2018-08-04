@@ -1,4 +1,4 @@
-\chapter{Implementation Details}
+\chapter{Results and Analysis}
 \label{details}
 This chapter mainly talk about 
 \begin{enumerate}
@@ -54,11 +54,11 @@ This chapter mainly talk about
     \end{figure}
 
 \subsection{SPH parameters}
-    \label{sph-setting}
-    In Section \ref{sphtest}, it has been tested that \textbf{SPH} is a good strategy to generate grid images representing a discrere snapshot of the dynamics. Then, the grid size and smoothing length $h$ are import to our data generation. The grid size should be reasonable so that there is no two contact points are mapped into the same cell, since if there are more than two contact values in one cell, it will be hard for CNN to recognize, which will decrease the accuracy of prediction. This was mentioned in section \ref{gs}.
+    \label{SPH-setting}
+    In Section \ref{SPHtest}, it has been tested that \textbf{SPH} is a good strategy to generate grid images representing a discrere snapshot of the dynamics. Then, the grid size and smoothing length $h$ are import to our data generation. The grid size should be reasonable so that there is no two contact points are mapped into the same cell, since if there are more than two contact values in one cell, it will be hard for CNN to recognize, which will decrease the accuracy of prediction. This was mentioned in section \ref{gs}.
     \begin{figure}[!h]
         \centering
-        \includegraphics[width=0.4\textwidth]{Figures/sphvi.pdf}
+        \includegraphics[width=0.4\textwidth]{Figures/SPHvi.pdf}
         \caption{Example visiualization for Smoothed Particle Hydrodynamics. The small red circles stand for the grid nodes, and the blue circles stand for kernel size.}
     \end{figure}
 
@@ -69,7 +69,7 @@ This chapter mainly talk about
             $$d_x = d_y = d $$ 
         \item Since there can not be two contact points are mapped into the same cell, $d$ must be less than the distance of nearest two contact points. It can be defined.
             $$d \le r = 1$$
-        \item Similarly, one contact point can only be mapped to one cell, so,
+        \item Similarly, if one contact point can only be mapped to one cell, the smooth length $h$ should be less than the minimum distance between two contact points $d$,
             $$h \le d$$  
         \item For a given $d$, whatever the contact position $\pmb{q}=(q_x, q_y)$ is, its information can be restore in nearby nodes. So it can be,
             $$h \ge \frac{\sqrt{2}}{2}d \approx 0.71 d$$
@@ -90,10 +90,10 @@ This chapter mainly talk about
         \caption{Coveragence rate for different $d$ value.}
         \label{fig:testd}
     \end{figure}
-    Based on these experiments, the grid cell size and smoothing length can be determinde,
+    \textbf{Importantly}, $d=0.5~~\text{and}~~h=0.5$ is not always the best experimented with different numbers of rigid inside the world box. But, it generally performs better than other values. As a result, I will choose $h=d=0.5$ as the parameters for SPH method.
     $$d_x = d_y = 0.5~~\text{and}~~h=0.5$$
     \subsubsection{Kernel Choosing}
-    The choice of kernel also needs to be addressed. In the paper, two kernels, \textbf{Poly6} and \textbf{Spiky}, have been introduced in section \ref{sec:kernels}. These two kernels are seperately used based on Algorithm \ref{testsph}. Then, the plot about coveragence rate of different kernels is obtained. From the plot, it is clear that kernel \textbf{Poly6} perform better.  
+    The choice of kernel also needs to be addressed. In the paper, two kernels, \textbf{Poly6} and \textbf{Spiky}, have been introduced in section \ref{sec:kernels}. These two kernels are seperately used based on Algorithm \ref{testSPH}. Then, the plot about coveragence rate of different kernels is obtained. From the plot, it is clear that kernel \textbf{Poly6} perform better.  
     \begin{figure}[!ht]{}
         \centering
         \includegraphics[width=0.8\textwidth]{Figures/kerneltest.pdf}
@@ -102,20 +102,24 @@ This chapter mainly talk about
     \end{figure}
     As a conclusion, SPH with \textbf{Poly6} kernel($\pmb{d} = (0.5, 0.5)$, smoothing length $h=0.5$), will be used for particle-grid transformation. \\
 
-    After determining grid size and smoothing length, I will compare this specific \textbf{SPH-Model} with other models mentionde in section \ref{sphtest}, following Algorithm \ref{testsph}. The result is shown in Figure \ref{fig:final_test}.
+    After determining grid size and smoothing length, I will compare this specific \textbf{SPH-Model} with other models mentionde in section \ref{SPHtest}, following Algorithm \ref{testSPH}. The result is shown in Figure \ref{fig:final_test}.
      \begin{figure}[!ht]
         \centering
-        \includegraphics[width=0.8\textwidth]{Figures/final_sph.pdf}
+        \includegraphics[width=0.8\textwidth]{Figures/final_SPH.pdf}
         \caption{Coveragence rate for models(different initial values for $\pmb{\lambda}$).}
         \label{fig:final_test}
     \end{figure}
-    Unlike the result shown in Figure \ref{fg:addsph}. Compared with other models, \textbf{SPH-Model} gets convergence much faster. So, $h=d=0.5$ is a good choice for this project and the future steps.
+    Unlike the result shown in Figure \ref{fg:addSPH}. Compared with other models, \textbf{SPH-Model} gets convergence much faster. So, $h=d=0.5$ is a good choice for this project and the future steps.
 
 \section{Data Generation}
-To create data that are more accessible to learning, we will map a discrete element method into a continuum settig use techniques from smooth particle hydrodynamics(SPH). In order to get enough training data, $100$ simulation with different initial configuration have been done. 
+To create data that are more accessible to learning, I will map a discrete element method into a continuum settig use techniques from smooth particle hydrodynamics(SPH). In order to get enough avaliable training data and remove useless information, I used
+\begin{itemize}
+    \item $150$ simulation with different initial configuration. The number of circle objects is not fixed as well. However, if there is too few objects inside the box, contacts might not happen until the simulation ends up. So the number of objects will be in range of $[70, 110]$.
+    \item If there is no contact in one state, the state means nothing to the learning. So the states without any contacts will be removed.
+\end{itemize}
 
 \subsection{XML Restoration}
-In each simulation, state in every time step will be stored in one \textbf{xml} file. The structure of the body is consist of mass, position, velocity, spin omega and inertia. The structure of contact is consist of postion, impulse(including in normal direction and tangent direcrion), master body and slave body. Two examples are given in the following.\\
+In each simulation, state in every time step will be stored in one \textbf{xml} file. The structure of the body is consist of \textbf{mass}, \textbf{position}, \textbf{velocity}, \textbf{spin omega} and \textbf{inertia}. The structure of contact is consist of \textbf{postion}, \textbf{impulse}(including in normal direction and tangent direcrion), \textbf{master} body and \textbf{slave} body. Two examples are given in the following.\\
 
 This is nn example for one body information is given below.
 \begin{lstlisting}[language=XML]
@@ -141,13 +145,18 @@ Another example \textit{XML} code is for contatc force.
 \end{lstlisting}
 
 \subsection{SPH configuration}
-As it is talked in \ref{sph-setting}, 
+As it is talked in \ref{SPH-setting}, 
 \begin{itemize}
     \item \textbf{Kernel}, Poly6, which you can see in section \ref{poly6}.
     \item \textbf{Kernel Settings}, cell size $d_x=d_y=0.5$, smoothing length $h=0.5$.
 \end{itemize}
 \subsection{XML to grid}
-After each state has been stored in \textit{XML} file, then 
+After getting a set of \textbf{xml} file, the next step is to read state information from \textbf{xml} file, and then map them to grid images with SPH based method. The channel of each image will be 8, including $[m, v_x, v_y, \omega, n_x, n_y, \lambda_n, \lambda_t]$. Since $n_y$ is related to $n_x$, I remove $n_x$ from the channels. \\
+
+For the learning, I devide 8 channels to features(input) and label(output).
+    $$\text{Feature} = [m, v_x, v_y, \omega, n_x]$$
+    $$\text{Label} = [\lambda_n, \lambda_t]$$
+
 
 
 \section{CNN Training}
@@ -211,7 +220,7 @@ Then, we can update the loss function based on Euqation \ref{eq:mse}.
 \end{equation}
 
 \subsection{Training Details}
-    The learning happened on GPU(\textit{GeForce GTX 1080 Ti, 11 Gbps GDDR5X memory})\footnote{\url{https://www.nvidia.com/en-us/geforce/products/10series/geforce-gtx-1080-ti/}} holded by DIKU. The whole learning takes nearly 24 hours. The model you can download in my personal dropbox\footnote{\url{https://www.dropbox.com/s/jrwzqib6ghrq59i/model.h5?dl=0}}. I gave hyperparameters setting below,
+    The learning happened on GPU(\textit{GeForce GTX 1080 Ti, 11 Gbps GDDR5X memory})\footnote{\url{https://www.nvidia.com/en-us/geforce/products/10series/geforce-gtx-1080-ti/}} held by Image Section, DIKU\footnote{\url{https://di.ku.dk/english/research/imagesection/}}. The whole learning takes nearly 24 hours. The model you can download in my personal dropbox\footnote{\url{https://www.dropbox.com/s/jrwzqib6ghrq59i/model.h5?dl=0}}. I gave hyperparameters setting below,
     \begin{table}[h!]
         \centering
         \begin{tabular}{ l | c  }
@@ -227,6 +236,7 @@ Then, we can update the loss function based on Euqation \ref{eq:mse}.
             Initial Learning Rate & $1\times 5\times10^{-3}$ \\
             Batch Size & 200 \\
             Epoch & 1000 \\
+            Validation Rate & 0.2 \\
         \end{tabular}
         \caption{Hyperparameter settings.}
         \label{table:hyper}
@@ -249,7 +259,7 @@ Then, we can update the loss function based on Euqation \ref{eq:mse}.
 \section{Simualtion based on Trained Model}
 Once getting the trained model, the next step is to apply this model in simulation based on Algorithm \ref{al:basic} and compare it with other solutions.\\
 
-I applied it in one test world built by the setting mentioned in section \ref{simconfig}. The test world is consist one $30 \times 30 $ box and $K$($50<K<100$) randomly distributing balls($r=1$). The balls will fall down due to gravity. Figure \ref{testoneworld} shows the details. As what is expeted, CNN model performs similar with \textbf{SPH-Model}(mentioned in section \ref{sphtest}). Although the model is not as good as \textbf{SPH-model}, its coverages rate is obviously faster than buit-in ones. 
+I applied it in one test world built by the setting mentioned in section \ref{simconfig}. The test world is consist one $30 \times 30 $ box and $K$($50<K<100$) randomly distributing balls($r=1$). The balls will fall down due to gravity. Figure \ref{testoneworld} shows the details. As what is expeted, CNN model performs similar with \textbf{SPH-Model}(mentioned in section \ref{SPHtest}). Although the model is not as good as \textbf{SPH-model}, its coverages rate is obviously faster than buit-in ones. 
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{Figures/same_world.pdf}

@@ -1,19 +1,18 @@
 \chapter{Partcle-grid-particle}
 \section{Overview}
-    Deep learning methods have been widely applied in computer vision, like segmentation, objects recognition.Training data is always important to the whole learning process. Normally, researchers prefer using original image as the input images for training. However, researchers in DeepMind\footnote{\url{https://deepmind.com/}} found that when deep neural networks are applied in physics motion prediction, the most difficult thing is to recognize different objects and get state data, like $m$, $\pmb{v}$, $\pmb{q}$, etc. In their new paper, they give different colors to diffent moving bodies, using a squence of frames as training data to make DNN get state information($\pmb{v}, m, \pmb{q}$) \cite{DBLP:journals/corr/WattersTWPBZ17}.  Although visual interact networks works good to predict physics motion. However, it does not work well for many bodies. In our view, we do not need CNN replace the contact solver entirely. We only hope deep neural network can accerlate the speed of simulation. In other words, we hope the learning model can give a reasonable values which are close to the correct ones. Afterward, the iteractive contact solver will converage rapidly.\\
+    Deep learning methods have been widely applied in computer vision, like segmentation, objects recognition. Training data is always important to the whole learning process. Normally, researchers prefer using the original image as the input images for training. Normally, researchers prefer using original image as the input images for training. However, researchers in DeepMind\footnote{\url{https://deepmind.com/}} found that when deep neural networks are applied in physics motion prediction, the most difficult thing is to recognize different objects and get time-state data, like $m$, $\pmb{v}$, $\pmb{q}$, etc. In their new paper, they provide different colors to different moving bodies and use a sequence of frames as training data to make deep neural networks get state information($\pmb{v}, m, \pmb{q}$) \cite{DBLP:journals/corr/WattersTWPBZ17}.  Although visual interact networks work well to predict physics motion, it would be confused when it is facing many bodies dynamic system. In our view, we do not need deep learning model(e.g. convolutional neural networks) to replace the contact solver completely. We only hope deep neural network can accelerate the simulation. The learning model can give reasonable values which are close to the final solutions. Afterward, the iterative contact solver will use the values as starting, and ideally coverage rapidly. \\
 
-    Overall, the advanages of using grid-based method is,
+    After discussion, we decided to tranform each time-state to a grid map by Smoothed Particle Hydrodynamics. Then we will use tha grid maps as the training data for deep learning model. Overall, the advanages of using grid-based method are,
     \begin{enumerate}
-        \item Grid map can describe the mass distribution so that neural netwok can understand the distribution of objects. In other words, it is possible for CNN to recognize the rigids in the simulation.
-        \item Grid map image can restore assessible data(mass, linear velocity, angular velocity) for deep learning neural networks, while the visualization image of simulation can only shown the position of rigids.
+        \item Grid map can describe the mass distribution so that neural netwoks can understand the distribution of objects. In other words, it is possible for deep neural networks to recognize the objects in the simulation.
+        \item Grid map image can restore assessable data(mass, linear velocity, angular velocity) for deep learning neural networks, while the visualization image of simulation can only describe the position of rigid. This is helpful deep neural networks to find the relationship between state and contact forces.
     \end{enumerate}
 
-    The basic method for generating training data which is more accessible to learning is that we will map a discrete element method(DEM) into a continuum setting use techniques from smooth particle hydrodynamics. Given a set of bodies $\mathcal{B}$ and a set of contacts between these bodies $\mathcal{C}$. \\
-    The work process is like,
+    The basic method for generating training data which is more accessible to learning is that we will map a discrete element method(DEM) into a continuum setting use techniques from smooth particle hydrodynamics. Given a set of bodies $\mathcal{B}$ and a set of contacts between these bodies $\mathcal{C}$. The work process is like,
     \begin{enumerate}
         \item Based on Smotthed Particle Hydrodynamics(SPH), map current state($m, v_x, v_y, \omega, n_x$) to a image(the number of channel is 5.), which is called \textit{feature image}
         \item The \textit{feature image} will be used as input to a model(created by convolutional neural network and intrdoced in Chapter \ref{cp:dp}), then one image(the number of channel is 2) will be got, which can be called \textit{label image}.
-        \item Interpolated values generated by \textit{label image} will be used as starting iterate values for contact force solver. In our hypothesis, the given strating values will speed up reaching convergence.
+        \item For all contacts positions, interpolated values will be generated based on \textit{label image}. Then, the values will be used as starting iterate values for contact force solver. In our hypothesis, the given starting values will speed up the solver to reach convergence.
     \end{enumerate}
 
 \section{Grid-Based method}
@@ -207,7 +206,7 @@
 
 \section{Experiment and Conclution}
     \label{sec:sph-exp}
-    Our hope is that strating iterates will be close to ``solution'' of the contact problem, which can indicate the contact force solvers will coverage very rapidly or maybe not even need to iterate. In order to test whether the sph method can be applied in our case, the contact force solution is mapped to image and interpolated values are generated and used to restart the contact force solver. Our hyposis is that iterative solver quickly recovers an iteration close to the original solution before mapping to force grid image. I will just compare the performance of sph-based method with other methos in this section. More details will be analized and described in Chapter \ref{details}.
+    Our hope is that strating iterates will be close to ``solution'' of the contact problem, which can indicate the contact force solvers will coverage very rapidly or maybe not even need to iterate. In order to test whether the SPH method can be applied in our case, the contact force solution is mapped to image and interpolated values are generated and used to restart the contact force solver. Our hyposis is that iterative solver quickly recovers an iteration close to the original solution before mapping to force grid image. I will just compare the performance of SPH-based method with other methos in this section. More details will be analized and described in Chapter \ref{details}.
 
 \subsection{pybox2d simulation}
     \label{sph:exp}
@@ -245,7 +244,7 @@
         \caption{Average covergence rate for different models(not including \textbf{SPH-based model}).}
         \label{fg:nosph}
     \end{figure}
-    The results are described in Figure \ref{fg:nosph}. Obviously, \textbf{Copy-Model} performs the best, coverages the most rapidly. Once all the initial values for iterative solver are zero, it has to take long time to reach converagence, which is indicated by \textbf{Non-Model}. The \textbf{Builtin-Model} get converagence much fater than \textbf{Non-Model}, but still slower than \textbf{Copy-Model}. Then one hypothesis about sph based method can be,
+    The results are described in Figure \ref{fg:nosph}. Obviously, \textbf{Copy-Model} performs the best, coverages the most rapidly. Once all the initial values for iterative solver are zero, it has to take long time to reach converagence, which is indicated by \textbf{Non-Model}. The \textbf{Builtin-Model} get converagence much fater than \textbf{Non-Model}, but still slower than \textbf{Copy-Model}. Then one hypothesis about SPH based method can be,
     \begin{itemize}
         \item The performance of \textbf{SPH-Model} will converge similar to \textbf{Builin-Model}, even better.
     \end{itemize}
@@ -282,8 +281,8 @@
         \caption{Covergence rate for different models(including \textbf{SPH-based model}).}
         \label{fg:addsph}
     \end{figure}
-    As the hypothesis we expect, \textbf{SPH-Model} converages even faster than \textbf{builtin-Model}. This can demonstrade the \textbf{sph-based} method is a good strategy, which can make itervative contact solver coverage quickly.
-\subsection{Conlusion}
+    As the hypothesis we expect, \textbf{SPH-Model} converages even faster than \textbf{builtin-Model}. This can demonstrade the \textbf{SPH-based} method is a good strategy, which can make itervative contact solver coverage quickly.
+\subsection{Conclusion}
     Based the result in Figure \ref{fg:nosph} and \ref{fg:addsph}, it can be concluded that \textbf{SPH-based} strategy is available for the case in this thesis. Once the correct contact forces grid is acheived, the interpolated values will help the iterative solver to get convergence faster. So, the next step is to train a suitable model based on training data. The overall algorithm is concluded in Algorithm \ref{al:basic}.
     \begin{algorithm}[!h]
         \KwData{
@@ -304,7 +303,7 @@
                 $$G_{output}(\mathbf{x}) = [G_{\lambda_{n}}(\mathbf{x}), G_{{\lambda}_{t}}(\mathbf{x})]$$ \\
             4. Once the contact force image is obtained,  the conatct position $\pmb{q}_{j} = (x_{j}, y_{j})~~j\in\mathcal{C}$  will be used to interpolation image values based on Equation \ref{interpolation}.
                 $$\pmb{\lambda}_j \approx G_{output}(\pmb{q}_j)~~j\in\mathcal{C}$$ 
-            The interpolated values $\pmb{\lambda}$ will be used as starting iterated for \textit{pybox2d} conatc solver. \\
+            The interpolated values $\pmb{\lambda}$ will be used as starting iterated for \textit{pybox2d} conatc solver to find a final solution. \\
             5. Update $t$
                 $$t = t + \Delta t$$ \\
         }

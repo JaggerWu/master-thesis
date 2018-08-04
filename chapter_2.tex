@@ -57,13 +57,15 @@ However, to simulate the motion of particles actually, we need to know one more 
             \pmb{f}(t)/m \\
         \end{array} \right]
 \end{equation}
+So, for an simple discrete particle simulation, we can write it as,
+$$\mathbf{Y}(t+\Delta t) = \Delta t \dot{\matnbe{Y}}(t)$$
 
 \subsection{Rigid Body Concepts}
-Unlike a particle, a rigid body occupies a volume of space and has a particular shape. Rigid bodies are more complicated, beside translating them, we can rotate them as well. To locate a rigid body, we use $\pmb{q}(t)$ to denote their translation and a rotation matrix $\pmb{R}(t)$ to describe their rotation.
+However, a rigid body occupies a volume of space and has a particular shape. So, rigid bodies are more complicated, beside translating them, we can rotate them as well. To locate a rigid body, we use $\pmb{q}(t)$ to denote their translation and a rotation matrix $\pmb{R}(t)$ to describe their rotation.
 
 \subsection{Rigid Body Equations of Motions}
 \label{sec:rigid_rm}
- Whereas linear momentum $\pmb{P}(t)$ is related to linear velocity with a scalar (the mass), angular momentum is related to angular velocity with a matrix \(\pmb{I}\), called the angular inertia matrix. The reason for this is that objects generally have different angular inertias around different axes of rotation. Angular momentum is defined as \(\pmb{L}\). The linear momentum is defined as \ref{lm}, and angular momentum is defined as \ref{am}
+ Whereas linear momentum $\pmb{P}(t)$ is related to linear velocity with a scalar (the mass), angular momentum is related to angular velocity with the angular inertia matrix \(\pmb{I}\), because that objects generally have different angular inertias around different axes of rotation. Angular momentum is defined as \(\pmb{L}\) in Equation \ref{lm}. The linear momentum is defined as \ref{lm}.
 \begin{equation}
     m \dot{\pmb{v}(t)} = \pmb{f}(t)
     \label{force}
@@ -78,7 +80,7 @@ Unlike a particle, a rigid body occupies a volume of space and has a particular 
     \label{am}
 \end{equation}
 
-The total torque $\pmb{\tau}$ applied to the body is equal to the rate of change of the angular momentum, as defined in \ref{tau}:
+Whereas the rate of the change of linear momentum is equal to the force $\pmb{f}$, the total torque $\pmb{\tau}$ applied to the body is equal to the rate of change of the angular momentum, as defined in \ref{tau}:
 \begin{equation}
     \pmb{\tau} = \frac{\dif}{\dif t }\pmb{L} = \frac{\dif}{\dif t }(\pmb{I}\pmb{\omega})
     \label{tau}
@@ -144,7 +146,7 @@ Since $\pmb{\omega} \times \pmb{\omega}$ is zero, the final term can be cancels 
 \end{equation}
 
 \subsection{Twist/Wrench}
-We will now introduce vectors called twists, which describe velocities, and wrenches, which describe forces, and explain how these objects transform from one coordinate frame to another one. 
+Twist is introduced to describe linear and angular velocity, and wrenches, which describe forces, and explain how these objects transform from one coordinate frame to another one. 
     \subsubsection{Twist} 
         A twist is a vector that expresses rigid motion or velocity. In Section \ref{sec:rigid_rm}, we saw how to parameterize the velocity of a rigid body as a linear velocity vector and an angular velocity vector. The coordinates of a twist are given as a 4-vector in $2$-D simulation, which we can check in \ref{twist}
             \begin{equation}
@@ -169,27 +171,24 @@ We will now introduce vectors called twists, which describe velocities, and wren
     \begin{equation}
         \left[ \begin{array}{c} \pmb{\tau} - \pmb{\omega} \times \pmb{I} \pmb{\omega}\\ \pmb{f} \end{array}\right] = \left[ \begin{array}{cc} \pmb{I} & \pmb{0} \\ \pmb{0}& m\pmb{1}_{d\times d}\end{array} \right] \dot{\mathbf{v}}
     \end{equation}
-    $d$ stands for the number pf dimensions, like $d=2$ in $2$-D simulation. \\
+    $d$ stands for the number of dimensions, $d=2$ in $2$-D and $d=3$ in $3$-D. \\
 
-    If we define $\pmb{M}$ and $\mathbf{h}$ as Equation \ref{M} and \ref{F}
-
+    Then, we can rewrite \textit{Newton-Euler} equation as,
+    \begin{equation}
+        \pmb{M}\dot{\mathbf{v}} = \mathbf{F}
+    \end{equation}
+    where $\pmb{M}$ and $\mathbf{h}$ are defined in Equation \ref{M} and \ref{F}.
     \begin{equation}
         \pmb{M} = \left[ \begin{array}{cc} \pmb{I} & \pmb{0} \\ \pmb{0} & m\pmb{1}_{d \times d}\end{array} \right]
         \label{M}
     \end{equation}
-
     \begin{equation}
         \mathbf{F} = \left[ \begin{array}{c} \pmb{\tau} - \pmb{\omega} \times \pmb{I} \pmb{\omega}\\ \pmb{f} \end{array}\right]
         \label{F}
     \end{equation}
-    So, we can rewrite Newton-Euler equation as,
-    \begin{equation}
-        \pmb{M}\dot{\mathbf{v}} = \mathbf{F}
-    \end{equation}
-
 
 \section{Constrained Dynamics}
-    most interesting simulations of rigid bodies involve some kind of constraints. Usually we want to model systems of bodies that are interacting in some way. Some bodies may be in contact with each other, or attached together by some types of joint. Since this report mainly research contact forces, we 
+    Most interesting simulations of rigid bodies involve some kind of constraints. Usually we want to model systems of bodies that are interacting in some way. Some bodies may be in contact with each other, or attached together by some types of joint. Since this report mainly research contact forces, we will focus on contact constraints.
     \subsection{Expressing Constraints as Equations}
         We express constraints mathematically as algebraic matrix equations with position, velocity, or acceleration vectors as the unknowns. In general, the configuration space of a set of n rigid bodies has dimension 6n. Adding constraint equations restricts the position (or velocity, or acceleration) to a subspace of smaller dimension.\\
 

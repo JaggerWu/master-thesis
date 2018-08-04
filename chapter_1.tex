@@ -1,23 +1,43 @@
 \chapter{Introdustion}
 
 \section{Motivation}
-    Multibody dynamics is the art of simulating the physical interactions of rigid bodies in a virtual world. Depending on the application, the importance of physical correctness may vary greatly. For engineering purposes, the level of physical correctness will take top priority, which is often at the expense of interactivity. On the other hand, when used in a computer game, the physical simulations only need to be plausible whereas interactivity is of utmost importance. \\
 
-    Using the terminology physical correctness is problematic for many rea- sons. Each step from real world observation to the final simulation consists of idealizations and discretizations. The mathematical models are idealized descriptions of empirical observations, the numerical model is a discretiza- tion of the mathematical model and so forth. In this context, the rigid body assumption is just another approximation. Still, there exist cases where the rigid body assumption is a fair approach, examples include assembly line simulation [FAS] and robot simulation [Gaz]. Instead of physical correct- ness, I shall use the terminology plausibility.\\
+    Deep learning has been widely used in many academic and industrial fields. Due to its faster processing and high performance, it has become increasingly popular to replace some traditional methods with deep learning. Although researchers have developed effective deep learning methods to push computer vision to a new high level, deep learning for computer simulation is still not far away. Rigid and liquid simulation problems are always the most interesting and important issues in computer simulation. Researchers are exploring the possibility of using deep learning methods to improve current simulation solutions. A paper recently published announces that deep learning has been successfully applied to the upgrade of liquid simulation\cite{CNNFluid2016}. \\
 
-    A multibody dynamics simulator is a complex system of many parts, the focus of this thesis is on the specific problem of determining contact forces. When two rigid bodies are in contact, the resulting interactions can be described as a set of contact forces or impulses acting on the two bodies. Contact forces ensure that my tea mug stays firmly on the table, rather than sinking into it or sliding along it. When a brick is thrown at a wall,\\
+    However, for rigid body problems, it is not quite clear how to approach the technicalities in applying deep learning. Some work has been done in terms of inverse simulations or pilings to control rigid bodies to perform a given artistic `target'. These techniques are more in the spirit of inverse problems that maps initial conditions to a well-defined outcome(number of bounces or which face up on a cube) or level of detail idea replacing interiors of piles with stacks of cylinders of decreasing radius to make an overall apparent pile have a given angle of repose. \\
 
-    Movies studies have been pushing facial and character animation to a level where machine learning can  automize a large part of this work in a production pipeline. Research community is exploring machine learning for gait control too and quite successfully or for upscaling of liquid simulation\cite{CNNFluid2016}. \\
 
-    However, for rigid body problems it is not quite clear how to approach the technicalities in applying deep learning. Some work have been done in terms of inverse simulations or pilings to control rigid bodies to perform a given artistic `target'. These thechniques are more in spirit of inverse problems that maps initial conditions to a well defined outcome(number of bounces or which face up on a cude) or level of detail idea replacing interiors of piles with stracks of cylinders pf decreasing radius to make an overall apparent pile have a given angle of of repose. \\
 
-    Contact forces determine what happens to both brick and wall. The accuracy of the computed contact forces affects both plausibility and stability of the final simulation. For this reason, good contact force determination methods are wanted in physical simulation, whether it is used in engineering systems or computer games.
+\section{Overview}
+        The cencter piece of this project is to covert a rigid body simulation into imaging data and apply learning on these images. Basically, now researchers mainly use iterative solver to compute contact forces for each time step. The idea is not to completely replace contact solving by deep learning but rather take a hybrid approach of using the deep learning results as initial starting iterates for the contact forces solver. In other words, our hope is to use deep learning to provide usable initial values that close to the final solution. Totally, this project is consist of two parts. The first part is to find a method to generate assessable data for deep learning and test it whether it is available. The second part is to train one learning model based on the training dataset and apply the model to check its performance. Ideally, the learning model can accelerate the iterative solution process. \\
+
+        The paper is mainly composed of 6 chapters
+    \begin{itemize}
+        \item \textbf{Chapter 1}, is an introduction to the entire paper, including motivation, learning objectives, workflow and outline.
+
+        \item \textbf{Chapter 2}, mainly gives a brief description for contact models, inlcuding how to applied classic \textit{Newton-Euler} equation with constraints.
+
+        \item \textbf{Chapter 3}, is another important part to analize the main interpolation method used for the project, Smoothed Particle Hydrodynamics(SPH). At the end of the chapter, some experiments are taken to analize whether SPH is good to this case.
+
+        \item \textbf{Chapter 4}, gives some description for one of current hot techniques, deep learning, including a brief history of deep learning, some basic mathematic concepts, and optimization methods for training process.
+
+        \item \textbf{Chapter 5}, does describe implementation details specifically, from data generation to model design and training. Also, some analyses are made based on the experiment, including what values of Smoothed Particle Hydrodynamics(SPH) settings(kernel, grid size, and smoothing length) should be given, how to set the model training parameters, and comparison between learning model and built-in algorithm in simulation software.
+
+        \item \textbf{Chapter 6}, is the end of this paper. According to the experimental implementation, some conclusions are drawn. Finally, a plan is developed for the future work, which can be an improvement of the current project.
+
+        \item \textbf{Appendix}
+
+        \item \textbf{Appendix}
+    \end{itemize}
+
 
 \section{Goals}
-    Taking a master’s degree is a specialization process, a fine tuning of skills. Early on, I had an idea that my specialization would be computer vision and deep learning. Deep learning methods have got great successes in mnay fields, like computer vision, natual language processing. However, they s
+    Taking a master’s degree is a specialization process, a fine-tuning of skills. Doing a master thesis is more like a process of learning. During the master thesis project, you should only focus on one topic and put all your effort into it. Before doing this project, I spent more time on computer vision and deep leaning, without any experience in computer simulation. Reading many papers during this project helps me get some basic knowledge in contact model simulation and go deeper in deep learning. More importantly, I learned how to start and do one research when you are facing new topics.\\ 
 
+    \subsection{Learning Goal}
+    In this work, we hope to address how to apply deep learning to rigid body dynamics. In order to find a solution, I set a list of learning goals, 
     \begin{enumerate}
-        \item Describe the contact force problem among rigid objects by building Newton-Euler equations.
+        \item Describe the contact force problem among rigid objects by building \textit{Newton-Euler} equations.
         \item Analyze possible kernels which can work for simulator and compare the performances of different kernels on mapping the state of the simulator onto a grid.
         \item Analyze and compare the performance of different grid-sizes on the chosen kernel. 
         \item Design one convolution neural network to transfer momentum images into contact force images.
@@ -28,17 +48,12 @@
         \item Compare the two results from two experiments.
     \end{enumerate}
 
+\section{Work Contribution}
+    Since this is a student master project, Lukas, Lucian and me are engaged in the same topic. We finished the initial work with cooperation. All our work would be base on a python game engine, \textit{pybox2d}. The initial work includes,
 
-\section{Overview and Outline}
-    \subsection{Overview}
-        This master project aims to apply deep leaning in rigid simulation, specificly improving the speed of computing contact forces. Basicly, now researchers mainly use iterative solver to compute contact forces for each time step. Our idea is to use deep learning to give a available initial value which is close to final solution. This project can be devided to two parts. The first part is to find a method to generate assessible data for deep learning then test it whether it is available. The second part is to train one learning model and apply it to check its performance. \\
-
-        The paper mainly covers topics from computer simulation and deep learning. Try to improve the simulation of rigid dynamics. I gave an oueline as following,
     \begin{itemize}
-        \item \textbf{Chapter 1}, is the introduction to the whole paper, including motuvation, learning goals, work process and outline. 
-        \item \textbf{Chapter 2}, mainly gives a brief description for contact models, inlcuding how to applied classic \textit{Newton-Euler} equation with constraints. 
-        \item \textbf{Chapter 3}, is another import part to analize the main interpolation method used for the project, Smoothed Particle Hydrodynamics(SPH). At the end of the chapter, some experiments are taken to analize whether SPH is good to this case.
-        \item \textbf{Chapter 4}, leads to some description for one of current hot techniques, deep learning, including a brief history of deep learning, some basic mathematic concepts, and optimization methods for training process.
-        \item \textbf{Chapter 5}, does describe implementation details specificly, from data generation to model design and training. Analysis about SPH kernel determine, grid size and smoothing length choice, model training process and comparation between learning model and built-in algorithm in simulation software can be found in this chapter. 
-        \item \textbf{Chapter 6}, is the end of this paper. In the chapter, some conclusions will be made based on experiments implementation. Finally, I will make a future work, which can be a improvement for current project.
+        \item \textit{pybox2d} updating, which is to upgrade code of \textit{pybox2d} so that it can output the data that we need.
+        \item Grid-particle transformation, includes Smoothed-particle hydrodynamics implementation, interpolation query building.
     \end{itemize}
+    After that, we did individual experiments to set parameters for generating data and design our learning model separately. All public and personal code can be reviewed on Github Repository\footnote{\url{https://github.com/JaggerWu/Deep-Contact}}. The specific code can be also reviewed in Appendix. The final trained model can be obtained and tested on my persoanl Dropbox\footnote{\url{https://www.dropbox.com/s/jrwzqib6ghrq59i/model.h5?dl=0}}.
+
