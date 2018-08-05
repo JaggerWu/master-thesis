@@ -5,12 +5,17 @@ Six months ago, I had to formulate a set of goals for the work of this thesis. T
 
 Half one year ago, I had to formulate a set of goals for the work of this thesis. Althogh the goals were set before I gained the current knowledge, I still fortunately acheive almost all goals except respectively training two models for normal and frictional contact forces. To recap on the goals
 \begin{itemize}
-    \item \textbf{Describe the contact model by \textit{Newton-Euler} equation}
-    \item \textbf{Analyze SPH kernel}
-    \item \textbf{Analyze grid size and smoothing length}
-    \item \textbf{CNN design}
-    \item \textbf{Comparision among different model solution}
-    \item \textbf{Training both normal forces and friction forces}
+    \item \textbf{Describe the contact model by \textit{Newton-Euler} equation}, this is described in Chapter \ref{cp:contact}. Normally, the contact model can be derived as a linear complementarity problem formulation(Equation \ref{contactlcp}), which can solved by number.
+    \item \textbf{Analyze SPH kernel}, I introduced two smoothing kernel in this project, \textbf{Poly6} and \textbf{Spiky}. Intially, I tried to choose one kernel firstly, and then determine parameters(grid size and smoothing length). However, I found it would be smart to find good grid size($d$) and smoothing length($h$) respectively, then compare the performance of two kernels with good parameters.  
+    \item \textbf{Analyze grid size and smoothing length}, the analysis about grid cell size and smoothing length can be found in Figure \ref{poly6} and Figure \ref{spiky}.
+    \item \textbf{CNN design}, the CNN architecture can be reviewed in Figure \ref{fig:art}. Since there are no standard for CNN structure designing. I got the inspiration from AlexNet.
+    \item \textbf{Comparision among different model solution}, the results describing the difference among \textbf{Copy-Model}, \textbf{SPH-Model}, \textbf{None-Model} and \textbf{CNN-Model}, were shown in Figure \ref{fg:nosph}, Figure \ref{fg:addsph} and Figure \ref{testoneworld}.
+    \item \textbf{Training both normal forces and friction forces}, the CNN designed for 
 \end{itemize}
 
 \section{Future Work}
+
+\begin{itemize}
+    \item Exploring the  
+    \item
+\end{itemize}

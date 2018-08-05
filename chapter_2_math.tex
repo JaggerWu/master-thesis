@@ -1,12 +1,14 @@
 % new chapter for contact models
 
 \chapter{Contact Models}
-
-In an attempt to apply deep learning in a rigid dynamic simulation process, the first step is to understand the details associated with rigid dynamic simulation. Therefore, this chapter focuses on rigid body simulations to help readers understand how computers simulate rigid dynamics based on traditional \textit {Newton-Euler} equations, including how \textit {Newton-Euler} describes rigid dynamics, how to set constraint equations, and numercial solution for dynamic system equation.
+\label{cp:contact}
+In an attempt to apply deep learning in a contact dynamic system, the first step is to understand how the contact dynamic system is modeled and how system model is solved by numerical method. Therefore, this chapter focuses on rigid body simulations to help readers understand how computers simulate rigid dynamics based on traditional \textit {Newton-Euler} equations, including how \textit {Newton-Euler} describes rigid dynamics, how to set constraint equations and numerical solution for dynamic system equation.
 
 \section{Overview}
 
-In rigid body simulation, contact force is used to prevent rigid body from penetrating each other. The accuracy of calculated contact force has great influence on the fidelity of simulation. In order to achieve physical rationality, frictional forces are essential. The formulae of friction contact force problems include the modeling of normal force constraint and friction force constraint. In the future, friction contact force problem will be simply called contact force problem. Before exporting the contact model, it is important to note that the simulation system is constrained by velocity-based location updates\cite{Erleben:2007:VSP:1243980.1243986}. Since collision detection is another big acedamic topic\cite{boulic2007collision} and this is a thesis on contact problems, the following models are given under the assumption that contact determination has already been performed.
+In rigid body simulation, contact force is used to prevent the rigid bodies from penetrating each other. The accuracy of the calculated contact force has great influence on the fidelity of simulation. In order to achieve physical rationality, frictional forces are necessary. The formulae of friction contact force problems include the modeling of normal force constraint and friction force constraint. Because that frictional contact modeling is more complicated, I will give a simple and general solution for normal contact forces. The frictional contact model will be mentioned briefly, rather than giving details. Besides, the topic of the paper is about applying deep learning to contact simulation, I just want to do the simulation as simple as possible. So rigid bodies' shape would not be considered here. All the bodies would be a circle, which is similar to particles.\\
+
+Before exporting the contact model, it is important to note that the simulation system is constrained by velocity-based location updates\cite{Erleben:2007:VSP:1243980.1243986}. Since collision detection is another big academic topic\cite{boulic2007collision} and this is a thesis on contact problems, the following models are given under the assumption that contact determination has already been performed.
 
 \section{Rigid dynamics Simulation}
 
@@ -14,17 +16,17 @@ In rigid body simulation, contact force is used to prevent rigid body from penet
 Simulation of the motion of a system of rigid bodies is based on a famous system of differential equations, the \textit{Newton–Euler equations}, which can be derived from Newton’s laws and other basic concepts from classical mechanics:
 
 \begin{enumerate}
-    \item Newton’s first law: The velocity of a body remains unchanged r unless acted upon by a force.
+    \item Newton’s first law: The velocity of a body remains unchanged unless acted upon by a force.
     \item Newton’s second law: The time rate of change of momentum of r a body is equal to the applied force.
     \item Newton’s third law: For every force, there is an equal and opposite force.
 \end{enumerate}
 
-Before presenting the \textit{Newton–Euler} equations, we need to introduce a number of concepts from classical mechanics. We will start with one simple simulation with only position vector $\pmb{q}(t)$ and velocity vector $\pmb{v}(t)$. Then, we will introduce some concepts by adding rotatiopn to pure simulation, rotational velocity $\pmb{\omega}(t)$, and moment $\pmb{\tau}$ (also known as a torque).
+Before presenting the \textit{Newton–Euler} equations, we need to introduce a number of concepts from classical mechanics. I will start with one simple simulation with only position vector $\pmb{q}(t)$ and velocity vector $\pmb{v}(t)$. Then, we will introduce some concepts by adding rotation to pure simulation, rotational velocity $\pmb{\omega}(t)$, and moment $\pmb{\tau}$ (also known as a torque).
 
 
 \subsection{Simulation Basics}
 
-Firstly, we can start with a simple simulation with only position and velocity. Simulating the motion of a rigid body is almost the same as simulating the motion of a particle, so I will start with partcle simulation. For particle simulation, we let function $\pmb{q}(t)$ describe the particle's location in world space at time $t$. Then we use the change of $\pmb{q}(t)$
+Firstly, we can start with a simple simulation with only position and velocity. Simulating the motion of a rigid body is almost the same as simulating the motion of a particle, so I will start with particle simulation. For particle simulation, we let function $\pmb{q}(t)$ describe the particle's location in world space at time $t$. Then we use the change of $\pmb{q}(t)$
 to denote the velocity of the particle at time $t$. 
 \begin{equation}
     \pmb{v}(t) = \dot{\pmb{q}}(t)
@@ -66,11 +68,11 @@ However, to simulate the motion of particles actually, we need to know one more 
 \end{equation}
 
 \subsection{Rigid Body Concepts}
-Unlike a particle, a rigid body occupies a volume of space and has a particular shape. Rigid bodies are more complicated, beside translating them, we can rotate them as well. To locate a rigid body, we use $\pmb{q}(t)$ to denote their translation and a rotation matrix $\pmb{R}(t)$ to describe their rotation.
+Unlike a real particle, a rigid body occupies a volume of space and has a particular shape(including circle rigid objects). Rigid bodies are more complicated, besides translating them, we can rotate them as well. To locate a rigid body, we use $\pmb{q}(t)$ to denote their translation and a rotation matrix $\pmb{R}(t)$ to describe their rotation.
 
 \subsection{Rigid Body Equations of Motions}
 \label{sec:rigid_rm}
- Whereas linear momentum $\pmb{P}(t)$ is related to linear velocity with a scalar (the mass), angular momentum is related to angular velocity with a matrix \(\pmb{I}\), called the angular inertia matrix. The reason for this is that objects generally have different angular inertias around different axes of rotation. Angular momentum is defined as \(\pmb{L}\). The linear momentum and angular momentum are defined in Equation \ref{mom}.
+ Whereas linear momentum $\pmb{P}(t)$ is related to linear velocity with a scalar (the mass), angular momentum is related to the angular velocity with a matrix \(\pmb{I}\), called the angular inertia matrix. The reason for this is that objects generally have different angular inertias around different axes of rotation. Angular momentum is defined as \(\pmb{L}\). The linear momentum and angular momentum are defined in Equation \ref{mom}.
 \begin{subequations}
 \begin{align}
     m \dot{\pmb{v}}(t) = \pmb{f}(t) & \\
@@ -99,7 +101,7 @@ The total torque $\pmb{\tau}$ applied to the body is equal to the rate of change
     \right]
 \end{equation}
 
-Like what is expressed in $\textbf{Y}(t)$, the state of a rigid body is mainly consist by its position and orientation (describing spatial information), and its linear and angualr momentum(describe velocity information). Since mass $m$ and bodyspace inertia tensor $\pmb{I}_{body}$ are constants, we can the auxiliary quantities $\pmb{I}(t)$, $\pmb{\omega}(t)$ at any given time.
+Like what is expressed in $\textbf{Y}(t)$, the state of a rigid body mainly consists by its position and orientation (describing spatial information), and its linear and angular momentum(describe velocity information). Since mass $m$ and bodyspace inertia tensor $\pmb{I}_{body}$ are constants, we can the auxiliary quantities $\pmb{I}(t)$, $\pmb{\omega}(t)$ at any given time.
 \begin{subequations}
 \begin{align}
     \pmb{v}(t) & = \frac{\pmb{P}(t)}{m} \quad \\
@@ -140,14 +142,14 @@ Then, we can evaluate Equation \ref{tau_ev} as follows:
     \label{tau_ev}
 \end{equation}
 
-Since $\pmb{\omega} \times \pmb{\omega}$ is zero, the final term can be cancels out. This relationship left is knowned as :
+Since $\pmb{\omega} \times \pmb{\omega}$ is zero, the final term can be cancels out. This relationship left is known as :
 \begin{equation}
     \pmb{\tau} = \pmb{I}\dot{\pmb{\omega}} + [\pmb{\omega}]\pmb{I}\pmb{\omega}
     \label{tau}
 \end{equation}
 
 \subsection{Twist/Wrench}
-Twist is introduced to describe linear and angular velocity, and wrenches, which describe forces, and explain how these objects transform from one coordinate frame to another one. 
+\textbf{Twis}t is introduced to describe linear and angular velocity, and \textbf{Wrench}, is to describe forces and explain how these objects transform from one coordinate frame to another one. 
     \subsubsection{Twist} 
         A twist is a vector that expresses rigid motion or velocity. In Section \ref{sec:rigid_rm}, we saw how to parameterize the velocity of a rigid body as a linear velocity vector and an angular velocity vector. The coordinates of a twist are given as a 4-vector in $2$-D simulation, which we can check in \ref{twist}
             \begin{equation}
@@ -167,7 +169,7 @@ Twist is introduced to describe linear and angular velocity, and wrenches, which
 
 
 \subsection{Newton-Euler Equation}
-    \textit{Newton-Euler} equations for a rigid body can now be written in terms of the body's acceleration twist $\mathbf{v}$ methioned in \ref{twist} and the wrench $\mathbf{f}$ metioned in \ref{wrench} acting on the body. We can simply write the Newton and Eular equations,
+    \textit{Newton-Euler} equations for a rigid body can now be written in terms of the body's acceleration twist $\mathbf{v}$ mentioned in \ref{twist} and the wrench $\mathbf{f}$ mentioned in \ref{wrench} acting on the body. We can simply write the Newton and Euler equations,
 
     \begin{equation}
         \left[ \begin{array}{c} \pmb{\tau} - \pmb{\omega} \times \pmb{I} \pmb{\omega}\\ \pmb{f} \end{array}\right] = \left[ \begin{array}{cc} \pmb{I} & \pmb{0} \\ \pmb{0}& m\pmb{1}_{d\times d}\end{array} \right] \dot{\mathbf{v}}
@@ -191,9 +193,9 @@ Twist is introduced to describe linear and angular velocity, and wrenches, which
 
 
 \section{Velocity-based conatct model}
-    After get some basic physical and mathematical knowledge about dynamic system. Then,  the next step is to describe the equation of motion for system with contact forces.  \\
+    After getting some basic physical and mathematical knowledge about a dynamic system. Then,  the next step is to describe the equation of motion for the system with contact forces.  \\
 
-    When collision happens, we can use contact forces to model the interactions between two colliding objects. The contact forces consist of both normal forces and frictional forces, which are subject to a set of constraints. The constraints are defined in Equation \ref{eq:constraint}.
+    When the collision happens, we can use contact forces to model the interactions between two colliding objects. The contact forces consist of both normal forces and frictional forces, which are subject to a set of constraints. The constraints are defined in Equation \ref{eq:constraint}.
     \begin{equation}
         \pmb{c}(\pmb{q}) = [c_1(\pmb{q}),c_2(\pmb{q}),...,c_n(\pmb{q})]
         \label{eq:constraint}
@@ -218,7 +220,8 @@ Twist is introduced to describe linear and angular velocity, and wrenches, which
     \end{equation}
     where $\pmb{\lambda} = [\lambda_1, \lambda_2, ... , \lambda_n]^T$ are the Lagrange multipliers.
 
-\subsection{Linear Comlementarity Problem}
+\subsection{Linear Complementarity Problem}
+The classical method to solve contacts forces is to derive the contact problems as a linear complementarity problem formulation. I will give the definition of Linear Complementarity Problem below, \\
     (LCP): Given an unknown vector $\mathbf{x} \in \mathbb{R}^{m}$, a known fixed matrix $\pmb{A} \in \mathbb{R}^{m\times m}$, and a known fixed vector $\pmb{b} \in \mathbb{R}^{m}$, determine $\mathbf{x}$ such that,
     \begin{equation}
         f(\mathbf{x}) = \mathbf{x}^{T}(\pmb{A}\cdot\mathbf{x} + \pmb{b}) = 0
@@ -234,23 +237,19 @@ Twist is introduced to describe linear and angular velocity, and wrenches, which
 
 
 \subsection{Modeling contact}
-    The contact force problem can be stated as a linear complementarity problem (LCP)\cite{bender2014interactive}. However, a slightly different formulation is used in interactive physical simulations, we will derive this formulation. Without loss of generality, we will only consider a single contact point. The focus of this chapter is on the contact force model, so the time stepping scheme and matrix layouts are based on the velocity-based formulation. Then we can rewirte the \textit{Newton–Euler} equations based on Equation \ref{eq:cone},
+    The contact force problem can be stated as a linear complementarity problem (LCP)\cite{bender2014interactive}. I will derive this formulation. The focus of this chapter is on the contact force model, so the time stepping scheme and matrix layouts are based on the velocity-based formulation. If I just consider normal contact forces, the \textit{Newton–Euler} equations based on Equation \ref{eq:cone} can be rewritten as,
 
     \begin{equation}
-        \pmb{M}\dot{\mathbf{v}} = \pmb{J}_{n}^{T}\lambda_n + \pmb{J}_{t}^{T}\lambda_{t} + \mathbf{F}_{ext}
+        \pmb{M}\dot{\mathbf{v}} = \pmb{J}_{n}^{T}\pmb{\lambda}_n + \mathbf{F}_{ext}
     \end{equation}
 
     then we can get,
 
     \begin{equation}
-        \dot{\mathbf{v}} = \pmb{M}^{-1}\mathbf{F}_{ext} + \pmb{M}^{-1}\pmb{J}_{n}^{T}\lambda_{n} + \pmb{M}^{-1}\pmb{J}_{t}^{T}\lambda_{t}
+        \dot{\mathbf{v}} = \pmb{M}^{-1}\mathbf{F}_{ext} + \pmb{M}^{-1}\pmb{J}_{n}^{T}\pmb{\lambda}_{n}
         \label{sys}
     \end{equation}
 
-    Let the Lagrange multipliers $\pmb{\lambda} = [\lambda_n~\lambda_t]^{T}$ and contact Jacobian $\pmb{J} = [\pmb{J}_n, \pmb{J}_{t}]$, then we can rewrite Equation \ref{sys} as, 
-    \begin{equation}
-        \dot{\mathbf{v}} = \pmb{M}^{-1}\pmb{J}^{T}\pmb{\lambda} + \pmb{M}^{-1}\mathbf{F}_{ext}
-    \end{equation}
     The laws of physics must be incorporated into what we call ``instantaneous time'', which describes the continuous motion of the rigid bodies. After that, we discretize the model over time to obtain a `discrete-time' model, which is a series of time step sub-problems. Sub-problems are formulated and numerically solved at each time step to simulate the system.\\
     
     To discretize the system \ref{sys}, the acceleration can be approximated by \cite{anitescu1997modeling} as:
@@ -259,44 +258,53 @@ Twist is introduced to describe linear and angular velocity, and wrenches, which
     \end{equation}
     $\mathbf{v}_t$ and $\mathbf{v}_{t+v}$ are the velocities at the beginning of the current time step, and the next time step, $\Delta t$ is the time step. Then we can get,
     \begin{equation}
-        \mathbf{v}^{t+1} = \mathbf{v}^{t} + \pmb{M}^{-1}\pmb{J}^{T}\Delta{t}\pmb{\lambda} + \Delta{t}\pmb{M}^{-1}\mathbf{F}_{ext}
+        \mathbf{v}^{t+1} = \mathbf{v}^{t} + \pmb{M}^{-1}\pmb{J}_{c}^{T}\Delta{t}\pmb{\lambda}_{c} + \Delta{t}\pmb{M}^{-1}\mathbf{F}_{ext}
     \end{equation}
 
     Then we can define,
     \begin{equation}
     \begin{aligned}
-        \mathbf{w} & = \pmb{J}\mathbf{v}^{t+1} \\
-        & =  \underbrace{\pmb{J}\pmb{M}^{-1}\pmb{J}^{T}\Delta{t}}_{\pmb{A}}\pmb{\lambda} + \underbrace{\pmb{J}(\Delta{t}\pmb{M}^{-1}\mathbf{F}_{ext} + \mathbf{v}^{t})}_{\pmb{b}} \\
-        & = \pmb{A}\pmb{\lambda} + \pmb{b}
-        \label{lcp}
-    \end{aligned} 
+        \mathbf{w} & = \pmb{J}_{n}\mathbf{v}^{t+1} \\
+        & =  \underbrace{\pmb{J}_{n}\pmb{M}^{-1}\pmb{J}_{n}^{T}\Delta{t}}_{\pmb{A}}\pmb{\lambda}_{n} + \underbrace{\pmb{J}_{n}(\Delta{t}\pmb{M}^{-1}\mathbf{F}_{ext} + \mathbf{v}^{t})}_{\pmb{b}} \\
+        & = \pmb{A}\pmb{\lambda}_{n} + \pmb{b}
+    \end{aligned}
+    \label{contactlcp}
     \end{equation}
-    Also,
+    Also, for a general $\mathbf{w}$
     \begin{equation}
         \mathbf{w} = \pmb{J}\mathbf{v} = \frac{\dif{\pmb{c}}}{\dif{\pmb{q}}}\frac{\dif{\pmb{q}}}{\dif{t}} = \dot{\pmb{c}}
     \end{equation}
-    Based on physics law,
+    Based on physics law, for each contact $\lambda = 0$ or $\dot{c} = 0$, then,
     $$\pmb{\lambda}^{T} \dot{\pmb{c}} = 0$$
     So Equation \ref{lcp} can be considered as one LCP. So finally, contact model is to find solution for,
     $$\pmb{\lambda} = \textit{LCP}(\pmb{A}, \pmb{b})$$
-    However, when friction is added the model, the system will be more comlecated due to Coulomb’s friction law. Some other constraint(e.g. $-\mu \lambda_{n} \le \lambda_t \le \mu \lambda_n$) will be imported to find a solution. Since the focus of paper is on find a solution by deep learning, I did not explore too much on frictinal contact model. I recommend Sarah and Kenny's paper \cite{poulsen2010heuristic} to know more details. 
+    \subsubsection{Modeling Friction}
+    In order to make the virtual world more real, the friction is essential. However, when friction is imported to the model, the system will be more comlecated due to Coulomb’s friction law. We can rewrite Equation \ref{sys},
+    \begin{equation}
+        \dot{\mathbf{v}} = \pmb{M}^{-1}\mathbf{F}_{ext} + \pmb{M}^{-1}\pmb{J}_{n}^{T}\pmb{\lambda}_{n} + \pmb{M}^{-1}\pmb{J}_{t}^{T}\pmb{\lambda}_{t}
+        %\label{sys}
+    \end{equation}
+    And the another constraints, $-\mu \lambda_{n} \le \lambda_t \le \mu \lambda_n$ for each contact, will be added to the system. Since the focus of paper is on find a solution by deep learning, I did not explore too much on frictinal contact model. I recommend Sarah and Kenny's paper \cite{poulsen2010heuristic, bender2014interactive}to know more details. 
 
-\section{The Numercial Solution Method}
-    After obtaining discrete-time models, numerical methods must be applied to compute solutions. Normally, iterative solution will be used to solve LCP. 
+\section{The Numerical Solution Method}
+    After obtaining discrete-time models, numerical methods must be applied to compute solutions. Normally, an iterative solution will be used to solve LCP. Projected Gauss-Seidel Solver is one of the most classic methods. One introduction will be given below,
 
-    \subsection{Projected Gauss–Seidel(PGS) solver for contact forces}
-    One of the most classic methos is projected gauss-seidel(PGS). Most open-source software for interactive real-time rigid body simulation uses the Projected Gauss–Seidel (PGS) method for computing contact forces has been widely used by many open-source software and computer physics engine, like \textit{Box2D}\footnote{\url{http://box2d.org/}} for 2-$D$ and \textit{Bullet}\footnote{\url{https://pybullet.org/wordpress/}} for 3-$D$. PGS is computationally very efficient with an iteration cost of $O(n)$, using a careful memory layout of sparse matrices allows for a memory footprint of $O(n)$. In addition to being computationally and memory-wise efficient, PGS is very robust and can deal gracefully with ill-conditioned problems (due to many redundant constraints) or ill-posed problems (due to badly defined constraints). For these reasons, PGS is well suited for interactive applications like computer games. I introduced PGS in Algorithm \ref{pgs}. Generally, $\lambda_{init} = \pmb{0}$, and some experiment will be done to explore its covergence rate in section \ref{sphtest}.
+    \subsection{Projected Gauss-Seidel(PGS) solver for contact forces}
+    One of the most classic methods is projected gauss-seidel(PGS). Most open-source software for interactive real-time rigid body simulation uses the Projected Gauss-Seidel (PGS) method for computing contact forces, like \textit{Box2D}\footnote{\url{http://box2d.org/}} for 2-$D$ and \textit{Bullet}\footnote{\url{https://pybullet.org/wordpress/}} for 3-$D$. PGS is computationally very efficient with an iteration cost of $O(n)$, using a careful memory layout of sparse matrices allows for a memory footprint of $O(n)$. In addition to being computationally and memory-wise efficient, PGS is very robust and can deal gracefully with ill-conditioned problems (due to many redundant constraints) or ill-posed problems (due to badly defined constraints). For these reasons, PGS is well suited for interactive applications like computer games. I introduced PGS in Algorithm \ref{pgs}. Generally, $\pmb{\lambda}_{init} = \pmb{0}$, and some experiment will be done to explore its convergence rate in section \ref{sphtest}.
     \begin{algorithm}[!h]
         \KwData{$N, \pmb{\lambda}, \pmb{A}, \pmb{b}$}
-        \KwResult{Compute the values of $\pmb{\lambda}$}
+        \KwResult{Compute the values of $\pmb{\lambda}$, the convergence rate $\pmb{\theta}$}
         \For{$ k = 1~\textbf{To}~N$}{
+            $\pmb{\lambda}_{old} \gets \pmb{\lambda}$ \\
             \For{all $i$}{
                 $\pmb{r}_i \gets \pmb{A}_{i*}\pmb{\lambda} + \pmb{b}_i$ \;
                 $\pmb{\lambda}_{i} \gets \text{max}(0, \pmb{\lambda}_i - \frac{\pmb{r}_i}{\pmb{A}_{ii}})$ \;
             }
+            $\pmb{\theta}_{k} \gets \text{max}(|\pmb{\lambda}- \pmb{\lambda}_{old}|)$
         }
         \caption{\textit{pgs}($\pmb{A}, \pmb{b}, \pmb{\lambda}$)}
         \label{pgs}
     \end{algorithm}
+    Finally, PGS algorithm will return you the final solution \(\pmb{\lambda}\) and a list of convergence rate $\pmb{\theta}$. Normally, the convergence rate can indicate the performance of iterative solver. In order to represent the overall performance of model or solver, I use average convergence rate in each iteration. You can see the analysis in Section \ref{sphtest} to get more details. \\
 
-    As a conclusion, iterative solver will be use to solve LCP problem. Our hope is to find values which are close to the final solution by deep learning. Then the closing values will be used as initial values so that iterative solve can converage rapidly.
+    As a conclusion, the iterative solver will be used to solve the LCP problem. Our hope is to find values which are close to the final solution through deep learning. Then the closing values will be used as initial values so that iterative solve can converge rapidly.

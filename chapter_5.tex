@@ -1,23 +1,25 @@
 \chapter{Results and Analysis}
 \label{details}
-This chapter mainly talk about 
+After introducing the basic knowledge which is available and used in the project, I will start the experiments and analyze the results. The main experiments would be,
 \begin{enumerate}
-    \item Do the simulation based one computer physics library. Totally, 100 different rigid motion simulation should be finished. For every simulation, fixed steps should be recorded.
-    \item Restore information of each state of per simulation by using \textbf{XML} formats, including positions, velocities, contact forces, etc.
-    \item Read \textbf{XML} file, and then generate some grid images for training.
-    \item Do the deep learning based on training dataset which is created by last step.
-    \item Apply the trained model to initialize the values of contact forces($\lambda$). Then compare deep learning method and classical methods.
+    \item Do the simulation based one computer physics library(\textit{pybox2d}). Totally, 100 different rigid motion simulation would be carried out. For every simulation, I would record the fixed number of simulation steps, $600$.
+    \item \textbf{XML} formulation would be used to store every step of all simulation. The data of each state would involve positions, velocities, contact forces, etc.
+    \item Once obtaining the \textbf{XML} files. I would transform the \textbf{XML} files into a \textit{pybox2d} world, and then carry out some experiments to determine different grid size and smoothing length of SPH.
+    \item After choosing the proper parameter of the SPH kernel(types, grid cell size, and smoothing length), I would transform these \textbf{XML} files to grid images, which are used as training dataset. 
+    \item Design a deep learning model and do the training on the training dataset.
+    \item Apply the trained model to predict the starting iterate values of contact forces($\pmb{\lambda}$). Then I would compare the learning model with other classical methods.
 \end{enumerate}
 
 \section{Rigid Motion Simulation}
 
-\textbf{pybox2d}\footnote{\url{https://github.com/pybox2d/pybox2d}} is chosen as the main physics engine to implemente computer simulation experiments. \textbf{pybox2d} is a 2D physics library for your games and simple simulations. It's based on the Box2D library, written in \textit{C++}. It supports several shape types (circle, polygon, thin line segments), and quite a few joint types (revolute, prismatic, wheel, etc.). 
+\textit{pybox2d}\footnote{\url{https://github.com/pybox2d/pybox2d}} is chosen as the main physics engine to implement computer simulation experiments. \textit{pybox2d} is a 2D physics library for your games and simple simulations. It's based on the Box2D library, which is written in \textit{C++}. It supports several shape types (circle, polygon, thin line segments), and quite a few joint types (revolute, prismatic, wheel, etc.). In my experiment, I would first try to apply deep learning in the simple simulations. So I would mainly simulation with circle rigid objects sharing the same radius. 
 
 \subsection{Simulation Configuration}
+Simulation configs are listed below,
     \label{simconfig}
     \begin{itemize}
         \item \textbf{World Setting}, the world box size is $30\times30$,   and there are $100$ circle rigids($r=1$, all circle rigid bodies in the same size.) inside the box. Initially, the rigid circles will be located following gaussian distribution\footnote{\url{https://en.wikipedia.org/wiki/Normal_distribution}}. Then, all rigid circles will fall down by gravity. The visualization of simulation is shown in Figure \ref{fig:imsim}.
-        \item \textbf{Simulation Setting}, there will be totally $600$-steps simulation. For each step, $\Delta t = 0.01s$, and the number of iteration in  eacg step will be set as fixed, $3000$. Then I will use the average covergence rate to show how fast the model coverages.
+        \item \textbf{Simulation Setting}, there will be totally $600$-steps simulation. For each step, $\Delta t = 0.01s$, and the number of iteration in each step will be set as fixed, $3000$. Then I will use the average convergence rate to describe the performances of models.
     \end{itemize}
 \subsection{Simulation Details}
     Before generating data, one dynamic simulation was run to check how \textit{pybox2d} works and some figures have been obtained. Figure \ref{fig:contactnum} describe the relationship between time step and contacts number, and Figure \ref{fig:contacttime} gives the relationship between time spend and contacts number.
@@ -47,7 +49,7 @@ This chapter mainly talk about
         \end{subfigure}
         \begin{subfigure}[b]{0.7\textwidth}
             \includegraphics[width=\textwidth]{Figures/contact_time}
-            \caption{Time spend for contact solution.}
+            \caption{Time spent for contact solutions.}
             \label{fig:contacttime}
         \end{subfigure}
         \caption{Visualization for experiment simulation}
@@ -55,7 +57,7 @@ This chapter mainly talk about
 
 \subsection{SPH parameters}
     \label{SPH-setting}
-    In Section \ref{SPHtest}, it has been tested that \textbf{SPH} is a good strategy to generate grid images representing a discrere snapshot of the dynamics. Then, the grid size and smoothing length $h$ are import to our data generation. The grid size should be reasonable so that there is no two contact points are mapped into the same cell, since if there are more than two contact values in one cell, it will be hard for CNN to recognize, which will decrease the accuracy of prediction. This was mentioned in section \ref{gs}.
+    In Section \ref{sphtest}, it has been tested that \textbf{SPH} is a good strategy to generate grid images representing a discrete snapshot of the dynamics. Then, the grid size and smoothing length $h$ are imported into our data generation. The grid size should be reasonable so that there is no two contact points are mapped into the same cell, since if there are more than two contact values in one cell, the rid node might store mixture information state from two objects. which would be hard for CNN to find the relationship within one objects, which will decrease the accuracy of prediction. This was mentioned in section \ref{gs}.
     \begin{figure}[!h]
         \centering
         \includegraphics[width=0.4\textwidth]{Figures/SPHvi.pdf}
@@ -74,54 +76,73 @@ This chapter mainly talk about
         \item For a given $d$, whatever the contact position $\pmb{q}=(q_x, q_y)$ is, its information can be restore in nearby nodes. So it can be,
             $$h \ge \frac{\sqrt{2}}{2}d \approx 0.71 d$$
     \end{itemize}
-    One experiment has been designed to test whether the rules can be applied in this case. Still using the simulation config introduced in section \ref{simconfig}. The cell size is fixed, $d=0.25$. Different smoothing length is appiled. The results are shown in Figure \ref{fig:dh}. \\
+    One experiment has been designed to test whether the rules can be applied in this case. Still using the simulation config introduced in section \ref{simconfig}. The cell size is fixed, $d=0.25$. Different smoothing length is appiled. The results are shown in Figure \ref{fig:dh}.
 
-    As what is shown in Figure \ref{fig:dh}, when $h=0.4d$ or $h=2d$, the solver coverages more slowly and unstable. Overall, for the next step, data generation, I will make $h=d$ always. The next step is to explore what $d$ value will be good.
     \begin{figure}[!ht]
-        \centering
-        \includegraphics[width=0.7\textwidth]{Figures/size25.pdf}
+     \centering
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{Figures/size25.pdf}
         \caption{The grid size $d$ is set $0.25$. $h=0.1, 0.2, 0.25, 0.5$ is tested respectively. This figure shows different coveragence rate based on different $h$ value.}
         \label{fig:dh}
-    \end{figure}
-    $h=d$ has been determined, the next step is to choose the value of $d$. Another experiment is taken to check the convergence rate with using diffrent $d$ values. The reults are showns in Figure \ref{fig:testd}. From this figure, it is obviously, when $d=0.5$, iterative solver converages the most rapidly. 
-    \begin{figure}[!ht]
-        \centering
-        \includegraphics[width=0.7\textwidth]{Figures/hd.pdf}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{Figures/hd.pdf}
         \caption{Coveragence rate for different $d$ value.}
         \label{fig:testd}
+    \end{subfigure}
+    \caption{Experiments from kernel \textbf{Poly6}}
+    \label{poly6}
     \end{figure}
+
+    As what is shown in Figure \ref{fig:dh}, when $h=0.4d$ or $h=2d$, the solver coverages more slowly and unstable. Overall, for the next step, data generation, I will make $h=d$ always. The next step is to explore what $d$ value will be good. Once $h=d$ has been determined, the next step is to choose the value of $d$. Another experiment is taken to check the convergence rate with using diffrent $d$ values. The reults are showns in Figure \ref{fig:testd}. From this figure, it is obviously, when $d=0.5$, iterative solver converages the most rapidly. 
     \textbf{Importantly}, $d=0.5~~\text{and}~~h=0.5$ is not always the best experimented with different numbers of rigid inside the world box. But, it generally performs better than other values. As a result, I will choose $h=d=0.5$ as the parameters for SPH method.
     $$d_x = d_y = 0.5~~\text{and}~~h=0.5$$
     \subsubsection{Kernel Choosing}
-    The choice of kernel also needs to be addressed. In the paper, two kernels, \textbf{Poly6} and \textbf{Spiky}, have been introduced in section \ref{sec:kernels}. These two kernels are seperately used based on Algorithm \ref{testSPH}. Then, the plot about coveragence rate of different kernels is obtained. From the plot, it is clear that kernel \textbf{Poly6} perform better.  
+    The choice of kernel also needs to be addressed. In the paper, two kernels, \textbf{Poly6} and \textbf{Spiky}, have been introduced in section \ref{sec:kernels}. In order to compare these two kernels and determine the best one, finding the best parameters for \textbf{Spiky} is essential. I did the same experiment with kernel \textbf{Spiky}. Find a good scale between $h$ and $d$ firstly and then choose $d$. The results are shown in Figure \ref{spiky}. The plot in Figure \ref{fig:spikynum} reveals that $h=d$ is also a good choice for kernel \textbf{Spiky}. Although $d$s perform similarly, $d=0.25$ performs more stable and a bit fater in convergence. \\
+    \begin{figure}[!ht]
+        \centering
+        \begin{subfigure}[b]{0.7\textwidth}
+            \includegraphics[width=\textwidth]{Figures/spiky25.pdf}
+            \caption{The grid size $d$ is set $0.25$. $h=0.1, 0.2, 0.25, 0.5$ is tested respectively. This figure shows different coveragence rate based on different $h$ value.}
+            \label{fig:spikynum}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.7\textwidth}
+            \includegraphics[width=\textwidth]{Figures/spikysize.pdf}
+            \caption{Coveragence rate for different $d$ value.}
+            \label{fig:spikyttime}
+        \end{subfigure}
+        \caption{Experiments for kernel \textbf{Spiky}.}
+        \label{spiky}
+    \end{figure}
+    These two kernels are separately used based on Algorithm \ref{testsph}. In order to compare these two kernels carefully, the fixed iteration number was extended to $5000$. Then, the plot about the convergence rate of different kernels is obtained in Figure \ref{fig:testdkernel}. From the plot, it is clear that kernel \textbf{Poly6} perform better.  
     \begin{figure}[!ht]{}
         \centering
         \includegraphics[width=0.8\textwidth]{Figures/kerneltest.pdf}
-        \caption{Coveragence rate for kernel \textbf{Poly6} anf \textbf{Spiky}}
-        \label{fig:testd}
+        \caption{Coveragence rate for kernel \textbf{Poly6} anf \textbf{Spiky}. $h_\text{poly6} = d_\text{poly6} = 0.5$, while $h_\text{spiky} = d_\text{spiky} = 0.25$}
+        \label{fig:testdkernel}
     \end{figure}
     As a conclusion, SPH with \textbf{Poly6} kernel($\pmb{d} = (0.5, 0.5)$, smoothing length $h=0.5$), will be used for particle-grid transformation. \\
 
-    After determining grid size and smoothing length, I will compare this specific \textbf{SPH-Model} with other models mentionde in section \ref{SPHtest}, following Algorithm \ref{testSPH}. The result is shown in Figure \ref{fig:final_test}.
+    After determining grid size and smoothing length, I will compare this specific \textbf{SPH-Model} with other models mentionde in section \ref{sphtest}, following Algorithm \ref{testsph}. The result is shown in Figure \ref{fig:final_test}.
      \begin{figure}[!ht]
         \centering
         \includegraphics[width=0.8\textwidth]{Figures/final_SPH.pdf}
         \caption{Coveragence rate for models(different initial values for $\pmb{\lambda}$).}
         \label{fig:final_test}
     \end{figure}
-    Unlike the result shown in Figure \ref{fg:addSPH}. Compared with other models, \textbf{SPH-Model} gets convergence much faster. So, $h=d=0.5$ is a good choice for this project and the future steps.
+    Unlike the result shown in Figure \ref{fg:addsph}. Compared with other models, \textbf{SPH-Model} gets convergence much faster. So, $h=d=0.5$ is a good choice for this project and the future steps.
 
 \section{Data Generation}
-To create data that are more accessible to learning, I will map a discrete element method into a continuum settig use techniques from smooth particle hydrodynamics(SPH). In order to get enough avaliable training data and remove useless information, I used
+To create data that are more accessible to learning, I will map a discrete element method into a continuum setting use techniques from smooth particle hydrodynamics(SPH). In order to get enough available training data and remove useless information, I used,
 \begin{itemize}
-    \item $150$ simulation with different initial configuration. The number of circle objects is not fixed as well. However, if there is too few objects inside the box, contacts might not happen until the simulation ends up. So the number of objects will be in range of $[70, 110]$.
-    \item If there is no contact in one state, the state means nothing to the learning. So the states without any contacts will be removed.
+    \item Totally $150$ simulations with different initial configuration. The number of circle objects is not fixed as well. However, if there are too few objects inside the box, contacts might not happen until the simulation ends up. So the number of objects will be in the range of $[70, 110]$.
+    \item If there is no contact in one state, the state means nothing to the learning. So the state files without any contacts will be removed.
 \end{itemize}
 
 \subsection{XML Restoration}
-In each simulation, state in every time step will be stored in one \textbf{xml} file. The structure of the body is consist of \textbf{mass}, \textbf{position}, \textbf{velocity}, \textbf{spin omega} and \textbf{inertia}. The structure of contact is consist of \textbf{postion}, \textbf{impulse}(including in normal direction and tangent direcrion), \textbf{master} body and \textbf{slave} body. Two examples are given in the following.\\
+For each simulation, the state in every time step will be stored in one \textbf{XML} file. The structure of the body is consist of \textbf{mass}, \textbf{position}, \textbf{velocity}, \textbf{spin omega} and \textbf{inertia}. The structure of contact consists of \textbf{postion}, \textbf{impulse}(including in normal direction and tangent direcrion), \textbf{master} body and \textbf{slave} body. Two examples are given in the following.\\
 
-This is nn example for one body information is given below.
+This is an example of one body information is given below.
 \begin{lstlisting}[language=XML]
     <body index="86" type="free">
         <mass value="3.14159274101"/>
@@ -151,17 +172,21 @@ As it is talked in \ref{SPH-setting},
     \item \textbf{Kernel Settings}, cell size $d_x=d_y=0.5$, smoothing length $h=0.5$.
 \end{itemize}
 \subsection{XML to grid}
-After getting a set of \textbf{xml} file, the next step is to read state information from \textbf{xml} file, and then map them to grid images with SPH based method. The channel of each image will be 8, including $[m, v_x, v_y, \omega, n_x, n_y, \lambda_n, \lambda_t]$. Since $n_y$ is related to $n_x$, I remove $n_x$ from the channels. \\
+After getting a set of \textbf{XML} file, the next step is to load state information from \textbf{XML} file, and then map them to grid images with SPH based method. Since for any contact point, there are two normal contacts, one with $[n_x, n_y]$ while the other with $[-n_x, -n_y]$. So the grid values for $\pmb{n}$ would be always $\pmb{0}$, and the same  with $\pmb{t}$. So finally, the channel number of each image will be $6$, including $[m, v_x, v_y, \omega, \lambda_n, \lambda_t]$. \\
 
-For the learning, I devide 8 channels to features(input) and label(output).
-    $$\text{Feature} = [m, v_x, v_y, \omega, n_x]$$
+For the learning, I divide 8 channels into features(input) and label(output).
+    $$\text{Feature} = [m, v_x, v_y, \omega]$$
     $$\text{Label} = [\lambda_n, \lambda_t]$$
-
 
 
 \section{CNN Training}
 \subsection{CNN  Architecture}
-    The neural network was designed using Keras\cite{chollet2015keras}. Keras is a neural networks Application Programming Interface (API) written in Python, it runs on top of either TensorFlow. With some inspiration from AlexNet\cite{Krizhevsky:2012:ICD:2999134.2999257}, the networks shows five constracting stacks of layers and each stack is consist of two or three convolutional layers in the same size. To avoid overfitting, each stack is followed by one dropout layer. One full-connected layer is set after the last convolutional layer. This input layer is followed by a batch normalization layer, normalizing images within a batch, which is discussed in section \ref{batchnor}. This architecture includes $64,498,866$ weights for an input size of ($41\times41\times5$). All convolutional layers have kernels of size $(3\times 3\times d)$, and are followed by ReLU activation function. Figure \ref{fig:art} shows visualization of model architecture, and Table \ref{table:layers} shows the specific information about parameters when input images go through the CNN.
+    The neural network was designed using Keras\cite{chollet2015keras}. Keras is a neural networks Application Programming Interface (API) written in Python, it runs on top of either TensorFlow. With some inspiration from AlexNet\cite{Krizhevsky:2012:ICD:2999134.2999257}, the networks shows five constructing stacks of layers and each stack is consist of two or three convolutional layers in the same size. To avoid overfitting, each stack is followed by one dropout layer. One full-connected layer is set after the last convolutional layer. This input layer is followed by a batch normalization layer, normalizing images within a batch, which is discussed in Section \ref{batchnor}. This architecture includes $51,599,092$ weights for an input size of ($61\times61\times4$). All convolutional layers have kernels of size $(3\times 3\times d)$, and are followed by ReLU activation function. Figure \ref{fig:art} shows the visualization of model architecture, and Table \ref{table:layers} shows the specific information about parameters when input images go through the CNN.
+    \begin{itemize}
+        \item \textbf{Input Size}, the input will be $61\times61\times4$. Since the orginal world is $30\times30$ and grid size is $d=0.5$, the generated grid would be $61\times61$. There would $4$ channels
+        \item \textbf{Output Size}, output size depends on the label size. The orginal label image would be $[\lambda_n, \lambda_t]$, so the label image size would be $61\times61\times2$, which should be flattened as the actual training label. The label size would be $61\times 61 \times 2$
+        \item \textbf{Weight Number}, the total weights number is $64,498,866$. 
+    \end{itemize}
 
     \begin{figure}[!h]
         \centering
@@ -174,7 +199,7 @@ For the learning, I devide 8 channels to features(input) and label(output).
         \centering
         \begin{tabular}{ l | c  }
             Layer & Output Shape  \\ \hline
-            Input & $n_b\times61\times61\times5$  \\
+            Input & $n_b\times61\times61\times4$  \\
             Convolution(32) & $n_b\times61\times61\times32$  \\
             Convolution(32) & $n_b\times61\times61\times32$  \\
             Dropout & $n_b\times61\times61\times32$  \\
@@ -228,7 +253,7 @@ Then, we can update the loss function based on Euqation \ref{eq:mse}.
             Activation function & ReLU \\
             Weight initilization & He normal\cite{sutskever2013importance} \\
             Weight regularizer &  L2 \cite{hinton2006fast} \\
-            Convolution border mode   & Same \\
+            Convolution border mode  & Same \\
             Stride & 2 \\ 
             Kernel size & $(3, 3)$ \\
             Dropout rate & $0.1$ \\
@@ -244,6 +269,15 @@ Then, we can update the loss function based on Euqation \ref{eq:mse}.
     \subsubsection{Learning Rate}
     The learning rate will change with the number of epoch, as talked in section \ref{learning}. I will give a specific value as the learning rate depending on the number of epoch. The learning rate will become smaller with increasing epoch. 
     data. The overall algorithm is concluded in Algorithm \ref{ls}.
+
+    \subsubsection{Conclusion about Training process}
+    \begin{itemize}
+        \item The size of the input image is $41\times41\times4$, and all pixels are important since all of them retore useful information. If we want to extract the features from $41\times 41$, $3\times 3$ kernel would be a good choice. But the disadvantages is that there would be a lot of training parameters, which might slow down the learning process.
+        \item I do have nearly $18208$ samples for training. However, it is hard for both the GPU and CPU to load all the data at one time. Dividing all training samples to a couple of batches would not only speed up the single training time and release memory, but also reduce the risk of overfitting.
+        \item The learning rate will change with the number of the epoch, as analyzed in section \ref{learning}. I will give a specific learning rate values depending on the number of the epoch. The learning rate will become smaller with With the epoch increase, I hope the value of learning rate can decrease. Since the high learning rate would cause suboptimal performance at the end of training. The overall algorithm is concluded in Algorithm \ref{ls}.
+        \item Validation data set is essential to test the accuracy of the model and whether it is overfitting. Before each epoch, validation would be randomly selected, $20\%$ of total data.
+    \end{itemize}
+
     \begin{algorithm}[!h]
         \KwData{$epoch$}
         \KwResult{learning rate $\eta$}
@@ -251,18 +285,45 @@ Then, we can update the loss function based on Euqation \ref{eq:mse}.
         \If {$100< epoch < 300$}{$\eta = 2\times10^{-3}$}
         \If {$300< epoch < 500$}{$\eta = 1\times10^{-3}$}
         \If {$epoch > 300$}{$\eta = 2\times10^{-4}$}
-        \caption{Learning Rate Scheduling}{}
+        \caption{Learning Rate Scheduling}
         \label{ls}
     \end{algorithm}
 
 
 \section{Simualtion based on Trained Model}
-Once getting the trained model, the next step is to apply this model in simulation based on Algorithm \ref{al:basic} and compare it with other solutions.\\
-
-I applied it in one test world built by the setting mentioned in section \ref{simconfig}. The test world is consist one $30 \times 30 $ box and $K$($50<K<100$) randomly distributing balls($r=1$). The balls will fall down due to gravity. Figure \ref{testoneworld} shows the details. As what is expeted, CNN model performs similar with \textbf{SPH-Model}(mentioned in section \ref{SPHtest}). Although the model is not as good as \textbf{SPH-model}, its coverages rate is obviously faster than buit-in ones. 
-\begin{figure}
+Once getting the trained model, the next step is to apply this model in simulation based on Algorithm \ref{al:basic} and compare it with other solutions. The details of process is described in Algorithm \ref{al:basic}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=0.8\textwidth]{Figures/same_world.pdf}
-    \caption{}
+    \caption{The final result. Add the final CNN solution to compare with other methods.}
     \label{testoneworld}
 \end{figure}
+
+I applied it in one test world built by the setting mentioned in section \ref{simconfig}. The test world is consist one $30 \times 30 $ box and $K$($50<K<100$) randomly distributing balls($r=1$). The balls will fall down due to gravity. Figure \ref{testoneworld} shows the details. As what is expected, CNN model performs similar with \textbf{SPH-Model}(mentioned in section \ref{sphtest}). Although the model is not as good as \textbf{SPH-model}, its coverages rate is obviously faster than built-in ones. 
+From Figure \ref{testoneworld}, it can be indicated that the CNN model actually makes the iterative solver converge faster. But it is just a small improvement. The CNN solution cannot reach a convergence as rapidly as \textbf{Copy-Model}. It is mainly the limitation of the SPH-based method. When the particle .
+
+\begin{algorithm}[!h]
+        \KwData{
+            Given a set of bodies $\mathcal{B}$ and the state in time $t$, as well as some information of contacts between these bodies $\mathcal{C}$.
+        }
+        \KwResult{Get the contact forces $\pmb{\lambda}_{j}=[{\lambda_{n}}_{j}, {\lambda_{t}}_j]~~j\in\mathcal{C}$ at time $t$.}
+        \While{Simulation Runing}
+        {
+            1. read the current state, $\mathbf{x}=(x_i, y_i)$ is the spatial position of one node in the grid image.
+                $$m_i, \pmb{v}_i, \pmb{q}_i, \omega_{i}~~i\in\mathcal{B}$$
+                $$\pmb{n}_j~~j\in\mathcal{C}$$ \\
+            2. map the current state to a gird image,
+                $$G_{m}(\mathbf{x}) \equiv \sum_{i\in \mathcal{B}}W(\mathbf{x}, \pmb{q}_{i})m_i$$ 
+                $$G_{\pmb{v}}(\mathbf{x}) \equiv \sum_{i\in \mathcal{B}}W(\mathbf{x}, \pmb{q}_{i})\pmb{v}_i,~~\pmb{v}=(v_x, v_y)$$
+                $$G(\mathbf{x}) = [G_{m}(\mathbf{x}), G_{\pmb{v}}(\mathbf{x}), G_{\pmb{n}}(\mathbf{x})]$$ \\
+            3. Use $G(\mathbf{x})$ as the input image to the learning model, the output will be resize to a imag, the output image will be called $G_{output}$,
+                $$G_{output}(\mathbf{x}) = [G_{\lambda_{n}}(\mathbf{x}), G_{{\lambda}_{t}}(\mathbf{x})]$$ \\
+            4. Once the contact force image is obtained,  the conatct position $\pmb{q}_{j} = (x_{j}, y_{j})~~j\in\mathcal{C}$  will be used to interpolation image values based on Equation \ref{interpolation}.
+                $$\pmb{\lambda}_j \approx G_{output}(\pmb{q}_j)~~j\in\mathcal{C}$$ 
+            The interpolated values $\pmb{\lambda}$ will be used as starting iterated for \textit{pybox2d} conatc solver to find a final solution. \\
+            5. Update $t$
+                $$t = t + \Delta t$$ \\
+        }
+        \caption{Introducrion to the deep contact model solver in this thesis.}
+        \label{al:basic}
+\end{algorithm}
