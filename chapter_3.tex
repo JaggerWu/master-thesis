@@ -1,17 +1,17 @@
 \chapter{Partcle-grid-particle}
 \section{Overview}
-    Deep learning methods have been widely applied in computer vision, like segmentation, objects recognition. And training data is always crutial to the whole learning process. Normally, researchers prefer using the original image as the input images for training. However, it is still not clear that what kind of data can be used for predictiting the motion of onjects. Researchers in DeepMind\footnote{\url{https://deepmind.com/}} found that when deep neural networks are applied in physics motion prediction, the most difficult thing is to recognize different objects and get time-state data, like $m$, $\pmb{v}$, $\pmb{q}$, etc. In their new paper, they provide different colors to different moving bodies and use a sequence of frames as training data to make deep neural networks get state information($\pmb{v}, m, \pmb{q}$) \cite{DBLP:journals/corr/WattersTWPBZ17}.  Although visual interact networks work well to predict physics motion, it would be confused when it is facing many bodies dynamic system. In our view, we do not need deep learning model(e.g. convolutional neural networks) to replace the contact solver completely. We only hope deep neural network can accelerate the simulation. The learning model can give reasonable values which are close to the final solutions. Afterward, the iterative contact solver will use the values as starting, and ideally coverage rapidly. \\
+    Deep learning methods have been widely applied in computer vision, like segmentation, objects recognition. And training data is always crucial to the whole learning process. Normally, researchers prefer using the original image as the input images for training. However, it is still not clear that what kind of data can be used for predicting the motion of objects. Researchers in DeepMind\footnote{\url{https://deepmind.com/}} found that when deep neural networks are applied in physics motion prediction, the most difficult thing is to recognize different objects and get time-state data, like $m$, $\pmb{v}$, $\pmb{q}$, etc. In their new paper, they provide different colors to different moving bodies and use a sequence of frames as training data to make deep neural networks get state information($\pmb{v}, m, \pmb{q}$) \cite{DBLP:journals/corr/WattersTWPBZ17}.  Although visual interact networks work well to predict physics motion, it would be confused when it is facing many bodies dynamic system. In our view, we do not need deep learning model(e.g. convolutional neural networks) to replace the contact solver completely. We only hope deep neural network can accelerate the simulation. The learning model can give reasonable values which are close to the final solutions. Afterward, the iterative contact solver will use the values as warm starting, and ideally coverage rapidly. \\
 
-    After discussion, we decided to transform each time-state to a grid map by Smoothed Particle Hydrodynamics. Then we will use the grid maps as the training data for deep learning model. Overall, the advantages of using the grid-based method are,
+    So the crucial part is how to generate accessible data for deep learning. Normally, deep learning would accept matrixes as the input. After discussion, we decided to transform each time-state to a grid map by smoothed particle hydrodynamics. Then we will use the grid maps as the training data for deep learning model. Overall, the advantages of using the grid-based method are,
     \begin{enumerate}
-        \item Grid map can describe the mass distribution so that neural networks can understand the distribution of objects. In other words, it is possible for deep neural networks to recognize the objects in the simulation.
-        \item Grid map image can restore assessable data(mass, linear velocity, angular velocity) for deep learning neural networks, while the visualization image of simulation can only describe the position of rigid. This is helpful deep neural networks to find the relationship between state and contact forces.
+        \item It can make the simulation states be expressed by a set of matrixes, which can be accessible for deep neural networks.
+        \item Mathematically, contact forces are computed depending on the values of mass, linear velocity, and angular velocity. So, it would be more accurate to use this information as learning input. Grid image can restore the distribution of mass, linear velocity, angular velocity for deep learning neural networks, while the visualization image of simulation can only describe the position of rigid. This is helpful deep neural networks to find the relationship between the time state($m, \pmb{v}, \omega$) and contact forces.
     \end{enumerate}
 
     The basic method for generating training data which is more accessible to learning is that we will map a discrete element method(DEM) into a continuum setting use techniques from smooth particle hydrodynamics. Given a set of bodies $\mathcal{B}$ and a set of contacts between these bodies $\mathcal{C}$. The work process is like,
     \begin{enumerate}
-        \item Based on Smoothed Particle Hydrodynamics(SPH), map current state($m, v_x, v_y, \omega, n_x$) to a image(the number of channel is 5.), which is called \textit{feature image}
-        \item The \textit{feature image} will be used as input to a model(created by a convolutional neural network and introduced in Chapter \ref{cp:dp}), then one image(the number of channels is 2) will be got, which can be called \textit{label image}.
+        \item Based on Smoothed Particle Hydrodynamics(SPH), map current state($m, v_x, v_y, \omega$) to a image(the number of channel is 5.), which is called \textit{feature image}
+        \item The \textit{feature image} will be used as input to a model(created by a convolutional neural network and introduced in Chapter \ref{cp:dp}), then one image(the number of channels is 2) will be getting, which can be called \textit{label image}.
         \item For all contacts positions, interpolated values will be generated based on \textit{label image}. Then, the values will be used as starting iterate values for contact force solver. In our hypothesis, the given starting values will speed up the solver to reach convergence.
     \end{enumerate}
 
@@ -73,7 +73,7 @@
 
     \subsection{Smoothing Kernels}
     \label{sec:kernels}
-    Smoothing kernels function $W$ is one of the most important points in SPH. Stability, , and speed of the whole method depend on these functions. For different purposes, researchers will normally determine different kernels. One possibility for $W$ is a Gaussian. However, most current SPH implementations are based on kernels with finite support. So, I mainly introduce \textbf{poly6} and \textbf{spiky} kernels here. In the chapter \ref{details}, I will compare the different kernels and analyze which one is better.
+    Smoothing kernels function $W$ is one of the most important points in SPH. Stability, and speed of the whole method depend on these functions. For different purposes, researchers will normally determine different kernels. One possibility for $W$ is a Gaussian. However, most current SPH implementations are based on kernels with finite support. So, I mainly introduce \textbf{poly6} and \textbf{spiky} kernels here. In the chapter \ref{details}, I will compare the different kernels and analyze which one is better.
 
     \subsubsection{Poly6}
     \label{poly6}
@@ -192,7 +192,7 @@
 
 
 \section{Grid to particle}
-    SPH will be used for us to transform current state of dynamic system to grid images. After obtaining the grid image for simulation state in time $t$, we will use the grid cells as input and renew the contact grid image based on trained model. After getting the contact force grid image, the next step is to use contact position to interpolate image values. The interpolated values will be stored in the contact points and used as starting iterates for contact force solver. Then we can update states of all rigid bodies in time $t+\Delta{t}$.
+    SPH will be used for us to transform the current state of the dynamic system to grid images. After obtaining the grid image for simulation state in time $t$, we will use the grid cells as input and renew the contact grid image based on a trained model. After getting the contact force grid image, the next step is to use contact position to interpolate image values. The interpolated values will be stored in the contact points and used as starting iterates for contact force solver. Then we can update states of all rigid bodies in time $t+\Delta{t}$.
 
     \subsection{Bilinear interpolation}
     We applied bilinear interpolation in our case, since we did mainly research on a rectilinear $2-D$ grid.
@@ -248,15 +248,15 @@
 
 \subsection{pybox2d simulation}
     \label{sph:exp}
-    In order to test whether \textbf{SPH-based} method works for this case. All experiments will be done based on the basis physical engine, \textit{pybox2d}. Before testing the performance of \textbf{SPH-based} method, \textbf{Non-model}, \textbf{Builtin-model} and \textbf{Copy-model} are defined to see the influence of different initial values for iterative contact solver.
+    In order to test whether \textbf{SPH-based} method works for this case. All experiments will be done based on the basis physical engine, \textit{pybox2d}. Before testing the performance of \textbf{SPH-based} method, \textbf{Non-Model}, \textbf{Builtin-model} and \textbf{Copy-model} are defined to see the influence of different initial values for iterative contact solver.
     \begin{itemize}
-        \item \textbf{Non-Model} In each step of the simulation, before the contact solver starts iteration to make a resolution for current dynamic system equation, the initial $\lambda_{f}$ and $\lambda_{t}$ of every contact will be given value $0$.
-        \item \textbf{Builtin-Model} In each step of the simulation, before the contact solver starts iterations to make a resolution for current dynamic state equation, the initial value of $\lambda_f$ and $\lambda_{t}$ will be determined by the built-in algorithm. In other words, this model is the default solution built in \textit{pybox2d}.
-        \item \textbf{Copy-Model} In each step of the simulation before the contact solver starts iteration to make a resolution for current dynamic system equation, the initial value of $\lambda_f$ and $\lambda_t$ will be the actual solution after exact iterations solver.
+        \item \textbf{Non-Model} In each step of the simulation, the initial $\lambda_{f}$ and $\lambda_{t}$ of every contact will be given value $0$. In other words, there is no warm starting for the contact solver.
+        \item \textbf{Builtin-Model} In each step of the simulation, the initial value of $\lambda_f$ and $\lambda_{t}$ will be determined by the built-in algorithm(related to previous $\pmb{\lambda}$). In other words, this model is to make solver use default warm starting built in \textit{pybox2d}.
+        \item \textbf{Copy-Model} In each step of the simulation, the initial value of $\lambda_f$ and $\lambda_t$ would be the actual solution. This model would make solver use an actual solution as warm starting.
     \end{itemize}
     After defining these models, each model will be applied in the same rigid dynamic simulation process. The setting is given below,
     \begin{itemize}
-        \item \textbf{World Setting}, the world box size is $30\times30$,   and there are $100$ circle rigids($r=1$, all circle rigid bodies in the same size.) inside the box. Initially, the rigid circles will be located following gaussian distribution\footnote{\url{https://en.wikipedia.org/wiki/Normal_distribution}}. Then, all rigid circles will fall down by gravity. The visualization of simulation is shown in Figure \ref{fig:simvi}.
+        \item \textbf{World Setting}, the world box size is $30\times30$,   and there are $100$ circle rigid bodies($r=1$, all circle rigid bodies in the same size.) inside the box. Initially, the rigid circles will be located inside the world box following gaussian distribution\footnote{\url{https://en.wikipedia.org/wiki/Normal_distribution}}. Then, all rigid circles will fall down by gravity. The visualization of simulation is shown in Figure \ref{fig:simvi}.
         \item \textbf{Simulation Setting}, there will be totally $600$-steps simulation. For each step, $\Delta t = 0.01s$, and the number of iteration in each step will be set as fixed, $3000$. Then I will use the average convergence rate to show how fast the model coverages.
     \end{itemize}
     \begin{figure}[!h]
@@ -273,7 +273,7 @@
             \includegraphics[width=\textwidth]{Figures/sim3.png}
             \caption{Time Step=$400$}
         \end{subfigure}
-        \caption{Visualization for experiment simulation}
+        \caption{Visualization for simulation}
         \label{fig:simvi}
     \end{figure}
     \begin{figure}[!h]
@@ -282,7 +282,7 @@
         \caption{Average convergence rate for different models(not including \textbf{SPH-based model}).}
         \label{fg:nosph}
     \end{figure}
-    The results are described in Figure \ref{fg:nosph}. Then, we can get some basic conclusions,
+    The results describing the performance of \textbf{Non-model}, \textbf{Builtin-Model}, \textbf{Copy-Model} are shown in Figure \ref{fg:nosph}. Then, we can get some basic conclusions,
     \begin{itemize}
         \item \textbf{Copy-Model} performs the best, nearly no iteration to get convergence, since the correct solution would be given to the solver for start iterating.
         \item If all the starting values for iterative solver are zeros, it has to take a long time to reach convergence, which is indicated by \textbf{Non-Model}.
@@ -297,33 +297,36 @@
     \label{sphtest}
     The \textbf{SPH-Model} is defined as follow, as well as the experiment algorithm in Algorithm \ref{testsph},
     \begin{itemize}
-         \item \textbf{SPH-Model} In each step of simulation, one grid map $G(\mathbf{\pmb{\lambda}})~~\pmb{\lambda} = [\lambda_n, \lambda_t]$ will be created based on given rigid bodies $\mathcal{B}$ and contacts $\mathcal{C}$ between the bodies. Then, interpolated values would be generated by given contact point position $(x_j, y_j)~~j \in \mathcal{C}$ and would be used as initial values for iterative contact solver in \textit{pybox2D}. 
+         \item \textbf{SPH-Model} In each step of simulation, one grid map $\pmb{G}_{\lambda}$ will be created based on given rigid bodies $\mathcal{B}$ and contacts $\mathcal{C}$ between the bodies. Then, interpolated values would be generated by given contact point position $(x_j, y_j)~~j \in \mathcal{C}$ and would be used as initial values for iterative contact solver in \textit{pybox2D}. 
     \end{itemize}
-    \begin{algorithm}[!h]
-        \KwData{contacts $\mathcal{C}_{t}~~t\in T$ between these bodies. Contacts $\mathcal{C}_{t}$ are from a copy world, which will run the simulation of time $t$ in advance.}
-        \KwResult{Get the contact forces $\pmb{\lambda}_{t}$ and make simulation keep running.}
-        \For{all $t$ in $T$}
-        {
-            1. Read $\mathcal{C}_t$
-            2. map the solved contacts to a gird image, 
-                $$\pmb{G}_{\lambda} \gets Contacts2grid(\mathbf{x}, \mathcal{C}_t)$$ \\
-            3. Once the contact force image $\pmb{G}_{\lambda}$ is obtained,  then \\
-            \For{all $j \in \mathcal{C}$}{$$\pmb{\lambda}_{j} \gets interpolate(\pmb{G}_{\lambda}, \mathbf{x}, \pmb{q}_{j})$$}
-            4. Using $\pmb{\lambda}$ as a warm starting to \textbf{restart} the iterative solver,
-            $$\pmb{\lambda} \gets Solver(\pmb{\lambda})$$ \\
-            5. Updating the simulation world and $t \gets t+\Delta t$
-        }
-        \caption{Algorithm describeing how \textbf{SPH-Model} works for dynamic simulation.}
-        \label{testsph}
-    \end{algorithm}
-    Finally, the plot about the 
-    \begin{figure}[!h]
+    I mainly want to compare \textbf{SPH-Model} with \textbf{Buitin-Model} and analyze whether it is good strategy to generate training data.
+     \begin{figure}[!h]
         \centering
         \includegraphics[width=\textwidth]{Figures/addsph}
         \caption{Convergence rate for different models(including \textbf{SPH-based model}).}
         \label{fg:addsph}
     \end{figure}
-    As the hypothesis I supposed, \textbf{SPH-Model} converges faster than \textbf{Non-Model}. This can demonstrate the \textbf{SPH-based} method is a good strategy, which can make iterative contact solver converge quickly.
+
+    The results are shown in Figure \ref{fg:addsph}. As the hypothesis, I supposed, \textbf{SPH-Model} converges faster than \textbf{Builtin-Model}. We can consider \textbf{Builtin-Model} as the final perfect deep learning solution. As in \textbf{SPH-Model}, we get $\pmb{G}_{\lambda}$ directly from actual contact solution. If deep learning model predicts $\pmb{G}_{\lambda}$ perfectly, the performance(convergence rate) of deep learning method would be similar to \textbf{SPH-Model}. As a conclusion, \textbf{SPH-based} method is a good strategy, which can actually make iterative contact solver converge quickly.
+
+    \begin{algorithm}[!h]
+        \KwData{contacts $\mathcal{C}_{t}~~t\in T$ between these bodies. Contacts $\mathcal{C}_{t}$ are from a copy world, which will run the simulation of time $t$ in advance.}
+        \KwResult{Get the contact forces $\pmb{\lambda}_{t}$ and make simulation keep running.}
+        \For{all $t$ in $T$}
+        {
+            1. Read $\mathcal{C}_t$ \\
+            2. map the solved contacts to a gird image, 
+                $$\pmb{G}_{\lambda} \gets Contacts2grid(\mathbf{x}, \mathcal{C}_t)$$ \\
+            3. Once the contact force image $\pmb{G}_{\lambda}$ is obtained,  then \\
+            \For{all $j \in \mathcal{C}$}{$$\pmb{\lambda}_{j} \gets interpolate(\pmb{G}_{\lambda}, \mathbf{x}, \pmb{q}_{j})$$}
+            4. Using $\pmb{\lambda}$ as a warm starting to \textbf{restart} the iterative solver,
+            $$\pmb{\lambda} \gets Solver(\pmb{A}, \pmb{b}, \pmb{\lambda})$$ 
+            where $\pmb{A}$ and $\pmb{b}$ would be calculated by simulation engine.\\ 
+            5. Updating the simulation world and $t \gets t+\Delta t$
+        }
+        \caption{Algorithm describeing how \textbf{SPH-Model} works for dynamic simulation.}
+        \label{testsph}
+    \end{algorithm}
 
 \subsection{Conclusion}
-    Based the result in Figure \ref{fg:nosph} and \ref{fg:addsph}, it can be concluded that \textbf{SPH-based} strategy is available for the case in this thesis. Once the correct contact forces grid is achieved, the interpolated values will help the iterative solver to get convergence faster. So, the next step is to train an available model based on training data. The overall algorithm is concluded in Algorithm \ref{al:basic}.
+    Based the result in Figure \ref{fg:nosph} and \ref{fg:addsph}, it can be concluded that \textbf{SPH-based} strategy is good to generating training data in this thesis. Once the correct contact forces grid is achieved, the interpolated values will help the iterative solver to get convergence faster. So, the next step is to train an available model based on training data. The overall algorithm is summarized in Algorithm \ref{al:basic}.
