@@ -13,7 +13,7 @@ Before exporting the contact model, it is important to note that the simulation 
 \section{Rigid dynamics Simulation}
 
 \subsection{Classical mechanics}
-Simulation of the motion of a system of rigid bodies is based on a famous system of differential equations, the \textit{Newton–Euler equations}, which can be derived from Newton’s laws and other basic concepts from classical mechanics:
+Simulation of the motion of a system of rigid bodies is based on a famous system of differential equations, the \textit{Newton–Euler equations}, which can be derived from Newton’s laws and other basic concepts from classical mechanics \cite{bender2014interactive}:
 
 \begin{enumerate}
     \item Newton’s first law: The velocity of a body remains unchanged unless acted upon by a force.
@@ -315,7 +315,7 @@ The classical method to solve contacts forces is to derive the contact problems 
         \label{pgs}
     \end{algorithm}
     \subsubsection{Warm Starting}
-    How fast the solver gets convergence is related to $\pmb{\lambda}_{init}$. Industrially, $\pmb{\lambda}$ would be provided a value which is normally determined bu previous simulation. We call it as \textbf{warm starting}. The central idea of this project is to use deep learning give a good warm starting to the solver. 
+    How fast the solver gets convergence is related to $\pmb{\lambda}_{init}$. Industrially, $\pmb{\lambda}$ would be provided a value which is normally determined by previous simulation. We call it \textbf{warm starting}. The central idea of this project is to use deep learning to provide a good warm starting to the solver. 
 
     \subsubsection{Convergence Rate}
     PGS algorithm will return the final solution \(\pmb{\lambda}\) and a list of convergence rate $\pmb{\theta}$. Normally, the convergence rate can indicate the performance of an iterative solver. In order to represent the overall performance of the model or solver in the whole simulation, I use average convergence rate in each iteration. For a $T$ time-steps simulation. $\theta_{t}$ is the vector of convergence rates in time $t$.

@@ -174,10 +174,7 @@ This chapter consists of four sections.
     \end{equation}
 
     \subsubsection{Mini-batch Stochastic Gradient Descent}
-    This method performs an update for every mini-batch of n training samples. Mini-batch SGD reduces the variance of the parameter updates. Larger mini-batches reduce the variance of SGD updates by taking the average of the gradients in the mini batch. This allows taking bigger step sizes. In the limit, if each batch contains one training sample, it is the same as regular SGD.
-
-    \subsubsection{Distributed SGD}
-    In parallel computing environments, disturbed SGD is commonly applied for optimization. For a specific architecture, basically no difference in parameter values exists when training with different computers. The parameter space can thus be further explored, and improved performance will be obtained resultantly \cite{zhang2015deep}.
+    This method performs an update for every mini-batch of $n$ training samples. Mini-batch SGD reduces the variance of the parameter updates. Larger mini-batches reduce the variance of SGD updates by taking the average of the gradients in the mini batch. This allows taking bigger step sizes. In the limit, if each batch contains one training sample, it is the same as regular SGD \cite{zhang2015deep}.
 
     \subsection{Learning Rate Scheduling in Gradient Optimization}
     \label{learning}
@@ -204,12 +201,12 @@ This chapter consists of four sections.
         \label{nag}
     \end{equation}
 
-    \subsubsection{Adam}
-    The Adaptive Moment Estimation (Adam) optimizer \cite{DBLP:journals/corr/KingmaB14} determines an adaptive learning rate for each parameter. Apart from the decaying average for past squared gradients $v_n$, an exponentially decaying average is also maintained by Adam for the past gradients $m_n$. Estimates for the mean and the uncentered variance of the gradients are Vectors $v_n$ and $m_n$, respectively, and both of them are biased towards zero. Bias-corrected estimates $\hat{v}_t$ and $\hat{m}_t$ are computed for the update rule in Equation \ref{adam}.
+    %\subsubsection{Adam}
+    %The Adaptive Moment Estimation (Adam) optimizer \cite{DBLP:journals/corr/KingmaB14} determines an adaptive learning rate %for each parameter. Apart from the decaying average for past squared gradients $v_n$, an exponentially decaying average %is also maintained by Adam for the past gradients $m_n$. Estimates for the mean and the uncentered variance of the %gradients are Vectors $v_n$ and $m_n$, respectively, and both of them are biased towards zero. Bias-corrected estimates $\%hat{v}_t$ and $\hat{m}_t$ are computed for the update rule in Equation \ref{adam}.
 
-    \begin{equation}
-        \theta_{n+1} = \theta_{n} - \frac{\eta}{\sqrt{\hat{v}_n} + \epsilon}\cdot \hat{m}_n
-    \end{equation}
+    %\begin{equation}
+    %    \theta_{n+1} = \theta_{n} - \frac{\eta}{\sqrt{\hat{v}_n} + \epsilon}\cdot \hat{m}_n
+    %\end{equation}
 
     \subsection{Backpropagation}
      The CNN requires to adjust and update its kernel parameters, or weights, for the given training data. Backpropagation\cite{werbos1990backpropagation} is an efficient method for computing gradients required to perform gradient-based optimization of the weights in neural networks [19]. Minimizing the loss function (or error function), the weights are combined together on purpose for solving the problem of optimization. Herein, the gradient of error functions needs computing during each iteration, which requires continuity and differentiability of the loss functions for all iteration steps.

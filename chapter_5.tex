@@ -1,10 +1,10 @@
 \chapter{Results and Analysis}
 \label{details}
-After introducing the basic knowledge which is available and used in the project, I will start the experiments and analyze the results. The main experiments would be,
+After introducing the basic deep learning knowledge that would be used in the project, I will start the experiments and analyze the results. The main experiments would be,
 \begin{enumerate}
     \item Do the simulation based one computer physics library(\textit{pybox2d}). Totally, 100 different rigid motion simulation would be carried out. For every simulation, I would record the fixed number of simulation steps, $600$.
     \item \textbf{XML} formulation would be used to store every step of all simulation. The data of each state would involve positions, velocities, contact forces, etc.
-    \item Once obtaining the \textbf{XML} files. I would transform the \textbf{XML} files into a \textit{pybox2d} world, and then carry out some experiments to determine different grid size and smoothing length of SPH.
+    \item Once obtaining the \textbf{XML} files. I would transform the \textbf{XML} files into a \textit{pybox2d} world, and then carry out some experiments to determine the suitable grid size and smoothing length of SPH.
     \item After choosing the proper parameter of the SPH kernel(types, grid cell size, and smoothing length), I would transform these \textbf{XML} files to grid images, which are used as training dataset. 
     \item Design a deep learning model and do the training on the training dataset.
     \item Apply the trained model to predict the starting iterate values of contact forces($\pmb{\lambda}$). Then I would compare the learning model with other classical methods.
@@ -49,10 +49,10 @@ Simulation configs are listed below,
         \end{subfigure}
         \begin{subfigure}[b]{0.7\textwidth}
             \includegraphics[width=\textwidth]{Figures/contact_time}
-            \caption{Time spent for contact solutions.}
+            \caption{Time spent for contact solver(only the time for interation).}
             \label{fig:contacttime}
         \end{subfigure}
-        \caption{Visualization for experiment simulation}
+        \caption{Details of a normal simulation. Figure \ref{fig:contactnum} shows contact numbers in each step, while Figure \ref{fig:contacttime} shows the time spent for contact iteration.}
     \end{figure}
 
 \subsection{SPH Parameters}
@@ -130,7 +130,20 @@ Simulation configs are listed below,
         \caption{Coveragence rate for models(different initial values for $\pmb{\lambda}$).}
         \label{fig:final_test}
     \end{figure}
-    Unlike the result shown in Figure \ref{fg:addsph}. Compared with other models, \textbf{SPH-Model} gets convergence much faster. So, $h=d=0.5$ is a good choice for this project and the future steps.
+    Unlike the result shown in Figure \ref{fg:addsph}. Compared with other models, \textbf{SPH-Model} gets convergence much faster. So, $h=d=0.5$ is a good choice for this project and the future steps. Some example visualization of images is shown in Figure \ref{fig:examsph}.  
+    \begin{figure}[!h]
+        \centering
+        \begin{subfigure}[b]{0.45\textwidth}
+            \includegraphics[width=\textwidth]{Figures/sphmass}
+            \caption{The grid image for mass distribution.}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.45\textwidth}
+            \includegraphics[width=\textwidth]{Figures/sphy}
+            \caption{The grid image for $v_x$ distribution.}
+        \end{subfigure}
+        \caption{Example visualization for bodies image with $d=0.5$ and $h=0.5$}
+        \label{fig:examsph}
+    \end{figure}
 
 \section{Data Generation}
 To create data that are more accessible to learning, I will map a discrete element method into a continuum setting use techniques from smooth particle hydrodynamics(SPH). In order to get enough available training data and remove useless information, I used,
@@ -139,8 +152,8 @@ To create data that are more accessible to learning, I will map a discrete eleme
     \item If there is no contact in one state, the state means nothing to the learning. So the state files without any contacts will be removed.
 \end{itemize}
 
-\subsection{XML Restoration}
-For each simulation, the state in every time step will be stored in one \textbf{XML} file. The structure of the body is consist of \textbf{mass}, \textbf{position}, \textbf{velocity}, \textbf{spin omega} and \textbf{inertia}. The structure of contact consists of \textbf{postion}, \textbf{impulse}(including in normal direction and tangent direcrion), \textbf{master} body and \textbf{slave} body. Two examples are given in the following.\\
+\subsection{Simulation World to XML}
+For one simulation world, every time-step state would be stored in one \textbf{XML} file. The structure of one rigid body is consist of \textbf{mass}, \textbf{position}, \textbf{velocity}, \textbf{spin omega} and \textbf{inertia}. The structure of one contact consists of \textbf{postion}, \textbf{impulse}(including in normal direction and tangent direcrion), \textbf{master} body and \textbf{slave} body. Two examples are given in the following.\\
 
 This is an example of one body information is given below.
 \begin{lstlisting}[language=XML]
@@ -181,7 +194,7 @@ For the learning, I divide 8 channels into features(input) and label(output).
 
 \section{CNN Training}
 \subsection{CNN  Architecture}
-    The neural network was designed using Keras\cite{chollet2015keras}. Keras is a neural networks Application Programming Interface (API) written in Python, it runs on top of either TensorFlow. With some inspiration from AlexNet\cite{Krizhevsky:2012:ICD:2999134.2999257}, the networks shows five constructing stacks of layers and each stack is consist of two or three convolutional layers in the same size. To avoid overfitting, each stack is followed by one dropout layer. One full-connected layer is set after the last convolutional layer. This input layer is followed by a batch normalization layer, normalizing images within a batch, which is discussed in Section \ref{batchnor}. This architecture includes $51,599,092$ weights for an input size of ($61\times61\times4$). All convolutional layers have kernels of size $(3\times 3\times d)$, and are followed by ReLU activation function. Figure \ref{fig:art} shows the visualization of model architecture, and Table \ref{table:layers} shows the specific information about parameters when input images go through the CNN.
+    The neural network was designed using Keras\cite{chollet2015keras}. Keras is a neural networks Application Programming Interface (API) written in Python, it runs on top of either TensorFlow. With some inspiration from AlexNet\cite{Krizhevsky:2012:ICD:2999134.2999257}, the networks shows five constructing stacks of layers and each stack is consist of two or three convolutional layers in the same size. To avoid overfitting, each stack is followed by one dropout layer. One full-connected layer is set after the last convolutional layer. This input layer is followed by a batch normalization layer, normalizing images within a batch, which is discussed in Section \ref{batchnor}. This architecture includes $51,599,092$ weights for an input size of ($61\times61\times4$). All convolutional layers have kernels of size $(3\times 3\times d)$, and are followed by ReLU activation function. Figure \ref{fig:art} shows the visualization of model architecture, and Table \ref{table:layers} shows the specific information about parameters when input images go through the CNN. The keras code impletementing this CNN structure can be reviewed in Appendix \ref{cnnn}.
     \begin{itemize}
         \item \textbf{Input Size}, the input will be $61\times61\times4$. Since the orginal world is $30\times30$ and grid size is $d=0.5$, the generated grid would be $61\times61$. There would $4$ channels
         \item \textbf{Output Size}, output size depends on the label size. The orginal label image would be $[\lambda_n, \lambda_t]$, so the label image size would be $61\times61\times2$, which should be flattened as the actual training label. The label size would be $61\times 61 \times 2$
@@ -238,7 +251,7 @@ For the learning, I divide 8 channels into features(input) and label(output).
 
 \subsection{Training Details}
     \label{trde}
-    The learning happened on GPU(\textit{GeForce GTX 1080 Ti, 11 Gbps GDDR5X memory})\footnote{\url{https://www.nvidia.com/en-us/geforce/products/10series/geforce-gtx-1080-ti/}} held by Image Section, DIKU\footnote{\url{https://di.ku.dk/english/research/imagesection/}}. The whole learning takes nearly 24 hours. The model you can download in my personal dropbox\footnote{\url{https://www.dropbox.com/s/jrwzqib6ghrq59i/model.h5?dl=0}}. I gave hyperparameters setting below,
+    The learning happened on GPU(\textit{GeForce GTX 1080 Ti, 11 Gbps GDDR5X memory})\footnote{\url{https://www.nvidia.com/en-us/geforce/products/10series/geforce-gtx-1080-ti/}} held by Image Section, DIKU\footnote{\url{https://di.ku.dk/english/research/imagesection/}}. The whole learning takes nearly 24 hours. The trained model can be downloaded in my personal dropbox\footnote{\url{https://www.dropbox.com/s/jrwzqib6ghrq59i/model.h5?dl=0}}. I gave hyperparameters setting below,
     \begin{table}[h!]
         \centering
         \begin{tabular}{ l | c  }
@@ -299,10 +312,10 @@ For the learning, I divide 8 channels into features(input) and label(output).
     \end{itemize}
 
 
-\section{Simualtion based on Trained Model}
+\section{Simualtion based on Trained CNN Model}
 Once getting the trained model, the next step is to apply this model in simulation based on Algorithm \ref{al:basic} and compare it with other solutions. Similarly, I would define a \textbf{CNN-Model}. The details of the workflow are described in Algorithm \ref{al:basic}.
 \begin{itemize}
-    \item \textbf{CNN-Model}, for each time-step simulation, the bodies state would be mapped into a bodies image $\pmb{G}_{\mathcal{B}}$ firstly. Then, the contact image $\pmb{G}_{\lambda}$ would be predicted based on $\pmb{G}_{\mathcal{b}}$ through the CNN model. Then interpolated values in contact position would be used as warm starting for contact solver.
+    \item \textbf{CNN-Model}, for each time-step simulation, the bodies state would be mapped into a bodies image $\pmb{G}_{\mathcal{B}}$ firstly. Then, the contact image $\pmb{G}_{\lambda}$ would be predicted based on $\pmb{G}_{\mathcal{B}}$ through the CNN model. Then interpolated values in contact position would be used as warm starting for contact solver.
 \end{itemize}
 \begin{figure}[!h]
     \centering
@@ -312,6 +325,22 @@ Once getting the trained model, the next step is to apply this model in simulati
 \end{figure}
 
 I applied it in one test world built by the setting mentioned in section \ref{simconfig}(the number of objects is selected randomly). The test world is consist one $30 \times 30 $ box and $K$($50<K<100$) randomly distributing balls($r=1$). The balls will fall down due to gravity. Figure \ref{testoneworld} shows the details. As what is expected, CNN model performs similar with \textbf{SPH-Model}(mentioned in section \ref{sphtest}). Although the model is not as good as \textbf{SPH-Model}, its convergence rate is obviously faster than built-in ones. 
+
+\begin{figure}[!h]
+        \centering
+        \begin{subfigure}[b]{0.8\textwidth}
+            \includegraphics[width=\textwidth]{Figures/cnntime}
+            \caption{Time spent for contact solver iteration}
+            \label{fig:iter}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.8\textwidth}
+            \includegraphics[width=\textwidth]{Figures/cnntotal}
+            \caption{Time spend for the whole contact solution(including warm starting calculation).}
+            \label{Total}
+        \end{subfigure}
+        \caption{Time spent for simulation.}
+        \label{fig:time}
+\end{figure}
 
 From Figure \ref{testoneworld}, it can be indicated that 
 \begin{itemize}
@@ -344,19 +373,5 @@ From Figure \ref{testoneworld}, it can be indicated that
 \end{algorithm}
 
 In the next step, I want to review whether the CNN model can speed up the simulation. I change the fixed iteration steps to a threshold($5\times10^{-4}$), which means when the convergence rate is less than $5\times10^{-4}$, the solver will stop the iteration.
-\begin{figure}[!h]
-        \centering
-        \begin{subfigure}[b]{0.8\textwidth}
-            \includegraphics[width=\textwidth]{Figures/cnntime}
-            \caption{Time spent for contact solver iteration}
-            \label{fig:iter}
-        \end{subfigure}
-        \begin{subfigure}[b]{0.8\textwidth}
-            \includegraphics[width=\textwidth]{Figures/cnntotal}
-            \caption{Time spend for the whole contact solution(including warm starting calculation).}
-            \label{Total}
-        \end{subfigure}
-        \caption{Time spent for simulation.}
-        \label{fig:time}
-\end{figure}
+
 The results is indicated in Figure \ref{fig:time}. The left figure, \ref{fig:iter}, just describes the time purely spent on iteraction solver. Overall, \textbf{CNN-Model} iterates to convergence faster than \textbf{Builin-Model}. It seems a good solution. However, the whole solution would include interpolation computing time. The time spent on whole contact solution is described on Figure \ref{Total}. The total time spent by \textbf{Builtin-Model} and \textbf{CNN-Model}. So, if we can find a more efficient interpolation algorithm or improve the performance of \textbf{CNN-Model} on convergence, the CNN-based method would be a better warm starting.
