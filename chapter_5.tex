@@ -18,7 +18,7 @@ After introducing the basic knowledge which is available and used in the project
 Simulation configs are listed below,
     \label{simconfig}
     \begin{itemize}
-        \item \textbf{World Setting}, the world box size is $30\times30$,   and there are $100$ circle rigids($r=1$, all circle rigid bodies in the same size.) inside the box. Initially, the rigid circles will be located following gaussian distribution\footnote{\url{https://en.wikipedia.org/wiki/Normal_distribution}}. Then, all rigid circles will fall down by gravity. The visualization of simulation is shown in Figure \ref{fig:imsim}.
+        \item \textbf{World Setting}, the world box size is $30\times30$,   and there are $100$ circle rigid bodies($r=1$, all circle rigid bodies in the same size.) inside the box. Initially, the rigid circles will be located following gaussian distribution\footnote{\url{https://en.wikipedia.org/wiki/Normal_distribution}}. Then, all rigid circles will fall down by gravity. The visualization of simulation is shown in Figure \ref{fig:imsim}.
         \item \textbf{Simulation Setting}, there will be totally $600$-steps simulation. For each step, $\Delta t = 0.01s$, and the number of iteration in each step will be set as fixed, $3000$. Then I will use the average convergence rate to describe the performances of models.
     \end{itemize}
 \subsection{Simulation Details}
@@ -57,7 +57,7 @@ Simulation configs are listed below,
 
 \subsection{SPH parameters}
     \label{SPH-setting}
-    In Section \ref{sphtest}, it has been tested that \textbf{SPH} is a good strategy to generate grid images representing a discrete snapshot of the dynamics. Then, the grid size and smoothing length $h$ are imported into our data generation. The grid size should be reasonable so that there is no two contact points are mapped into the same cell, since if there are more than two contact values in one cell, the rid node might store mixture information state from two objects. which would be hard for CNN to find the relationship within one objects, which will decrease the accuracy of prediction. This was mentioned in section \ref{gs}.
+    In Section \ref{sphtest}, it has been tested that \textbf{SPH} is a good strategy to generate grid images representing a discrete snapshot of the dynamics. Then, the grid size and smoothing length $h$ are imported into our data generation. The grid size should be reasonable so that there is no two contact points are mapped into the same cell, since if there are more than two contact values in one cell, the rid node might store mixture information state from two objects. which would be hard for CNN to find the relationship between one objects, which will decrease the accuracy of prediction. This was mentioned in section \ref{gs}.
     \begin{figure}[!h]
         \centering
         \includegraphics[width=0.4\textwidth]{Figures/SPHvi.pdf}
@@ -236,18 +236,6 @@ For the learning, I divide 8 channels into features(input) and label(output).
         \label{table:layers}
     \end{table}
 
-\subsection{Traing Configuration}
-\subsubsection{Loss Function}
-Firstly, we define a filter funtion,
-\begin{equation}
-    g(x)= \begin{cases} 0, \quad x = 0 \\ 1, \quad x \ne 0 \end{cases}
-\end{equation}
-Then, we can update the loss function based on Euqation \ref{eq:mse}. 
-
-\begin{equation}
-    L = \frac{1}{N}\sum_{i}^{N}g(\hat{y}_i)(y_i-\hat{y}_i)^2
-\end{equation}
-
 \subsection{Training Details}
     The learning happened on GPU(\textit{GeForce GTX 1080 Ti, 11 Gbps GDDR5X memory})\footnote{\url{https://www.nvidia.com/en-us/geforce/products/10series/geforce-gtx-1080-ti/}} held by Image Section, DIKU\footnote{\url{https://di.ku.dk/english/research/imagesection/}}. The whole learning takes nearly 24 hours. The model you can download in my personal dropbox\footnote{\url{https://www.dropbox.com/s/jrwzqib6ghrq59i/model.h5?dl=0}}. I gave hyperparameters setting below,
     \begin{table}[h!]
@@ -270,18 +258,19 @@ Then, we can update the loss function based on Euqation \ref{eq:mse}.
         \caption{Hyperparameter settings.}
         \label{table:hyper}
     \end{table}
+    \subsubsection{Loss Function}
+        Firstly, we define a filter funtion,
+        \begin{equation}
+            g(x)= \begin{cases} 0, \quad x = 0 \\ 1, \quad x \ne 0 \end{cases}
+        \end{equation}
+        Then, we can update the loss function based on Euqation \ref{eq:mse}. The code can be viewed in Appendix \ref{lf}.
+
+        \begin{equation}
+            L = \frac{1}{N}\sum_{i}^{N}g(\hat{y}_i)(y_i-\hat{y}_i)^2
+        \end{equation}
     \subsubsection{Learning Rate}
     The learning rate will change with the number of epoch, as talked in section \ref{learning}. I will give a specific value as the learning rate depending on the number of epoch. The learning rate will become smaller with increasing epoch. 
     data. The overall algorithm is concluded in Algorithm \ref{ls}.
-
-    \subsubsection{Conclusion about Training process}
-    \begin{itemize}
-        \item The size of the input image is $41\times41\times4$, and all pixels are important since all of them retore useful information. If we want to extract the features from $41\times 41$, $3\times 3$ kernel would be a good choice. But the disadvantages is that there would be a lot of training parameters, which might slow down the learning process.
-        \item I do have nearly $18208$ samples for training. However, it is hard for both the GPU and CPU to load all the data at one time. Dividing all training samples to a couple of batches would not only speed up the single training time and release memory, but also reduce the risk of overfitting.
-        \item The learning rate will change with the number of the epoch, as analyzed in section \ref{learning}. I will give a specific learning rate values depending on the number of the epoch. The learning rate will become smaller with With the epoch increase, I hope the value of learning rate can decrease. Since the high learning rate would cause suboptimal performance at the end of training. The overall algorithm is concluded in Algorithm \ref{ls}.
-        \item Validation data set is essential to test the accuracy of the model and whether it is overfitting. Before each epoch, validation would be randomly selected, $20\%$ of total data.
-    \end{itemize}
-
     \begin{algorithm}[!h]
         \KwData{$epoch$}
         \KwResult{learning rate $\eta$}
@@ -293,27 +282,48 @@ Then, we can update the loss function based on Euqation \ref{eq:mse}.
         \label{ls}
     \end{algorithm}
 
+    \subsubsection{Conclusion about Training process}
+    \begin{itemize}
+        \item The size of the input image is $41\times41\times4$, and all pixels are important since all of them retore useful information. If we want to extract the features from $41\times 41$, $3\times 3$ kernel would be a good choice. But the disadvantages is that there would be a lot of training parameters, which might slow down the learning process.
+        \item I do have nearly $18208$ samples for training. However, it is hard for both the GPU and CPU to load all the data at one time. Dividing all training samples to a couple of batches would not only speed up the single training time and release memory, but also reduce the risk of overfitting.
+        \item The learning rate will change with the number of the epoch, as analyzed in section \ref{learning}. I will give a specific learning rate values depending on the number of the epoch. The learning rate will become smaller with With the epoch increase, I hope the value of learning rate can decrease. Since the high learning rate would cause suboptimal performance at the end of training. The overall algorithm is concluded in Algorithm \ref{ls} and code in Appendix \ref{lr}.
+        \item Validation data set is essential to test the accuracy of the model and whether it is overfitting. Before each epoch, validation would be randomly selected, $20\%$ of total data.
+    \end{itemize}
+
+    After a couple of CNN designing and training, Some conclusion can be summarized,
+    \begin{itemize}
+        \item The results are tightly related to CNN structure. If CNN architecture is simple, it is easy to get underfitting results. However, too complicated CNN architecture would cause overfitting easily. My solution for that is to extend the amount of epochs. Finally, the loss of the model performed well.
+        \item Another advantage of enough epochs is that the model would get convergence completely.
+        \item Overall, the results are not too sensitive to the training configuration except learning rate. If we keep the same learning rate during the whole training, it is hard to get more optimal when epoch reaches a high number.
+    \end{itemize}
+
 
 \section{Simualtion based on Trained Model}
-Once getting the trained model, the next step is to apply this model in simulation based on Algorithm \ref{al:basic} and compare it with other solutions. The details of process is described in Algorithm \ref{al:basic}
+Once getting the trained model, the next step is to apply this model in simulation based on Algorithm \ref{al:basic} and compare it with other solutions. Similarly, I would define a \textbf{CNN-Model}. The details of the workflow are described in Algorithm \ref{al:basic}.
+\begin{itemize}
+    \item \textbf{CNN-Model}, for each time-step simulation, the bodies state would be mapped into a bodies image $\pmb{G}_{\mathcal{B}}$ firstly. Then, the contact image $\pmb{G}_{\lambda}$ would be predicted based on $\pmb{G}_{\mathcal{b}}$ through the CNN model. Then interpolated values in contact position would be used as warm starting for contact solver.
+\end{itemize}
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.8\textwidth]{Figures/same_world.pdf}
+    \includegraphics[width=0.8\textwidth]{Figures/cnn.pdf}
     \caption{The final result. Add the final CNN solution to compare with other methods.}
     \label{testoneworld}
 \end{figure}
 
-I applied it in one test world built by the setting mentioned in section \ref{simconfig}. The test world is consist one $30 \times 30 $ box and $K$($50<K<100$) randomly distributing balls($r=1$). The balls will fall down due to gravity. Figure \ref{testoneworld} shows the details. As what is expected, CNN model performs similar with \textbf{SPH-Model}(mentioned in section \ref{sphtest}). Although the model is not as good as \textbf{SPH-model}, its coverages rate is obviously faster than built-in ones. 
+I applied it in one test world built by the setting mentioned in section \ref{simconfig}(the number of objects is selected randomly). The test world is consist one $30 \times 30 $ box and $K$($50<K<100$) randomly distributing balls($r=1$). The balls will fall down due to gravity. Figure \ref{testoneworld} shows the details. As what is expected, CNN model performs similar with \textbf{SPH-Model}(mentioned in section \ref{sphtest}). Although the model is not as good as \textbf{SPH-Model}, its convergence rate is obviously faster than built-in ones. 
 
-From Figure \ref{testoneworld}, it can be indicated that the CNN model actually makes the iterative solver converge faster. But it is just a small improvement to buit-in warm starting. The CNN solution cannot reach a convergence as rapidly as \textbf{Copy-Model}. It is mainly the limitation of the SPH-based method. 
-
-In the next step, I want to review whether CNN model can speed up the simulation. I change the fixed iteration steps to a thold 
+From Figure \ref{testoneworld}, it can be indicated that 
+\begin{itemize}
+    \item \textbf{CNN-Model} actually makes the iterative solver converge faster. But it is not a great improvement to buit-in warm starting.
+    \item \textbf{CNN-Model} performs very similar to \textbf{SPH-Model}, which means the CNN predicts contact image well. 
+    \item Due to the limitation of the SPH-based method, \textbf{CNN-Model} just gets a small improvement compared with \textbf{Builtin-Model}. And it cannot perform as good as \textbf{SPH-Model}.
+\end{itemize}
 
 \begin{algorithm}[!ht]
         \KwData{
             Given a set of bodies $\mathcal{B}_{t}~~t\in T$ in time $t$, a trained CNN model $CNN$, spatial positions of all grid nodes and one . 
         }
-        \KwResult{Get the contact forces $\pmb{\lambda}_{t}~~t\in T$ at time $t$.}
+        \KwResult{Get the contact forces $\pmb{\lambda}_{t}$ and make simulation keep running.}
         \For{all $t$ in $T$}
         {
             1. Read $\mathcal{B}_t$. \\
@@ -324,9 +334,28 @@ In the next step, I want to review whether CNN model can speed up the simulation
             4. Once the contact force image $\pmb{G}_{\lambda}$ is obtained,  then \\
             \For{all $j \in \mathcal{C}$}{$$\pmb{\lambda}_{j} \gets interpolate(\pmb{G}_{\lambda}, \mathbf{x}, \pmb{q}_{j})$$}
             4. Using $\pmb{\lambda}$ as a warm starting to the iterative solver to get the final solution,
-            $$\pmb{\lambda} \gets Solver(\pmb{\lambda})$$ \\
+            $$\pmb{\lambda} \gets Solver(\pmb{A}, \pmb{b}, \pmb{\lambda})$$
+            where $\pmb{A}$ and $\pmb{b}$ would be computed by simulation engine.\\
             5. Updating the simulation world(velocity and position) by $\pmb{\lambda}$ and $t = t+\Delta t$
         }
-        \caption{Algorithm describing how CNN-Model works in the dynamic simulation.}
+        \caption{Algorithm describing the workflow of \textbf{CNN-Model}.}
         \label{al:basic}
 \end{algorithm}
+
+In the next step, I want to review whether the CNN model can speed up the simulation. I change the fixed iteration steps to a threshold($5\times10^{-4}$), which means when the convergence rate is less than $5\times10^{-4}$, the solver will stop the iteration.
+\begin{figure}[!h]
+        \centering
+        \begin{subfigure}[b]{0.8\textwidth}
+            \includegraphics[width=\textwidth]{Figures/cnntime}
+            \caption{Time spent for contact solver iteration}
+            \label{fig:iter}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.8\textwidth}
+            \includegraphics[width=\textwidth]{Figures/cnntotal}
+            \caption{Time spend for the whole contact solution(including warm starting calculation).}
+            \label{Total}
+        \end{subfigure}
+        \caption{Time spent for simulation.}
+        \label{fig:time}
+\end{figure}
+The results is indicated in Figure \ref{fig:time}. The left figure, \ref{fig:iter}, just describes the time purely spent on iteraction solver. Overall, \textbf{CNN-Model} iterates to convergence faster than \textbf{Builin-Model}. It seems a good solution. However, the whole solution would include interpolation computing time. The time spent on whole contact solution is described on Figure \ref{Total}. The total time spent by \textbf{Builtin-Model} and \textbf{CNN-Model}. So, if we can find a more efficient interpolation algorithm or improve the performance of \textbf{CNN-Model} on convergence, the CNN-based method would be a better warm starting.

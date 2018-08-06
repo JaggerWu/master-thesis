@@ -1,4 +1,5 @@
 \begin{appendices}
+\linespread{1.0}
 \renewcommand{\thechapter}{\Alph{chapter}.}
 \chapter{Smoothed Particle Hydrodynamics}
 \section{Smoothing Kernels}
@@ -47,6 +48,7 @@ def spiky_2D(r, h):
 
 \chapter{Deep Learning}
 \section{Loss Function}
+\label{lf}
 \begin{python}
 def loss_func(y_true, y_pred):
     # remove 0 in y_true
@@ -211,6 +213,7 @@ def build_model(self, input_shape, output_shape):
 \end{python}
 
 \section{Learning Rate Scheduler}
+\label{lr}
 \begin{python}
 def scheduler(epoch):
     if epoch <= 100:
