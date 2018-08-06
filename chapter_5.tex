@@ -185,7 +185,7 @@ For the learning, I divide 8 channels into features(input) and label(output).
     \begin{itemize}
         \item \textbf{Input Size}, the input will be $61\times61\times4$. Since the orginal world is $30\times30$ and grid size is $d=0.5$, the generated grid would be $61\times61$. There would $4$ channels
         \item \textbf{Output Size}, output size depends on the label size. The orginal label image would be $[\lambda_n, \lambda_t]$, so the label image size would be $61\times61\times2$, which should be flattened as the actual training label. The label size would be $61\times 61 \times 2$
-        \item \textbf{Weight Number}, the total weights number is $64,498,866$. 
+        \item \textbf{Weights Number}, the total weights number is $64,498,866$. 
     \end{itemize}
 
     \begin{figure}[!h]
@@ -305,27 +305,23 @@ From Figure \ref{testoneworld}, it can be indicated that the CNN model actually 
 
 In the next step, I want to review whether CNN model can speed up the simulation. I change the fixed iteration steps to a thold 
 
-\begin{algorithm}[!h]
+\begin{algorithm}[!ht]
         \KwData{
-            Given a set of bodies $\mathcal{B}$ and the state in time $t$, as well as some information of contacts between these bodies $\mathcal{C}$.
+            Given a set of bodies $\mathcal{B}_{t}~~t\in T$ in time $t$, a trained CNN model $CNN$, spatial positions of all grid nodes and one . 
         }
-        \KwResult{Get the contact forces $\pmb{\lambda}_{j}=[{\lambda_{n}}_{j}, {\lambda_{t}}_j]~~j\in\mathcal{C}$ at time $t$.}
-        \While{Simulation Runing}
+        \KwResult{Get the contact forces $\pmb{\lambda}_{t}~~t\in T$ at time $t$.}
+        \For{all $t$ in $T$}
         {
-            1. read the current state, $\mathbf{x}=(x_i, y_i)$ is the spatial position of one node in the grid image.
-                $$m_i, \pmb{v}_i, \pmb{q}_i, \omega_{i}~~i\in\mathcal{B}$$
-                $$\pmb{n}_j~~j\in\mathcal{C}$$ \\
-            2. map the current state to a gird image,
-                $$G_{m}(\mathbf{x}) \equiv \sum_{i\in \mathcal{B}}W(\mathbf{x}, \pmb{q}_{i})m_i$$ 
-                $$G_{\pmb{v}}(\mathbf{x}) \equiv \sum_{i\in \mathcal{B}}W(\mathbf{x}, \pmb{q}_{i})\pmb{v}_i,~~\pmb{v}=(v_x, v_y)$$
-                $$G(\mathbf{x}) = [G_{m}(\mathbf{x}), G_{\pmb{v}}(\mathbf{x}), G_{\pmb{n}}(\mathbf{x})]$$ \\
-            3. Use $G(\mathbf{x})$ as the input image to the learning model, the output will be resize to a imag, the output image will be called $G_{output}$,
-                $$G_{output}(\mathbf{x}) = [G_{\lambda_{n}}(\mathbf{x}), G_{{\lambda}_{t}}(\mathbf{x})]$$ \\
-            4. Once the contact force image is obtained,  the conatct position $\pmb{q}_{j} = (x_{j}, y_{j})~~j\in\mathcal{C}$  will be used to interpolation image values based on Equation \ref{interpolation}.
-                $$\pmb{\lambda}_j \approx G_{output}(\pmb{q}_j)~~j\in\mathcal{C}$$ 
-            The interpolated values $\pmb{\lambda}$ will be used as starting iterated for \textit{pybox2d} conatc solver to find a final solution. \\
-            5. Update $t$
-                $$t = t + \Delta t$$ \\
+            1. Read $\mathcal{B}_t$. \\
+            2. map the bodies state to a gird image,
+                $$\pmb{G}_{\mathcal{B}} \gets Bodies2grid(\mathbf{x}, \mathcal{B}_t)$$ \\
+            3. Transform bodies imgae $\pmb{G}_{\mathcal{B}}$ to a contact grid image $\pmb{G}_{\lambda}$,
+            $$\pmb{G}_{\lambda} \gets CNN(\pmb{G}_{\mathcal{B}})$$
+            4. Once the contact force image $\pmb{G}_{\lambda}$ is obtained,  then \\
+            \For{all $j \in \mathcal{C}$}{$$\pmb{\lambda}_{j} \gets interpolate(\pmb{G}_{\lambda}, \mathbf{x}, \pmb{q}_{j})$$}
+            4. Using $\pmb{\lambda}$ as a warm starting to the iterative solver to get the final solution,
+            $$\pmb{\lambda} \gets Solver(\pmb{\lambda})$$ \\
+            5. Updating the simulation world(velocity and position) by $\pmb{\lambda}$ and $t = t+\Delta t$
         }
         \caption{Introducrion to the deep contact model solver in this thesis.}
         \label{al:basic}

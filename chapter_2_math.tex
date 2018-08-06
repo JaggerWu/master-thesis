@@ -293,9 +293,10 @@ The classical method to solve contacts forces is to derive the contact problems 
     \subsection{Projected Gauss-Seidel(PGS) solver for contact forces}
     One of the most classic methods is projected gauss-seidel(PGS). Most open-source software for interactive real-time rigid body simulation uses the Projected Gauss-Seidel (PGS) method for computing contact forces, like \textit{Box2D}\footnote{\url{http://box2d.org/}} for 2-$D$ and \textit{Bullet}\footnote{\url{https://pybullet.org/wordpress/}} for 3-$D$. PGS is computationally very efficient with an iteration cost of $O(n)$, using a careful memory layout of sparse matrices allows for a memory footprint of $O(n)$. In addition to being computationally and memory-wise efficient, PGS is very robust and can deal gracefully with ill-conditioned problems (due to many redundant constraints) or ill-posed problems (due to badly defined constraints). For these reasons, PGS is well suited for interactive applications like computer games. I introduced PGS in Algorithm \ref{pgs}. Generally, $\pmb{\lambda}_{init} = \pmb{0}$, and some experiment will be done to explore its convergence rate in section \ref{sphtest}.
     \begin{algorithm}[!h]
-        \KwData{$N, \pmb{\lambda}, \pmb{A}, \pmb{b}$}
+        \KwData{$N, \pmb{\lambda}_{init}, \pmb{A}, \pmb{b}$}
         \KwResult{Compute the values of $\pmb{\lambda}$, the convergence rate $\pmb{\theta}$}
         \For{$ k = 1~\textbf{To}~N$}{
+            \If{$k=1$}{$\pmb{\lambda} \gets \pmb{\lambda}_{init}$}
             $\pmb{\lambda}_{old} \gets \pmb{\lambda}$ \\
             \For{all $i$}{
                 $\pmb{r}_i \gets \pmb{A}_{i*}\pmb{\lambda} + \pmb{b}_i$ \;
