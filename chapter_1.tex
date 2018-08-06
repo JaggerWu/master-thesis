@@ -2,14 +2,14 @@
 
 \section{Motivation}
 
-    Deep learning has been widely used in many academic and industrial fields. Due to its faster processing and high performance, it has become increasingly popular to replace some traditional methods with deep learning. Although researchers have developed effective deep learning methods to push computer vision to a new high level, deep learning for computer simulation is still not far away. Rigid and liquid simulation problems are always the most interesting and important issues in the computer simulation. Researchers are exploring the possibility of using deep learning methods to improve current simulation solutions. A paper recently published announces that deep learning has been successfully applied to the upgrade of liquid simulation\cite{CNNFluid2016}.
+    Deep learning has been widely used in many academic and industrial fields. Due to no need for too much data-processing and generally high performance, deep learning has become increasingly popular to replace some traditional methods. Although researchers have developed effective deep learning methods to push computer vision to a new high level, deep learning for computer simulation is still not far away and clear. Rigid and liquid simulation problems are always the most interesting and important issues in the computer simulation. Researchers are exploring the possibility of using deep learning methods to improve current simulation solutions. A paper recently published announces that deep learning has been successfully applied to the upgrade of liquid simulation\cite{CNNFluid2016}.
 
     However, for rigid body problems, it is not quite clear how to approach the technicalities in applying deep learning. Some work has been done in terms of inverse simulations or pilings to control rigid bodies to perform a given artistic `target'. These techniques are more in the spirit of inverse problems that maps initial conditions to a well-defined outcome(number of bounces or which face up on a cube) or level of detail idea replacing interiors of piles with stacks of cylinders of decreasing radius to make an overall apparent pile have a given angle of repose.
 
-
+    In this project, I would try to find a method which can apply deep learning on rigid simulation pipeline.
 
 \section{Overview}
-        The centerpiece of this project is to covert a rigid body simulation into imaging data and apply to learn on these images. Basically, now researchers mainly use iterative solver to compute contact forces for each time step. The idea is not to completely replace contact solving by deep learning but rather take a hybrid approach of using the deep learning results as initial starting iterates for the contact forces solver. In other words, our hope is to use deep learning to provide usable initial values that close to the final solution. Totally, this project is consist of two parts. The first part is to find a method to generate assessable data for deep learning and test it whether it is available. The second part is to train one learning model based on the training dataset and apply the model to check its performance. Ideally, the learning model can accelerate the iterative solution process.
+        The centerpiece of this project is to covert a rigid body simulation into imaging data and apply to learn on these images. Basically, researchers mainly use iterative solver to compute contact forces for each time step. The idea shown in the thesis is not to completely replace contact solving by deep learning but rather take a hybrid approach of using the deep learning results as initial starting iterates for the contact forces solver. In other words, our hope is to use deep learning to provide usable warm starting that is close to the final solution. Totally, this project is consist of two parts. The first part is to find a method to generate accessible data for deep learning and test it whether it is a good strategy. Once experiments prove that it works well for the rigid dynamic simulation. The second part is to train one learning model based on the training dataset and apply the model to check its performance in the simulation pipeline. Ideally, the learning model can accelerate the iterative solution process.
 
         The paper is mainly composed of 6 chapters
     \begin{itemize}
@@ -25,17 +25,17 @@
 
         \item \textbf{Chapter 6}, is the end of this paper. According to the experimental implementation, some conclusions are drawn. Finally, a plan is developed for the future work, which can be an improvement over the current project.
 
-        \item \textbf{Appendix}
+        \item \textbf{Appendix A} Sample code for smooth kernel used in smoothed particle hydrodynamics
 
-        \item \textbf{Appendix}
+        \item \textbf{Appendix B} Sample code for Convolutional Neural Network architecture designed in this thesis. And some parts of deep learning setting(loss function, learning rate scheduler)
     \end{itemize}
 
 
 \section{Goals}
     Taking a master’s degree is a specialization process, a fine-tuning of skills. Doing a master thesis is more like a process of learning. During the master thesis project, you should only focus on one topic and put all your effort into it. Before doing this project, I spent more time on computer vision and deep leaning, without any experience in the computer simulation. Reading many papers during this project helps me get some basic knowledge in contact model simulation and go deeper into deep learning. More importantly, I learned how to start and do one research when you are facing new topics 
 
-    \subsection{Learning Goal}
-    In this work, we hope to address how to apply deep learning to rigid body dynamics. In order to find a solution, I set up a list of learning goals, 
+    \subsection{Learning Goals}
+    In this work, I would design some experiments on assessing the performance of the training data generation and deep learning model. Six months ago, I set up a list of learning goals in the projecr description. Now, I enclose it here. 
     \begin{enumerate}
         \item Describe the contact force problem among rigid objects by building \textit{Newton-Euler} equations.
         \item Analyze possible kernels which can work for simulator and compare the performances of different kernels on mapping the state of the simulator onto a grid.
@@ -49,10 +49,10 @@
     \end{enumerate}
 
 \section{Work Contribution}
-    Since this is a student master project, Lukas, Lucian and me are engaged in the same topic. We finished the initial work with cooperation. All our work would be base on a python game engine, \textit{pybox2d}. The initial work includes,
+    Since this is a student master project, Lukas, Lucian and I are engaged in the same topic. We finished the initial work with cooperation. All our work would be base on a python game engine, \textit{pybox2d}. The initial work includes,
 
     \begin{itemize}
         \item \textit{pybox2d} updating, which is to upgrade code of \textit{pybox2d} so that it can output the data that we need.
-        \item Grid-particle transformation, includes Smoothed-particle hydrodynamics implementation, interpolation query building.
+        \item Grid-particle transformation, includes smoothed particle hydrodynamics(SPH) implementation, interpolation query building.
     \end{itemize}
-    After that, we did individual experiments to set parameters for generating data and design our learning model separately. All public and personal code can be reviewed on Github Repository\footnote{\url{https://github.com/JaggerWu/Deep-Contact}}. The specific code can be also reviewed in Appendix. The final trained model can be obtained and tested on my personal Dropbox\footnote{\url{https://www.dropbox.com/s/jrwzqib6ghrq59i/model.h5?dl=0}}.
+    After that, we did individual experiments to set parameters for generating data and designed our learning model separately. All public and personal code can be reviewed on Github Repository\footnote{\url{https://github.com/JaggerWu/Deep-Contact}}. The specific code can be also reviewed in Appendix. The final trained model can be obtained and tested on my personal Dropbox\footnote{\url{https://www.dropbox.com/s/jrwzqib6ghrq59i/model.h5?dl=0}}.

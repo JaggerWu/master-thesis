@@ -187,6 +187,10 @@ For the learning, I divide 8 channels into features(input) and label(output).
         \item \textbf{Output Size}, output size depends on the label size. The orginal label image would be $[\lambda_n, \lambda_t]$, so the label image size would be $61\times61\times2$, which should be flattened as the actual training label. The label size would be $61\times 61 \times 2$
         \item \textbf{Weights Number}, the total weights number is $64,498,866$. 
     \end{itemize}
+    Then we can define $cnn$ as the overall function of CNN model, where $\pmb{G}_{\lambda}$ is the image of contact forces(label) and $\pmb{G}_{\mathcal{B}}$ is the image of bodies state(feature).
+    \begin{equation}
+        \pmb{G}_{\lambda} = cnn(\pmb{G}_{\mathcal{B}})
+    \end{equation}
 
     \begin{figure}[!h]
         \centering
@@ -316,13 +320,13 @@ In the next step, I want to review whether CNN model can speed up the simulation
             2. map the bodies state to a gird image,
                 $$\pmb{G}_{\mathcal{B}} \gets Bodies2grid(\mathbf{x}, \mathcal{B}_t)$$ \\
             3. Transform bodies imgae $\pmb{G}_{\mathcal{B}}$ to a contact grid image $\pmb{G}_{\lambda}$,
-            $$\pmb{G}_{\lambda} \gets CNN(\pmb{G}_{\mathcal{B}})$$
+            $$\pmb{G}_{\lambda} \gets cnn(\pmb{G}_{\mathcal{B}})$$
             4. Once the contact force image $\pmb{G}_{\lambda}$ is obtained,  then \\
             \For{all $j \in \mathcal{C}$}{$$\pmb{\lambda}_{j} \gets interpolate(\pmb{G}_{\lambda}, \mathbf{x}, \pmb{q}_{j})$$}
             4. Using $\pmb{\lambda}$ as a warm starting to the iterative solver to get the final solution,
             $$\pmb{\lambda} \gets Solver(\pmb{\lambda})$$ \\
             5. Updating the simulation world(velocity and position) by $\pmb{\lambda}$ and $t = t+\Delta t$
         }
-        \caption{Introducrion to the deep contact model solver in this thesis.}
+        \caption{Algorithm describing how CNN-Model works in the dynamic simulation.}
         \label{al:basic}
 \end{algorithm}
