@@ -1,27 +1,30 @@
 \chapter{Conclusion and Future Work}
 
 \section{Conclusion}
-Half one year ago, I had to formulate a set of goals for the work of this thesis. The goals were thus set before having gained the knowledge I have now. For this reason, the goals reached may appear slightly different from those set. I started out thinking that it would be better to train learning models for normal and friction forces respectively. After four-moonths considering, I have to face the problem that normal force prediction would use the same grid images with friction force. Besdies, the output size of these models would be the same as well. So, training two models equals to training one model with more convolutional layer and extended fully connected layer. 
+Half one year ago, I had to formulate a set of goals for the work of this thesis. The goals were thus set before having gained the knowledge I have now. For this reason, the goals reached may appear slightly different from those set. I started out thinking that it would be better to train learning models for normal and friction forces respectively. After four-months considering, I have to face the problem that normal force prediction would use the same grid images as the friction force. Besides, the output size of these models would be the same as well. So, training two models equal to training one model with more convolutional layer and extended fully connected layer. 
 \begin{itemize}
-    \item \textbf{Describe the contact model by \textit{Newton-Euler} equation}, this is described in Chapter \ref{cp:contact}. Normally, the contact model can be derived as a linear complementarity problem formulation(Equation \ref{contactlcp}), which can solved by number.
-    \item \textbf{Analyze SPH kernel}, I introduced two smoothing kernel in this project, \textbf{Poly6} and \textbf{Spiky}. Intially, I tried to choose one kernel firstly, and then determine parameters(grid size and smoothing length). However, I found it would be smart to find good grid size($d$) and smoothing length($h$) respectively, then compare the performance of two kernels with good parameters.  
-    \item \textbf{Analyze grid size and smoothing length}, the analysis about grid cell size and smoothing length can be found in Figure \ref{poly6} and Figure \ref{spiky}.
-    \item \textbf{CNN design}, the CNN architecture can be reviewed in Figure \ref{fig:art}. Since there are no standard for CNN structure designing. I got the inspiration from AlexNet.
+    \item \textbf{Describe the contact model by \textit{Newton-Euler} equation}, this is described in Chapter \ref{cp:contact}. Normally, the contact model can be derived as a linear complementarity problem formulation(Equation \ref{contactlcp}), which can be solved by numerical solution method.
+    \item \textbf{Analyze SPH kernel}, I introduced two smoothing kernels in this project, \textbf{Poly6} and \textbf{Spiky}. Initially, I tried to choose one kernel firstly, and then determine parameters(grid size and smoothing length). However, I found it would be smart to find a good grid size($d$) and smoothing length($h$) respectively, then compare the performance of two kernels with good parameters.  
+    \item \textbf{Analyze grid size and smoothing length}, the analysis of grid cell size and smoothing length can be found in Figure \ref{poly6} and Figure \ref{spiky}.
+    \item \textbf{CNN design}, the CNN architecture can be reviewed in Figure \ref{fig:art}. Since there is no standard for CNN structure designing. I got the inspiration from AlexNet.
     \item \textbf{Comparision among different model solution}, the results describing the difference among \textbf{Copy-Model}, \textbf{SPH-Model}, \textbf{None-Model} and \textbf{CNN-Model}, were shown in Figure \ref{fg:nosph}, Figure \ref{fg:addsph} and Figure \ref{testoneworld}.
-    \item \textbf{Training both normal forces and friction forces}, depending on the feature of CNN, training models for normal and friction forces respectively, equals to training one model with more convolutional filters and layers, which can predict both of normal and friction forces.
+    \item \textbf{Training both normal forces and friction forces}, depending on the feature of CNN, training models for normal and friction forces respectively, equal to training one model with more convolutional filters and layers, which can predict both of normal and friction forces.
+    \item \textbf{Issues during model training}, since there is no standard design for CNN, the previous CNN models actually did badly on predicting contact images. With Oswin's help, this CNN architecture was determined finally. More training details are discussion in Section \ref{trde}. 
 \end{itemize}
 
 \section{Future Work}
 \subsection{SPH-based method}
 \begin{itemize}
-    \item For the SPH-based method, it is still far away from perfect. It performs not much better than warm starting. So in the future, exploring deeper in SPH-based will help to improve the whole process. The probable attempt will including trying more new kernels, which could stay 
-    \item The interpolation used in this project is just one simple linear interpolation. I thought it would lose some essential information when it was interpolated back to particles. So exploring another interpolation method would be helpful to this project.
-    \item If we want to use the CNN model to replace built-in warm starting, the biggest issue is simulation time. Although the CNN model can reach convergence more quickly than built-in warm starting method, it cannot replace the built-in method due to long-time spending. It takes a long time to do interpolation. So an efficient and accurate method or data structure for interpolation would speed up the whole process.
+    \item For the SPH-based method, it is still far away from perfect. It performs not much better than warm starting. So in the future, exploring deeper in SPH-based will help to improve the whole process. The probable attempt will including trying more new kernels, which could reduce the loss of essential information.
+    \item The interpolation used in this project is just one simple linear interpolation. I thought it might lose some essential information when it was interpolated back to particles. So exploring another interpolation method would be helpful to this project.
+    \item If we want to use the CNN model to replace built-in warm starting, the biggest issue is simulation time. Although the CNN model can reach convergence more quickly than built-in warm starting method, it cannot replace the built-in method completely due to longer time spending on interpolation. So an efficient and accurate algorithm or data structure for interpolation would speed up the whole process.
 \end{itemize}
 
-\subsection{CNN architeture}
-Since the peformance of \textbf{CNN-Model} is close to \textbf{SPH-Model}, I think this CNN architecture is a good design and predicts the grid values well. However, in the future, more comlicated CNN structure should be tried on improving the accuracy of prediction.
+\subsection{Deep Learning Model}
+Since the performance of \textbf{CNN-Model} is close to \textbf{SPH-Model}, I think this CNN architecture is a good design and predicts the grid values well. However, in the future, more complicated CNN structure should be tried on improving the accuracy of prediction.
+
+Besides the CNN model, some other deep models can experiment as well. Recurrent Neural Networks(RNN) have been applied in physics motion successfully by MIT \cite{DBLP:journals/corr/ChangUTT16}. Addition to RNN, Long short-term memory(LSTM) structure could be another good choice due to its characteristics on recording states. 
 
 
-\subsection{More experiments}
-Since current experiments and attempts are all based on same-size circle objects, I hope more experiments can be carried out on circle objects in different size or different shapes(eg. trangle, rectangle).
+\subsection{More Shapes Experiments}
+Since current experiments and attempts are all based on same-size circle objects, I hope more experiments can be carried out on circle objects of different size or different shapes(eg. triangle, rectangle).

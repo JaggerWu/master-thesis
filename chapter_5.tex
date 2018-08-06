@@ -55,7 +55,7 @@ Simulation configs are listed below,
         \caption{Visualization for experiment simulation}
     \end{figure}
 
-\subsection{SPH parameters}
+\subsection{SPH Parameters}
     \label{SPH-setting}
     In Section \ref{sphtest}, it has been tested that \textbf{SPH} is a good strategy to generate grid images representing a discrete snapshot of the dynamics. Then, the grid size and smoothing length $h$ are imported into our data generation. The grid size should be reasonable so that there is no two contact points are mapped into the same cell, since if there are more than two contact values in one cell, the rid node might store mixture information state from two objects. which would be hard for CNN to find the relationship between one objects, which will decrease the accuracy of prediction. This was mentioned in section \ref{gs}.
     \begin{figure}[!h]
@@ -165,13 +165,13 @@ Another example \textit{XML} code is for contatc force.
     ...
 \end{lstlisting}
 
-\subsection{SPH configuration}
+\subsection{SPH Configuration}
 As it is talked in \ref{SPH-setting}, 
 \begin{itemize}
     \item \textbf{Kernel}, Poly6, which you can see in section \ref{poly6}.
     \item \textbf{Kernel Settings}, cell size $d_x=d_y=0.5$, smoothing length $h=0.5$.
 \end{itemize}
-\subsection{XML to grid}
+\subsection{XML to Grid}
 After getting a set of \textbf{XML} file, the next step is to load state information from \textbf{XML} file, and then map them to grid images with SPH based method. Since for any contact point, there are two normal contacts, one with $[n_x, n_y]$ while the other with $[-n_x, -n_y]$. So the grid values for $\pmb{n}$ would be always $\pmb{0}$, and the same  with $\pmb{t}$. So finally, the channel number of each image will be $6$, including $[m, v_x, v_y, \omega, \lambda_n, \lambda_t]$. \\
 
 For the learning, I divide 8 channels into features(input) and label(output).
@@ -237,6 +237,7 @@ For the learning, I divide 8 channels into features(input) and label(output).
     \end{table}
 
 \subsection{Training Details}
+    \label{trde}
     The learning happened on GPU(\textit{GeForce GTX 1080 Ti, 11 Gbps GDDR5X memory})\footnote{\url{https://www.nvidia.com/en-us/geforce/products/10series/geforce-gtx-1080-ti/}} held by Image Section, DIKU\footnote{\url{https://di.ku.dk/english/research/imagesection/}}. The whole learning takes nearly 24 hours. The model you can download in my personal dropbox\footnote{\url{https://www.dropbox.com/s/jrwzqib6ghrq59i/model.h5?dl=0}}. I gave hyperparameters setting below,
     \begin{table}[h!]
         \centering
