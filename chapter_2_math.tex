@@ -6,9 +6,9 @@ In an attempt to apply deep learning in a contact dynamic system, the first step
 
 \section{Overview}
 
-In rigid body simulation, contact force is used to prevent the rigid bodies from penetrating each other. The accuracy of the calculated contact force has great influence on the fidelity of simulation. In order to achieve physical rationality, frictional forces are necessary. The formulae of friction contact force problems include the modeling of normal force constraint and friction force constraint. Because that frictional contact modeling is more complicated, I will give a simple and general solution for normal contact forces. The frictional contact model will be mentioned briefly, rather than giving details. Besides, the topic of the paper is about applying deep learning to contact simulation, I just want to do the simulation as simple as possible. So rigid bodies' shape would not be considered here. All the bodies would be a circle, which is similar to particles.\\
+In rigid body simulation, contact force is used to prevent the rigid bodies from penetrating each other. The accuracy of the calculated contact force has great influence on the fidelity of simulation. In order to achieve physical rationality, frictional forces are necessary. The formulae of friction contact force problems include the modeling of normal force constraint and friction force constraint. Because that frictional contact modeling is more complicated, I will give a simple and general solution for normal contact forces. The frictional contact model will be mentioned briefly, rather than giving details. Besides, the topic of the paper is about applying deep learning to contact simulation, I just want to do the simulation as simple as possible. So rigid bodies' shape would not be considered here. All the bodies would be a circle, which is similar to particles.
 
-Before exporting the contact model, it is important to note that the simulation system is constrained by velocity-based location updates\cite{Erleben:2007:VSP:1243980.1243986}. Since collision detection is another big academic topic\cite{boulic2007collision} and this is a thesis on contact problems, the following models are given under the assumption that contact determination has already been performed.
+Before exporting the contact model, it is important to note that the simulation system is constrained by velocity-based location updates \cite{Erleben:2007:VSP:1243980.1243986}. Since collision detection is another big academic topic \cite{boulic2007collision} and this is a thesis on contact problems, the following models are given under the assumption that contact determination has already been performed.
 
 \section{Rigid dynamics Simulation}
 
@@ -193,7 +193,7 @@ Since $\pmb{\omega} \times \pmb{\omega}$ is zero, the final term can be cancels 
 
 
 \section{Velocity-based conatct model}
-    After getting some basic physical and mathematical knowledge about a dynamic system. Then,  the next step is to describe the equation of motion for the system with contact forces.  \\
+    After getting some basic physical and mathematical knowledge about a dynamic system. Then,  the next step is to describe the equation of motion for the system with contact forces. 
 
     When the collision happens, we can use contact forces to model the interactions between two colliding objects. The contact forces consist of both normal forces and frictional forces, which are subject to a set of constraints. The constraints are defined in Equation \ref{eq:constraint}.
     \begin{equation}
@@ -221,7 +221,8 @@ Since $\pmb{\omega} \times \pmb{\omega}$ is zero, the final term can be cancels 
     where $\pmb{\lambda} = [\lambda_1, \lambda_2, ... , \lambda_n]^T$ are the Lagrange multipliers.
 
 \subsection{Linear Complementarity Problem}
-The classical method to solve contacts forces is to derive the contact problems as a linear complementarity problem formulation. I will give the definition of Linear Complementarity Problem below, \\
+The classical method to solve contacts forces is to derive the contact problems as a linear complementarity problem formulation. I will give the definition of Linear Complementarity Problem below, 
+
     (LCP): Given an unknown vector $\mathbf{x} \in \mathbb{R}^{m}$, a known fixed matrix $\pmb{A} \in \mathbb{R}^{m\times m}$, and a known fixed vector $\pmb{b} \in \mathbb{R}^{m}$, determine $\mathbf{x}$ such that,
     \begin{equation}
         f(\mathbf{x}) = \mathbf{x}^{T}(\pmb{A}\cdot\mathbf{x} + \pmb{b}) = 0
@@ -250,7 +251,7 @@ The classical method to solve contacts forces is to derive the contact problems 
         \label{sys}
     \end{equation}
 
-    The laws of physics must be incorporated into what we call ``instantaneous time'', which describes the continuous motion of the rigid bodies. After that, we discretize the model over time to obtain a `discrete-time' model, which is a series of time step sub-problems. Sub-problems are formulated and numerically solved at each time step to simulate the system.\\
+    The laws of physics must be incorporated into what we call ``instantaneous time'', which describes the continuous motion of the rigid bodies. After that, we discretize the model over time to obtain a `discrete-time' model, which is a series of time step sub-problems. Sub-problems are formulated and numerically solved at each time step to simulate the system.
     
     To discretize the system \ref{sys}, the acceleration can be approximated by \cite{anitescu1997modeling} as:
     \begin{equation}
@@ -305,6 +306,6 @@ The classical method to solve contacts forces is to derive the contact problems 
         \caption{\textit{pgs}($\pmb{A}, \pmb{b}, \pmb{\lambda}$)}
         \label{pgs}
     \end{algorithm}
-    Finally, PGS algorithm will return you the final solution \(\pmb{\lambda}\) and a list of convergence rate $\pmb{\theta}$. Normally, the convergence rate can indicate the performance of iterative solver. In order to represent the overall performance of model or solver, I use average convergence rate in each iteration. You can see the analysis in Section \ref{sphtest} to get more details. \\
+    Finally, PGS algorithm will return you the final solution \(\pmb{\lambda}\) and a list of convergence rate $\pmb{\theta}$. Normally, the convergence rate can indicate the performance of iterative solver. In order to represent the overall performance of model or solver, I use average convergence rate in each iteration. You can see the analysis in Section \ref{sphtest} to get more details. 
 
-    As a conclusion, the iterative solver will be used to solve the LCP problem. Our hope is to find values which are close to the final solution through deep learning. Then the closing values will be used as initial values so that iterative solve can converge rapidly.
+    As a conclusion, the iterative solver will be used to solve the LCP problem. Our hope is to find values which are close to the final solution through deep learning. Then the values will be used as warm starting so that iterative solve can converge rapidly.

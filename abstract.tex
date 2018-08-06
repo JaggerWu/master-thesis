@@ -1,5 +1,6 @@
 \begin{abstract}
-    This is a master theis for Jian Wu(KU-ID:xcb479), from IT and Cognition program. In this paper, I address how to apply deep learning to rigud body dynamic. The center concept us to covert a rigid body simulation into imaging data and apply learning on these images.\\
-
+    The subject of this thesis is to apply deep learning method in rigid dynamic simulation, specifically for predicting good contact forces. The central concept of this thesis is to convert the simulation state information to accessible data for deep learning model. The basic idea is to use smoothed-particle hydrodynamics(SPH) based method to transform all essential data to a grid image, then predicting a grid image for contact forces. The values of contact forces generated from contact grid image by interpolation would be used as warm starting for iterative contact solver.
+    
+    The results show that smoothed-particle hydrodynamics(SPH) based method is a good way to convert the simulation state to a multiple- channels image without losing lots of essential information. Finally, the trained CNN model can actually provide great warm starting values for the contact solver in each step. But because it has to take the longer time on computing interpolation values, the CNN based method is not still efficient. The implementation of CNN experiments also shows the potential of applying deep learning in contact solution.
 
 \end{abstract}

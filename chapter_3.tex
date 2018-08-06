@@ -1,6 +1,6 @@
 \chapter{Partcle-grid-particle}
 \section{Overview}
-    Deep learning methods have been widely applied in computer vision, like segmentation, objects recognition. Training data is always important to the whole learning process. Normally, researchers prefer using the original image as the input images for training. Normally, researchers prefer using the original image as the input images for training. However, researchers in DeepMind\footnote{\url{https://deepmind.com/}} found that when deep neural networks are applied in physics motion prediction, the most difficult thing is to recognize different objects and get time-state data, like $m$, $\pmb{v}$, $\pmb{q}$, etc. In their new paper, they provide different colors to different moving bodies and use a sequence of frames as training data to make deep neural networks get state information($\pmb{v}, m, \pmb{q}$) \cite{DBLP:journals/corr/WattersTWPBZ17}.  Although visual interact networks work well to predict physics motion, it would be confused when it is facing many bodies dynamic system. In our view, we do not need deep learning model(e.g. convolutional neural networks) to replace the contact solver completely. We only hope deep neural network can accelerate the simulation. The learning model can give reasonable values which are close to the final solutions. Afterward, the iterative contact solver will use the values as starting, and ideally coverage rapidly. \\
+    Deep learning methods have been widely applied in computer vision, like segmentation, objects recognition. And training data is always crutial to the whole learning process. Normally, researchers prefer using the original image as the input images for training. However, it is still not clear that what kind of data can be used for predictiting the motion of onjects. Researchers in DeepMind\footnote{\url{https://deepmind.com/}} found that when deep neural networks are applied in physics motion prediction, the most difficult thing is to recognize different objects and get time-state data, like $m$, $\pmb{v}$, $\pmb{q}$, etc. In their new paper, they provide different colors to different moving bodies and use a sequence of frames as training data to make deep neural networks get state information($\pmb{v}, m, \pmb{q}$) \cite{DBLP:journals/corr/WattersTWPBZ17}.  Although visual interact networks work well to predict physics motion, it would be confused when it is facing many bodies dynamic system. In our view, we do not need deep learning model(e.g. convolutional neural networks) to replace the contact solver completely. We only hope deep neural network can accelerate the simulation. The learning model can give reasonable values which are close to the final solutions. Afterward, the iterative contact solver will use the values as starting, and ideally coverage rapidly. \\
 
     After discussion, we decided to transform each time-state to a grid map by Smoothed Particle Hydrodynamics. Then we will use the grid maps as the training data for deep learning model. Overall, the advantages of using the grid-based method are,
     \begin{enumerate}
@@ -156,6 +156,40 @@
     \subsection{Neighbor Search}
     Neighbor search is one of the most crucial procedures in SPH method considering all interpolation equations, $A(\textbf{r})$, needs the neighbor list for every particle (refer to equation \ref{eq:1}). A naive neighbor searching approach would end up with a complexity of $O(n^2)$. The complexity is not good enough since it is impossible to reach any interactive speed when the particle count increases. It is possible to have a significant performance increase with using an efficient nearest neighbor searching(NNS), since NNS is the most time-consuming process in SPH computation. In order to decrease the complexity, we choose to use $k-d$ tree data structure to store the particle spatial information and then do the nearest neighbor searching. $k-d$ tree is a data structure proposed by Bentley and Jon \cite{bentley1975multidimensional}, and we will use the $k-d$ algorithm built in \textit{Scipy}\footnote{\url{https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.spatial.KDTree.html}}
 
+    \subsection{Summary}
+    Then, I can conclude the whole process for map current simulation state to grid images,
+    \begin{algorithm}[!h]
+        \KwData{
+            Given a set of bodies $\mathcal{B}$ and the state in time $t$, as well as all grid nodes $\mathbf{x}$
+        }
+        \KwResult{the body grid image $\pmb{G}_{\mathcal{B}}(\mathbf{x})$}
+        \For{all $i$ and $j$}{
+            1. Find the nearest neihbors $\mathcal{B}_{near} \subseteq \mathcal{B}$ around $\mathbf{x}_{ij}$ \;
+            2. read the current state,
+                $$m_k, \pmb{v}_k, \pmb{q}_k, \omega_{k}~~k\in\mathcal{B}_{near}$$
+            3. Define state vector 
+                $$\pmb{S}_{k} = [m_k, {v_k}_{x}, {v_k}_{y}, \omega_{k}]$$
+            4. Compute grid values
+                $$\pmb{G}_{\mathcal{B}}(\mathbf{x}_{ij}) = \sum_{k\in \mathcal{B}_{near}}W(\mathbf{x}_{ij}, \pmb{q}_{k})\pmb{S}_k$$
+        }
+        \caption{Mapping bodies into a grid image. $\pmb{G}_{\mathcal{B}}=Bodies2grid(\mathbf{x}, \mathcal{B})$}
+        \label{bodygrid}
+    \end{algorithm}
+
+    \begin{algorithm}[!h]
+        \KwData{Given a set of contacts $\mathcal{C}$ between a set of bodies $\mathcal{B}$ and the state in time $t$, as well as all grid nodes $\mathbf{x}$}
+        \KwResult{the contact grid image $\pmb{G}_{\lambda}(\mathbf{x})$}
+        \For{all $i$ and $j$}{
+            1. Find the nearest neihbors $\mathcal{C}_{near} \subseteq \mathcal{C}$ around $\mathbf{x}_{ij}$ \;
+            2. read the current contact forces values and its position.
+                $$\pmb{q}_k, \pmb{\lambda}_{k}~~k\in\mathcal{C}_{near}~~\pmb{\lambda} = [\lambda_n, \lambda_t]$$
+            3. Compute grid values
+                $$\pmb{G}_{\lambda}(\mathbf{x}_{ij}) = \sum_{k\in \mathcal{C}_{near}}W(\mathbf{x}_{ij}, \pmb{q}_{k})\pmb{\lambda}_k$$
+        }
+        \caption{Mapping contacts into a grid image. $\pmb{G}_{\lambda}=Contacts2grid(\mathbf{x}, \mathcal{C})$}
+        \label{contactgrid}
+    \end{algorithm}
+
 
 \section{Grid to particle}
     SPH will be used for us to transform current state of dynamic system to grid images. After obtaining the grid image for simulation state in time $t$, we will use the grid cells as input and renew the contact grid image based on trained model. After getting the contact force grid image, the next step is to use contact position to interpolate image values. The interpolated values will be stored in the contact points and used as starting iterates for contact force solver. Then we can update states of all rigid bodies in time $t+\Delta{t}$.
@@ -193,6 +227,22 @@
         \end{aligned}
         \label{interpolation}
     \end{equation}
+
+    Then, the bilinear interpolation algorithm can be summarized,
+    \begin{algorithm}[!h]
+        \KwData{A grid image $\pmb{G}$, position $\pmb{q}$}
+        \KwResult{the contact grid image $\pmb{G}_{\lambda}(\mathbf{x})$}
+        \For{all $i$ and $j$}{
+            1. Find the nearest neihbors $\mathcal{C}_{near} \subseteq \mathcal{C}$ around $\mathbf{x}_{ij}$ \;
+            2. read the current contact forces values and its position.
+                $$\pmb{q}_k, \pmb{\lambda}_{k}~~k\in\mathcal{C}_{near}~~\pmb{\lambda} = [\lambda_n, \lambda_t]$$
+            3. Compute grid values
+                $$\pmb{G}_{\lambda}(\mathbf{x}_{ij}) = \sum_{k\in \mathcal{C}_{near}}W(\mathbf{x}_{ij}, \pmb{q}_{k})\pmb{\lambda}_k$$
+        }
+        \caption{Mapping contacts into a grid image. $\pmb{G}_{\lambda}=Contacts2grid(\mathbf{x}, \mathcal{C})$}
+        \label{contactgrid}
+    \end{algorithm}
+
 
 \section{Experiment and Conclution}
     \label{sec:sph-exp}
@@ -257,15 +307,12 @@
         }
         \KwResult{Get the contact forces $\pmb{\lambda}_{j}=[{\lambda_{n}}_{j}, {\lambda_{t}}_j]~~j\in\mathcal{C}$ at time $t$.}
         \While{Simulation Runing}
-        {
-            1. read current state,
-                $$\pmb{\lambda}_{j}=[{\lambda_{n}}_{j}, {\lambda_{t}}_{j}]~~j\in\mathcal{C}$$ \\
-            2. map the solved contact to a gird image, $\mathbf{x}=(x_i, y_i)$ is the spatial position of one node in in grid image.
-                $$G_{\pmb{\lambda}}(\mathbf{x}) \equiv \sum_{j \in \mathcal{C}} W(\mathbf{x}, \pmb{q}_{j})\pmb{\lambda}_{j},~~\pmb{\lambda}=[\lambda_n, \lambda_t]$$ \\
-            3. Once the contact force image is obtained,  the conatct position $\pmb{q}_{j} = (x_{j}, y_{j})~~j\in\mathcal{C}$  will be used to interpolation image values based on Equation \ref{interpolation}.
+        {   1. map the solved contact to a gird image, $\mathbf{x}=(x_i, y_i)$ is the spatial position of one node in in grid image.
+                $$\pmb{G}_{\lambda}=Contacts2grid(\mathbf{x}, \mathcal{C})$$
+            2. Once the contact force image $\pmb{G}_{\lambda}$ is obtained,  the conatct position $\pmb{q}_{j} = (x_{j}, y_{j})~~j\in\mathcal{C}$  will be used to interpolation image values based on Equation \ref{interpolation}.
                 $$\pmb{\lambda}_j \approx G_{\pmb{\lambda}}(\pmb{q}_j)~~j\in\mathcal{C}$$ 
             The interpolated values $\pmb{\lambda}$ will be used as restarting iterated for \textit{pybox2d} conatc solver. \\
-            4. Update $t$
+            3. Update $t$
                 $$t = t + \Delta t$$ \\
         }
         \caption{Experiment algorithm for test \textbf{SPH-Model}}

@@ -98,7 +98,7 @@ Simulation configs are listed below,
     \textbf{Importantly}, $d=0.5~~\text{and}~~h=0.5$ is not always the best experimented with different numbers of rigid inside the world box. But, it generally performs better than other values. As a result, I will choose $h=d=0.5$ as the parameters for SPH method.
     $$d_x = d_y = 0.5~~\text{and}~~h=0.5$$
     \subsubsection{Kernel Choosing}
-    The choice of kernel also needs to be addressed. In the paper, two kernels, \textbf{Poly6} and \textbf{Spiky}, have been introduced in section \ref{sec:kernels}. In order to compare these two kernels and determine the best one, finding the best parameters for \textbf{Spiky} is essential. I did the same experiment with kernel \textbf{Spiky}. Find a good scale between $h$ and $d$ firstly and then choose $d$. The results are shown in Figure \ref{spiky}. The plot in Figure \ref{fig:spikynum} reveals that $h=d$ is also a good choice for kernel \textbf{Spiky}. Although $d$s perform similarly, $d=0.25$ performs more stable and a bit fater in convergence. \\
+    The choice of kernel also needs to be addressed. In the paper, two kernels, \textbf{Poly6} and \textbf{Spiky}, have been introduced in section \ref{sec:kernels}. In order to compare these two kernels and determine the best one, finding the best parameters for \textbf{Spiky} is essential. I did the same experiment with kernel \textbf{Spiky}. Find a good scale between $h$ and $d$ firstly and then choose $d$. The results are shown in Figure \ref{spiky}. The plot in Figure \ref{fig:spikynum} reveals that $h=d$ is also a good choice for kernel \textbf{Spiky}. Although $d$s perform similarly, $d=0.25$ performs more stable and a bit fater in convergence. 
     \begin{figure}[!ht]
         \centering
         \begin{subfigure}[b]{0.7\textwidth}
@@ -300,7 +300,10 @@ Once getting the trained model, the next step is to apply this model in simulati
 \end{figure}
 
 I applied it in one test world built by the setting mentioned in section \ref{simconfig}. The test world is consist one $30 \times 30 $ box and $K$($50<K<100$) randomly distributing balls($r=1$). The balls will fall down due to gravity. Figure \ref{testoneworld} shows the details. As what is expected, CNN model performs similar with \textbf{SPH-Model}(mentioned in section \ref{sphtest}). Although the model is not as good as \textbf{SPH-model}, its coverages rate is obviously faster than built-in ones. 
-From Figure \ref{testoneworld}, it can be indicated that the CNN model actually makes the iterative solver converge faster. But it is just a small improvement. The CNN solution cannot reach a convergence as rapidly as \textbf{Copy-Model}. It is mainly the limitation of the SPH-based method. When the particle .
+
+From Figure \ref{testoneworld}, it can be indicated that the CNN model actually makes the iterative solver converge faster. But it is just a small improvement to buit-in warm starting. The CNN solution cannot reach a convergence as rapidly as \textbf{Copy-Model}. It is mainly the limitation of the SPH-based method. 
+
+In the next step, I want to review whether CNN model can speed up the simulation. I change the fixed iteration steps to a thold 
 
 \begin{algorithm}[!h]
         \KwData{
