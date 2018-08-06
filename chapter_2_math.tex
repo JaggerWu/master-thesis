@@ -2,11 +2,11 @@
 
 \chapter{Contact Models}
 \label{cp:contact}
-In an attempt to apply deep learning in a contact dynamic system, the first step is to understand how the contact dynamic system is modeled and how system model is solved by numerical method. Therefore, this chapter focuses on rigid body simulations to help readers understand how computers simulate rigid dynamics based on traditional \textit {Newton-Euler} equations, including how \textit {Newton-Euler} describes rigid dynamics, how to set constraint equations and numerical solution for dynamic system equation.
+In an attempt to apply deep learning in a contact dynamic system, the first step is to understand how the contact dynamic system is modeled and how system model is solved by numerical method. Therefore, this chapter focuses on rigid body simulations to help readers understand how computers simulate rigid dynamics based on traditional \textit{Newton-Euler} equations, including how \textit {Newton-Euler} describes rigid dynamics, how to set constraint equations and numerical solution for dynamic system equation.
 
 \section{Overview}
 
-In rigid body simulation, contact force is used to prevent the rigid bodies from penetrating each other. The accuracy of the calculated contact force has great influence on the fidelity of simulation. In order to achieve physical rationality, frictional forces are necessary. The formulae of friction contact force problems include the modeling of normal force constraint and friction force constraint. Because that frictional contact modeling is more complicated, I will give a simple and general solution for normal contact forces. The frictional contact model will be mentioned briefly, rather than giving details. Besides, the topic of the paper is about applying deep learning to contact simulation, I just want to do the simulation as simple as possible. So rigid bodies' shape would not be considered here. All the bodies would be a circle, which is similar to particles.
+In rigid body simulation, contact force is used to prevent the rigid bodies from penetrating each other. The accuracy of the calculated contact force has great influence on the fidelity of simulation. In order to achieve physical rationality, frictional forces are necessary. The formulae of friction contact force problems include the modeling of normal force constraint and friction force constraint. Because that frictional contact modeling is more complicated, I would just give a simple and general solution for normal contact forces. The frictional contact model would be mentioned briefly, rather than exploring details. Besides, the topic of the paper is about applying deep learning to contact simulation, I just want to do the simulation as simple as possible. So rigid bodies' shape would not be considered here. All the bodies would be a circle, which is similar to particles.
 
 Before exporting the contact model, it is important to note that the simulation system is constrained by velocity-based location updates \cite{Erleben:2007:VSP:1243980.1243986}. Since collision detection is another big academic topic \cite{boulic2007collision} and this is a thesis on contact problems, the following models are given under the assumption that contact determination has already been performed.
 
@@ -21,7 +21,7 @@ Simulation of the motion of a system of rigid bodies is based on a famous system
     \item Newton’s third law: For every force, there is an equal and opposite force.
 \end{enumerate}
 
-Before presenting the \textit{Newton–Euler} equations, we need to introduce a number of concepts from classical mechanics. I will start with one simple simulation with only position vector $\pmb{q}(t)$ and velocity vector $\pmb{v}(t)$. Then, we will introduce some concepts by adding rotation to pure simulation, rotational velocity $\pmb{\omega}(t)$, and moment $\pmb{\tau}$ (also known as a torque).
+Before presenting the \textit{Newton–Euler} equations, we need to introduce a number of concepts from classical mechanics. I would start with one simple simulation with only position vector $\pmb{q}(t)$ and velocity vector $\pmb{v}(t)$. Then, we will introduce some concepts by adding rotation to pure simulation, rotational velocity $\pmb{\omega}(t)$, and moment $\pmb{\tau}$ (also known as a torque).
 
 
 \subsection{Simulation Basics}
@@ -192,7 +192,7 @@ Since $\pmb{\omega} \times \pmb{\omega}$ is zero, the final term can be cancels 
     \end{equation}
 
 
-\section{Velocity-based conatct model}
+\section{Velocity-Based Conatct Model}
     After getting some basic physical and mathematical knowledge about a dynamic system. Then,  the next step is to describe the equation of motion for the system with contact forces. 
 
     When the collision happens, we can use contact forces to model the interactions between two colliding objects. The contact forces consist of both normal forces and frictional forces, which are subject to a set of constraints. The constraints are defined in Equation \ref{eq:constraint}.
@@ -259,7 +259,7 @@ The classical method to solve contacts forces is to derive the contact problems 
     \end{equation}
     $\mathbf{v}_t$ and $\mathbf{v}_{t+v}$ are the velocities at the beginning of the current time step, and the next time step, $\Delta t$ is the time step. Then we can get,
     \begin{equation}
-        \mathbf{v}^{t+1} = \mathbf{v}^{t} + \pmb{M}^{-1}\pmb{J}_{c}^{T}\Delta{t}\pmb{\lambda}_{c} + \Delta{t}\pmb{M}^{-1}\mathbf{F}_{ext}
+        \mathbf{v}^{t+1} = \mathbf{v}^{t} + \pmb{M}^{-1}\pmb{J}_{n}^{T}\Delta{t}\pmb{\lambda}_{n} + \Delta{t}\pmb{M}^{-1}\mathbf{F}_{ext}
     \end{equation}
 
     Then we can define,
@@ -291,7 +291,14 @@ The classical method to solve contacts forces is to derive the contact problems 
     After obtaining discrete-time models, numerical methods must be applied to compute solutions. Normally, an iterative solution will be used to solve LCP. Projected Gauss-Seidel Solver is one of the most classic methods. One introduction will be given below,
 
     \subsection{Projected Gauss-Seidel(PGS) solver for contact forces}
-    One of the most classic methods is projected gauss-seidel(PGS). Most open-source software for interactive real-time rigid body simulation uses the Projected Gauss-Seidel (PGS) method for computing contact forces, like \textit{Box2D}\footnote{\url{http://box2d.org/}} for 2-$D$ and \textit{Bullet}\footnote{\url{https://pybullet.org/wordpress/}} for 3-$D$. PGS is computationally very efficient with an iteration cost of $O(n)$, using a careful memory layout of sparse matrices allows for a memory footprint of $O(n)$. In addition to being computationally and memory-wise efficient, PGS is very robust and can deal gracefully with ill-conditioned problems (due to many redundant constraints) or ill-posed problems (due to badly defined constraints). For these reasons, PGS is well suited for interactive applications like computer games. I introduced PGS in Algorithm \ref{pgs}. Generally, $\pmb{\lambda}_{init} = \pmb{0}$, and some experiment will be done to explore its convergence rate in section \ref{sphtest}.
+    One of the most classic methods is projected gauss-seidel(PGS). Most open-source software for interactive real-time rigid body simulation uses the Projected Gauss-Seidel (PGS) method for computing contact forces, like \textit{Box2D}\footnote{\url{http://box2d.org/}} for 2-$D$ and \textit{Bullet}\footnote{\url{https://pybullet.org/wordpress/}} for 3-$D$. 
+
+    There are two main reasons why PGS is well suitable for interactive application \cite{Erleben:2007:VSP:1243980.1243986}, 
+    \begin{enumerate}
+        \item PGS is computationally very efficient with an iteration cost of $O(n)$, using a careful memory layout of sparse matrices allows for a memory footprint of $O(n)$.
+        \item PGS is very robust and can deal gracefully with ill-conditioned problems (due to many redundant constraints) or ill-posed problems (due to badly defined constraints).
+    \end{enumerate}
+    I introduced PGS in Algorithm \ref{pgs}. Some experiment will be done to explore its convergence rate in section \ref{sphtest}.
     \begin{algorithm}[!h]
         \KwData{$N, \pmb{\lambda}_{init}, \pmb{A}, \pmb{b}$}
         \KwResult{Compute the values of $\pmb{\lambda}$, the convergence rate $\pmb{\theta}$}
@@ -304,9 +311,18 @@ The classical method to solve contacts forces is to derive the contact problems 
             }
             $\pmb{\theta}_{k} \gets \text{max}(|\pmb{\lambda}- \pmb{\lambda}_{old}|)$
         }
-        \caption{\textit{pgs}($\pmb{A}, \pmb{b}, \pmb{\lambda}$)}
+        \caption{\textit{pgs}($\pmb{A}, \pmb{b}, \pmb{\lambda}_{init}$)}
         \label{pgs}
     \end{algorithm}
-    Finally, PGS algorithm will return you the final solution \(\pmb{\lambda}\) and a list of convergence rate $\pmb{\theta}$. Normally, the convergence rate can indicate the performance of iterative solver. In order to represent the overall performance of model or solver, I use average convergence rate in each iteration. You can see the analysis in Section \ref{sphtest} to get more details. 
+    \subsubsection{Warm Starting}
+    How fast the solver gets convergence is related to $\pmb{\lambda}_{init}$. Industrially, $\pmb{\lambda}$ would be provided a value which is normally determined bu previous simulation. We call it as \textbf{warm starting}. The central idea of this project is to use deep learning give a good warm starting to the solver. 
 
-    As a conclusion, the iterative solver will be used to solve the LCP problem. Our hope is to find values which are close to the final solution through deep learning. Then the values will be used as warm starting so that iterative solve can converge rapidly.
+    \subsubsection{Convergence Rate}
+    PGS algorithm will return the final solution \(\pmb{\lambda}\) and a list of convergence rate $\pmb{\theta}$. Normally, the convergence rate can indicate the performance of an iterative solver. In order to represent the overall performance of the model or solver in the whole simulation, I use average convergence rate in each iteration. For a $T$ time-steps simulation. $\theta_{t}$ is the vector of convergence rates in time $t$.
+    \begin{equation}
+        \pmb{\theta} = \frac{1}{T}\sum_{t}^{T}\pmb{\theta}_t
+    \end{equation} 
+    You can see the sample analysis in Section \ref{sphtest} to get more details.
+
+    \subsection{Summary}
+    As a summary, the contact problem would be derived in an LCP formulation then solved by one iterative solver. I only introduced one solver(PGS) here. Some other solvers are mentioned by Kenny in \cite{Erleben:2007:VSP:1243980.1243986, poulsen2010heuristic}. In the future, I would use $Slover(\pmb{A}, \pmb{b}, \pmb{\lambda}_{init})$ to represent the numerical solver used by our experiment. Our hope is to find values which are close to the final solution through deep learning. Then the values will be used as warm starting so that iterative solve can converge rapidly.
