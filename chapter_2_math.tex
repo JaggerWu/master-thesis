@@ -10,9 +10,9 @@ In rigid body simulation, contact force is used to prevent the rigid bodies from
 
 Before exporting the contact model, it is important to note that the simulation system is constrained by velocity-based location updates \cite{Erleben:2007:VSP:1243980.1243986}. Since collision detection is another big academic topic \cite{boulic2007collision} and this is a thesis on contact problems, the following models are given under the assumption that contact determination has already been performed.
 
-\section{Rigid dynamics Simulation}
+\section{Rigid Dynamics Simulation}
 
-\subsection{Classical mechanics}
+\subsection{Classical Mechanics}
 Simulation of the motion of a system of rigid bodies is based on a famous system of differential equations, the \textit{Newton–Euler equations}, which can be derived from Newton’s laws and other basic concepts from classical mechanics \cite{bender2014interactive}:
 
 \begin{enumerate}
@@ -168,7 +168,7 @@ Since $\pmb{\omega} \times \pmb{\omega}$ is zero, the final term can be cancels 
         A wrench contains an angular component $\pmb{\tau}$ and a linear component $f$, which are applied at the origin of the coordinate frame they are specified in.
 
 
-\subsection{Newton-Euler Equation}
+\subsection{\textit{Newton-Euler} Equation}
     \textit{Newton-Euler} equations for a rigid body can now be written in terms of the body's acceleration twist $\mathbf{v}$ mentioned in \ref{twist} and the wrench $\mathbf{f}$ mentioned in \ref{wrench} acting on the body. We can simply write the Newton and Euler equations,
 
     \begin{equation}
@@ -237,7 +237,7 @@ The classical method to solve contacts forces is to derive the contact problems 
     \textit{For LCPs, we adopt the shorthand notation, LCP($\pmb{A}, \pmb{b}$)}.
 
 
-\subsection{Modeling contact}
+\subsection{Modeling Contact}
     The contact force problem can be stated as a linear complementarity problem (LCP)\cite{bender2014interactive}. I will derive this formulation. The focus of this chapter is on the contact force model, so the time stepping scheme and matrix layouts are based on the velocity-based formulation. If I just consider normal contact forces, the \textit{Newton–Euler} equations based on Equation \ref{eq:cone} can be rewritten as,
 
     \begin{equation}

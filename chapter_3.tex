@@ -1,4 +1,4 @@
-\chapter{Particle-grid-particle}
+\chapter{Particle-Grid-Particle}
 \section{Overview}
     Deep learning methods have been widely applied in computer vision, like segmentation, objects recognition. And training data is always crucial to the whole learning process. Normally, researchers prefer using the original image as the input images for training. However, it is still not clear that what kind of data can be used for predicting the motion of objects. Researchers in DeepMind\footnote{\url{https://deepmind.com/}} found that when deep neural networks are applied in physics motion prediction, the most difficult thing is to recognize different objects and get time-state data, like $m$, $\pmb{v}$, $\pmb{q}$, etc. In their new paper, they provide different colors to different moving bodies and use a sequence of frames as training data to make deep neural networks get state information($\pmb{v}, m, \pmb{q}$) \cite{DBLP:journals/corr/WattersTWPBZ17}.  Although visual interact networks work well to predict physics motion, it would be confused when it is facing many bodies dynamic system. In our view, we do not need deep learning model(e.g. convolutional neural networks) to replace the contact solver completely. We only hope deep neural network can accelerate the simulation. The learning model can give reasonable values which are close to the final solutions. Afterward, the iterative contact solver will use the values as warm starting, and ideally coverage rapidly. \\
 
@@ -147,7 +147,7 @@
         \label{fg:gradient}
     \end{figure}
 
-    \subsection{Grid size and smoothing length}
+    \subsection{Grid Size and Smoothing Length}
     \label{gs}
     The grid should be also fine enough to capture the variation in our simulation. In this case, it is reasonable to have a grid fine enough such that no two contact points are mapped into the same cell. \\
 
@@ -191,7 +191,7 @@
     \end{algorithm}
 
 
-\section{Grid to particle}
+\section{Grid to Particle}
     SPH will be used for us to transform the current state of the dynamic system to grid images. After obtaining the grid image for simulation state in time $t$, we will use the grid cells as input and renew the contact grid image based on a trained model. After getting the contact force grid image, the next step is to use contact position to interpolate image values. The interpolated values will be stored in the contact points and used as starting iterates for contact force solver. Then we can update states of all rigid bodies in time $t+\Delta{t}$.
 
     \subsection{Bilinear interpolation}
@@ -246,7 +246,7 @@
     \label{sec:sph-exp}
     Our hope is that starting iterates will be close to ``solution'' of the contact problem, which can indicate the contact force solvers will coverage very rapidly or maybe not even need to iterate. In order to test whether the SPH method can be applied in our case, the contact force solution is mapped to image and interpolated values are generated and used to restart the contact force solver. Our hypothesis is that the iterative solver quickly recovers an iteration close to the original solution before mapping to force grid image. I will just compare the performance of SPH-based method with other methods in this section. More details will be analyzed and described in Chapter \ref{details}.
 
-\subsection{pybox2d simulation}
+\subsection{\textbf{pybox2d} Simulation}
     \label{sph:exp}
     In order to test whether \textbf{SPH-based} method works for this case. All experiments will be done based on the basis physical engine, \textit{pybox2d}. Before testing the performance of \textbf{SPH-based} method, \textbf{Non-Model}, \textbf{Builtin-model} and \textbf{Copy-model} are defined to see the influence of different initial values for iterative contact solver.
     \begin{itemize}
@@ -293,7 +293,7 @@
         \item \textbf{Hypothesis} Ideally, if SPH-based method can work well for this project, the contact solver would coverage faster than \textbf{Builtin-Model} and \textbf{None-Model}, but still slower than \textbf{Copy-Model}, which give the correct solution to solver directly.
     \end{itemize}
 
-\subsection{SPH-based method test}
+\subsection{SPH-based Method Test}
     \label{sphtest}
     The \textbf{SPH-Model} is defined as follow, as well as the experiment algorithm in Algorithm \ref{testsph},
     \begin{itemize}
