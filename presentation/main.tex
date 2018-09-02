@@ -149,7 +149,7 @@
 \section{Particles-Grid-Particles}
 
 \subsection{Grid-Particle Method}
-\begin{frame}{Overview}
+\begin{frame}{Grid-Particle Method}
 In order to generate accessible data for CNN model, we transform every state into a set of grid images.
 \begin{itemize}
 \item {It can make the simulation states be expressed by a set of matrixes, which can be accessible for deep neural networks.
@@ -158,7 +158,8 @@ In order to generate accessible data for CNN model, we transform every state int
 \item {}
 \end{itemize}
 \end{frame}
-\begin{frame}{Overview of the whole workflow}
+\begin{frame}{Grid-Particle Method}{Workflow}
+The whole workflow can be described as,
 \begin{enumerate}
 \item {
 Based on Smoothed Particle Hydrodynamics(SPH), map current state(\(m, v_x, v_y, \omega, n_x\)) to a image(the number of channel is 5.), which is called feature image.

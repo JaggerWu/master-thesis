@@ -1,2 +1,3 @@
 cd report
 ./build-thesis
+cp main.pdf ../report.pdf

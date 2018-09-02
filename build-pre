@@ -1,0 +1,3 @@
+cd presentation
+pdflatex main.tex
+cp main.pdf ../presentation.pdf
