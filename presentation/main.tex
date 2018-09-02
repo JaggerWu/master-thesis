@@ -102,11 +102,11 @@
 
 % Section and subsections will appear in the presentation overview
 % and table of contents.
-\section{First Main Section}
+\section{Introduction}
 
-\subsection{First Subsection}
+\subsection{Previous Work}
 
-\begin{frame}{Previous Work}{Optional Subtitle}
+\begin{frame}{Previous Work}
   \begin{itemize}
   \item {
     My first point.
@@ -117,14 +117,14 @@
   \end{itemize}
 \end{frame}
 
-\subsection{Second Subsection}
+\subsection{Thesis Overview}
 
 % You can reveal the parts of a slide one at a time
 % with the \pause command:
-\begin{frame}{Second Slide Title}
+\begin{frame}{Thesis Overview}
   \begin{itemize}
   \item {
-    First item.
+    Modeling Contact.
     \pause % The slide will pause after showing the first item
   }
   \item {   
@@ -146,9 +146,48 @@
   \end{itemize}
 \end{frame}
 
-\section{Second Main Section}
+\section{Particles-Grid-Particles}
 
-\subsection{Another Subsection}
+\subsection{Grid-Particle Method}
+\begin{frame}{Overview}
+In order to generate accessible data for CNN model, we transform every state into a set of grid images.
+\begin{itemize}
+\item {It can make the simulation states be expressed by a set of matrixes, which can be accessible for deep neural networks.
+    \pause
+}
+\item {}
+\end{itemize}
+\end{frame}
+\begin{frame}{Overview of the whole workflow}
+\begin{enumerate}
+\item {
+Based on Smoothed Particle Hydrodynamics(SPH), map current state(\(m, v_x, v_y, \omega, n_x\)) to a image(the number of channel is 5.), which is called feature image.
+\pause
+}
+\item {
+The feature image will be used as input to a model(created by a convolutional neural network), then one image(the number of channels is 2) will be getting, which can be called label image.
+\pause
+}
+\item {
+For all contacts positions, interpolated values will be gener- ated based on label image. Then, the values will be used as starting iterate values for contact force solver. In our hypoth- esis, the given starting values will speed up the solver to reach convergence.
+}
+
+\end{enumerate}
+\end{frame}
+\subsection{Smoothed Particle Hydrodynamics}
+
+\begin{frame}{Smoothed Particle Hydrodynamics}{Fundamentals}
+	
+\end{frame}
+\subsection{Bilinear Interpolation}
+\begin{frame}{Bilinear Interpolation}
+\end{frame}
+
+\section{Deep Learning Model}
+\subsection{CNN Architecture}
+\subsection{Training Configuration}
+
+\section{Results and Analysis}
 
 \begin{frame}{Blocks}
 \begin{block}{Block Title}
