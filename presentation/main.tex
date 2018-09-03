@@ -13,6 +13,8 @@
 \documentclass{beamer}
 \usepackage{algorithm2e}
 \usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{subcaption}
 
 % There are many different themes available for Beamer. A comprehensive
 % list with examples is given here:
@@ -240,7 +242,6 @@ For numerical work,
         \centering
         \includegraphics[scale = 0.3]{../report/Figures/kenels_de}
         \caption{Comparation of gradient of different kernels, we set $h = 1$ here. }
-        \label{fg:gradient}
 \end{figure}
 \end{frame}
 
@@ -270,11 +271,163 @@ Once getting contact grid image, we need transform the grid image to a physical 
 \end{figure}
 \end{frame}
 
+\begin{frame}{Bilinear}
+we can firstly do linear interpolation in the $x$-direction. This yields
+\pause
+\begin{subequations}
+        \begin{align}
+            f(x,y_{1})&\approx {\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{11})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{21}),\\
+            f(x,y_{2})&\approx {\frac {x_{2}-x}{x_{2}-x_{1}}}f(Q_{12})+{\frac {x-x_{1}}{x_{2}-x_{1}}}f(Q_{22}).
+        \end{align}
+        \label{eq:2}
+\end{subequations}
+\pause
+After getting the two values in $x-$direction $f(x, y_1)$ and $f(x, y_2)$, we can combine these values to do interpolation in $y-$ direction.
+\pause
+\begin{equation}
+        f(x,y) \approx {\frac {y_{2}-y}{y_{2}-y_{1}}}f(x,y_{1})+{\frac {y-y_{1}}{y_{2}-y_{1}}}f(x,y_{2})
+    \end{equation}
+\end{frame}
+
+\begin{frame}{SPH method}{Experiments}
+%\begin{figure}[!h]
+%        \centering
+%        \begin{subfigure}[b]
+%            \includegraphics[scale = 0.2]{../report/Figures/sim0.png}
+%            \caption{Time Step=$0$}
+%        \end{subfigure}
+%        \begin{subfigure}[b]
+%            \includegraphics[scale = 0.2]{../report/Figures/sim2.png}
+%            \caption{Time Step=$200$}
+%        \end{subfigure}
+%        \begin{subfigure}[b]
+%            \includegraphics[scale = 0.2]{../report/Figures/sim3.png}
+%            \caption{Time Step=$400$}
+%        \end{subfigure}
+%        \caption{Visualization for simulation}
+%        \label{fig:simvi}
+%    \end{figure}
+%\begin{figure}[!h]
+\end{frame}
+
 \section{Deep Learning Model}
 \subsection{CNN Architecture}
 \subsection{Training Configuration}
 
 \section{Results and Analysis}
+
+\begin{frame}{Simulation Configuration}
+\begin{itemize}
+\item {
+\textbf{World Setting}
+\pause
+the world box size is $30 \times 30$, and there are $50-100$ circle rigid bodies($r = 1$, all circle rigid bodies in the same size.) inside the box. Initially, the rigid circles will be located following gaussian distribution2. Then, all rigid circles will fall down by gravity.
+\pause
+}
+\item {
+\textbf{Simulation Setting}
+\pause
+there will be totally 600-steps simulation. For each step, $\Delta t = 0.01s$, and the number of iteration in each step will be set as fixed, 3000.
+}
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Results and Analysis}{SPH parameters}
+I define $\pmb{d}=(d_x, d_y)$ as grid cell size and $h$ as smoothing length.
+\begin{itemize}
+	\pause
+        \item Since the objects are circles, $d_x = d_y = d $ 
+	\pause
+        \item $d$ must be less than the distance of nearest two contact points. It can be defined. $d \le r = 1$
+	\pause
+        \item the smooth length $h$ should be less than the minimum distance between two contact points $d$, $h \le d$  
+        \pause
+	\item For a given $d$, $h \ge \frac{\sqrt{2}}{2}d \approx 0.71 d$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Results and Analysis}{SPH parameters(\textbf{Poly6})}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[scale=0.4]{../report/Figures/size25.pdf}
+    \caption{The grid size $d$ is set $0.25$. $h=0.1, 0.2, 0.25, 0.5$ is tested respectively. This figure shows different coveragence rate based on different $h$ value. The kernel is \textbf{Poly6}}
+\end{figure}
+\end{frame}
+\begin{frame}{Results and Analysis}{SPH parameters(\textbf{Poly6})}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[scale=0.4]{../report/Figures/hd.pdf}
+    \caption{Coveragence rate for different $d$ value. The kernel is \textbf{Poly6}}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Results and Analysis}{SPH parameters(\textbf{Spiky})}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[scale=0.4]{../report/Figures/spiky25.pdf}
+    \caption{The grid size $d$ is set $0.25$. $h=0.1, 0.2, 0.25, 0.5$ is tested respectively. This figure shows different coveragence rate based on different $h$ value. The kernel is \textbf{Spiky}}
+\end{figure}
+\end{frame}
+\begin{frame}{Results and Analysis}{SPH parameters(\textbf{Spiky})}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[scale=0.4]{../report/Figures/spikysize.pdf}
+    \caption{Coveragence rate for different $d$ value. The kernel is \textbf{Spiky}}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Results and Analysis}{SPH parameters}
+\begin{figure}[!ht]{}
+        \centering
+        \includegraphics[scale=0.4]{../report/Figures/kerneltest.pdf}
+        \caption{Coveragence rate for kernel \textbf{Poly6} anf \textbf{Spiky}. $h_\text{poly6} = d_\text{poly6} = 0.5$, while $h_\text{spiky} = d_\text{spiky} = 0.25$}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Results and Analysis}{SPH parameters}
+\begin{figure}[!ht]
+        \centering
+        \includegraphics[scale=0.4]{../report/Figures/final_SPH.pdf}
+        \caption{Coveragence rate for models(different initial values for $\pmb{\lambda}$).}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Results and Analysis}{Simulation on CNN}
+\begin{figure}[!h]
+    \centering
+    \includegraphics[scale = 0.4]{../report/Figures/cnn.pdf}
+    \caption{The final result. Add the final CNN solution to compare with other methods.}
+    \label{testoneworld}
+\end{figure}
+\end{frame}
+\begin{frame}{Results and Analysis}{Simulation on CNN}
+\begin{figure}[!h]
+        \centering
+            \includegraphics[scale = 0.4]{../report/Figures/cnntime}
+            \caption{Time spent for contact solver iteration}
+\end{figure}
+\end{frame}
+\begin{frame}{Results and Analysis}{Simulation on CNN}
+\begin{figure}[!h]
+        \centering
+            \includegraphics[scale = 0.4]{../report/Figures/cnntotal}
+            \caption{Time spend for the whole contact solution(including warm starting calculation).}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Results and Analysis}{Conclusion}
+Now, some conclusions can acheived,
+\pause
+\begin{itemize}
+    \item \textbf{CNN-Model} actually makes the iterative solver converge faster. But it is not a great improvement to buit-in warm starting.
+    \pause
+    \item \textbf{CNN-Model} performs very similar to \textbf{SPH-Model}, which means the CNN predicts contact image well.
+    \pause
+    \item Due to the limitation of the SPH-based method, \textbf{CNN-Model} just gets a small improvement compared with \textbf{Builtin-Model}. And it cannot perform as good as \textbf{Copy-Model}.
+\end{itemize}
+\end{frame}
+
 
 \section{Future Work}
 \begin{frame}{Future Work}
@@ -311,45 +464,6 @@ More learning models can be explored, like Recurrent Neural Networks(RNN),  Long
 \end{enumerate}
 
 \end{frame}
-
-\begin{frame}{Blocks}
-\begin{block}{Block Title}
-You can also highlight sections of your presentation in a block, with it's own title
-\end{block}
-\begin{theorem}
-There are separate environments for theorems, examples, definitions and proofs.
-\end{theorem}
-\begin{example}
-Here is an example of an example block.
-\end{example}
-\end{frame}
-
-% Placing a * after \section means it will not show in the
-% outline or table of contents.
-\section*{Summary}
-
-\begin{frame}{Summary}
-  \begin{itemize}
-  \item
-    The \alert{first main message} of your talk in one or two lines.
-  \item
-    The \alert{second main message} of your talk in one or two lines.
-  \item
-    Perhaps a \alert{third message}, but not more than that.
-  \end{itemize}
-  
-  \begin{itemize}
-  \item
-    Outlook
-    \begin{itemize}
-    \item
-      Something you haven't solved.
-    \item
-      Something else you haven't solved.
-    \end{itemize}
-  \end{itemize}
-\end{frame}
-
 
 
 % All of the following is optional and typically not needed. 
