@@ -11,6 +11,8 @@
 % notice. 
 
 \documentclass{beamer}
+\usepackage{algorithm2e}
+\usepackage{amsmath}
 
 % There are many different themes available for Beamer. A comprehensive
 % list with examples is given here:
@@ -122,28 +124,28 @@
 % You can reveal the parts of a slide one at a time
 % with the \pause command:
 \begin{frame}{Thesis Overview}
-  \begin{itemize}
-  \item {
-    Modeling Contact.
-    \pause % The slide will pause after showing the first item
-  }
-  \item {   
-    Second item.
-  }
-  % You can also specify when the content should appear
-  % by using <n->:
-  \item<3-> {
-    Third item.
-  }
-  \item<4-> {
-    Fourth item.
-  }
-  % or you can use the \uncover command to reveal general
-  % content (not just \items):
-  \item<5-> {
-    Fifth item. \uncover<6->{Extra text in the fifth item.}
-  }
-  \end{itemize}
+%  \begin{itemize}
+%  \item {
+%    Modeling Contact.
+%    \pause % The slide will pause after showing the first item
+%  }
+%  \item {   
+%    Second item.
+%  }
+%  % You can also specify when the content should appear
+%  % by using <n->:
+%  \item<3-> {
+%    Third item.
+%  }
+%  \item<4-> {
+%    Fourth item.
+%  }
+%  % or you can use the \uncover command to reveal general
+%  % content (not just \items):
+%  \item<5-> {
+%    Fifth item. \uncover<6->{Extra text in the fifth item.}
+%  }
+%  \end{itemize}
 \end{frame}
 
 \section{Particles-Grid-Particles}
@@ -178,10 +180,94 @@ For all contacts positions, interpolated values will be gener- ated based on lab
 \subsection{Smoothed Particle Hydrodynamics}
 
 \begin{frame}{Smoothed Particle Hydrodynamics}{Fundamentals}
-	
+The heart of SPH is a kernel interpolation method which allows any function to be expressed in terms of its values at a set of disordered points - the particles.
+\pause
+\begin{equation}
+        A_{I}(\textbf{r}) = \int A({\textbf{r}}^{\prime})W(\|\textbf{r} - \textbf{r}^{\prime}\|, h)\mathrm{d}\textbf{r}^{\prime}
+\end{equation}
+\pause
+where the integration is over the entire space, and $W$ is an in-
+terpolating kernel with
+\pause
+\begin{equation}
+        \int W(\|\textbf{r} - \textbf{r}^{\prime}\|, h)\mathrm{d} \textbf{r}^{\prime} = 1
+\end{equation}
+For numerical work,
+\pause
+\begin{equation}
+        A_{S}(\textbf{x}) = \sum_{i}A(\textbf{x}_{i})W(\|\textbf{x}_{i}-\textbf{x}\|, h)
+\end{equation}
+
 \end{frame}
+\begin{frame}{Smoothed Particle Hydrodynamics}{Kernels}
+\begin{itemize}
+\item {
+\textbf{Poly6}
+\pause
+\begin{equation}
+        W_{poly 6}(\textbf{r}, h) = \frac{315}{64\pi h^{9}}
+            \begin{cases}
+                (h^2 - \|\textbf{r}\|^2)^3 & 0 \le \|\textbf{r}\| \le h \\
+                0 & \textrm{Otherwise}
+            \end{cases}
+\end{equation}
+\pause
+}
+\item {
+\textbf{Spicky}
+\pause
+\begin{equation}
+        W_{spiky}(\textbf{r}, h) = \frac{15}{\pi h^6}
+            \begin{cases}
+                (h - \|\textbf{r}\|)^3 & 0\le\|\textbf{r}\|\le h \\
+                0 & \textrm{Otherwise}\\
+            \end{cases}
+\end{equation}
+}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Smoothed Particle Hydrodynamics}{Kernels}
+\begin{figure}
+        \centering
+        \includegraphics[scale = 0.3]{../report/Figures/kernels}
+        \caption{Comparation of different kernels, we set smoothing length $h = 1$ here.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Smoothed Particle Hydrodynamics}{Kernels}
+\begin{figure}
+        \centering
+        \includegraphics[scale = 0.3]{../report/Figures/kenels_de}
+        \caption{Comparation of gradient of different kernels, we set $h = 1$ here. }
+        \label{fg:gradient}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+%\begin{algorithm}
+%        \KwData{Given a set of contacts $\mathcal{C}$ between a set of bodies $\mathcal{B}$ and the state in time $t$, as well as all the spacial positions of grid nodes $\mathbf{x}$}
+%        \KwResult{the contact grid image $\pmb{G}_{\lambda}$}
+%        \For{all $i$ and $j$}{
+%            1. Find the nearest neihbors $\mathcal{C}_{near} \subseteq \mathcal{C}$ around $\mathbf{x}_{ij}$ \\
+%            2. read the current contact forces values and its position.
+%                $$\pmb{q}_k, \pmb{\lambda}_{k}~~k\in\mathcal{C}_{near}~~\pmb{\lambda} = [\lambda_n, \lambda_t]$$ \\
+%            3. Compute grid values
+%                $$\pmb{G}_{\lambda}(i, j) \gets \sum_{k\in \mathcal{C}_{near}}W(\mathbf{x}_{ij}, \pmb{q}_{k})\pmb{\lambda}_k$$
+%        }
+%        \caption{Mapping contacts into a grid image. It can be called by $Contacts2grid(\mathbf{x}, \mathcal{C})$}
+%\end{algorithm}
+\end{frame}
+
 \subsection{Bilinear Interpolation}
 \begin{frame}{Bilinear Interpolation}
+Once getting contact grid image, we need transform the grid image to a physical state, specific contact values in each contact point. We applied bilinear interpolation in our case.
+\pause
+\begin{figure}
+        \centering
+        \includegraphics[scale = 0.5]{../report/Figures/inp}
+        \caption{The figure shows the visualization of bilinear interpolation. The four red dots show the data points and the green dot is the point at which we want to interpolate.}
+\end{figure}
 \end{frame}
 
 \section{Deep Learning Model}
@@ -189,6 +275,42 @@ For all contacts positions, interpolated values will be gener- ated based on lab
 \subsection{Training Configuration}
 
 \section{Results and Analysis}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+\begin{enumerate}
+\item {
+\textbf{Grid-Particles Method}
+\pause
+\begin{itemize}
+\item {
+\textbf{SPH}
+\pause
+For the SPH-based method, it is still far away from perfect. It performs not much better than warm starting. The probable attempt will including trying more new kernels, using new data and algorithm for nearest neighbor searching.
+\pause
+}
+\item {
+\textbf{Interpolation Method}
+\pause
+It might lose some essential informa- tion when it was interpolated back to particles. So exploring another interpolation method would be helpful to this project.
+\pause
+}
+\end{itemize}
+}
+
+\item {
+\textbf{Deep Learning Model},
+\pause
+More learning models can be explored, like Recurrent Neural Networks(RNN),  Long short-term memory(LSTM).
+\pause
+}
+
+\item {
+\textbf{More Shapes Experiments}
+}
+\end{enumerate}
+
+\end{frame}
 
 \begin{frame}{Blocks}
 \begin{block}{Block Title}
