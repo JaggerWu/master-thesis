@@ -290,29 +290,54 @@ After getting the two values in $x-$direction $f(x, y_1)$ and $f(x, y_2)$, we ca
 \end{frame}
 
 \begin{frame}{SPH method}{Experiments}
-%\begin{figure}[!h]
-%        \centering
-%        \begin{subfigure}[b]
-%            \includegraphics[scale = 0.2]{../report/Figures/sim0.png}
-%            \caption{Time Step=$0$}
-%        \end{subfigure}
-%        \begin{subfigure}[b]
-%            \includegraphics[scale = 0.2]{../report/Figures/sim2.png}
-%            \caption{Time Step=$200$}
-%        \end{subfigure}
-%        \begin{subfigure}[b]
-%            \includegraphics[scale = 0.2]{../report/Figures/sim3.png}
-%            \caption{Time Step=$400$}
-%        \end{subfigure}
-%        \caption{Visualization for simulation}
-%        \label{fig:simvi}
-%    \end{figure}
-%\begin{figure}[!h]
+\begin{figure}[!h]
+        \centering
+        \includegraphics[scale = 0.4]{../report/Figures/nosph}
+        \caption{Average convergence rate for different models(not including \textbf{SPH-based model}).}
+        \label{fg:nosph}
+\end{figure}
+\end{frame}
+\begin{frame}{SPH method}{Experiments}
+\begin{figure}[!h]
+        \centering
+        \includegraphics[scale = 0.4]{../report/Figures/addsph}
+        \caption{Average convergence rate for different models(not including \textbf{SPH-based model}).}
+        \label{fg:nosph}
+\end{figure}
 \end{frame}
 
 \section{Deep Learning Model}
 \subsection{CNN Architecture}
+\begin{frame}{CNN Architecture}
+\begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.5\textwidth]{../report/Figures/cnn_arc.pdf}
+\end{figure}
+\end{frame}
+
 \subsection{Training Configuration}
+\begin{frame}{Training Hyperparameter}
+\begin{table}[h!]
+        \centering
+        \begin{tabular}{ l | c  }
+            Hyperparameter  & Setting \\ \hline
+            Activation function & ReLU \\
+            Weight initilization & He normal \\
+            Weight regularizer &  L2 \\
+            Convolution border mode  & Same \\
+            Stride & 2 \\ 
+            Kernel size & $(3, 3)$ \\
+            Dropout rate & $0.1$ \\
+            Optimizer & SGD \\
+            Initial Learning Rate & $1\times 5\times10^{-3}$ \\
+            Batch Size & 200 \\
+            Epoch & 1000 \\
+            Validation Rate & 0.2 \\
+        \end{tabular}
+        \caption{Hyperparameter settings.}
+        \label{table:hyper}
+\end{table}
+\end{frame}
 
 \section{Results and Analysis}
 
@@ -331,6 +356,26 @@ there will be totally 600-steps simulation. For each step, $\Delta t = 0.01s$, a
 }
 
 \end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{figure}[!h]
+        \centering
+        \begin{subfigure}[b]{0.3\textwidth}
+            \includegraphics[width=\textwidth]{../report/Figures/sim0.png}
+            \caption{Time Step=$0$}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.3\textwidth}
+            \includegraphics[width=\textwidth]{../report/Figures/sim2.png}
+            \caption{Time Step=$200$}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.3\textwidth}
+            \includegraphics[width=\textwidth]{../report/Figures/sim3.png}
+            \caption{Time Step=$400$}
+        \end{subfigure}
+        \caption{Visualization for experiment simulation}
+        \label{fig:imsim}
+\end{figure}
 \end{frame}
 
 \begin{frame}{Results and Analysis}{SPH parameters}
@@ -392,6 +437,18 @@ I define $\pmb{d}=(d_x, d_y)$ as grid cell size and $h$ as smoothing length.
         \caption{Coveragence rate for models(different initial values for $\pmb{\lambda}$).}
 \end{figure}
 \end{frame}
+\begin{frame}{Results and Analysis}{CNN Training}
+\begin{itemize}
+	\pause
+        \item \textbf{Input Size}, the input will be $61\times61\times4$. Since the orginal world is $30\times30$ and grid size is $d=0.5$, the generated grid would be $61\times61$. There would $4$ channels$[m, v_x, v_y, \omega]$
+        \pause
+	\item \textbf{Output Size}, output size depends on the label size. The orginal label image would be $[\lambda_n, \lambda_t]$, so the label image size would be $61\times61\times2$, which should be flattened as the actual training label. The label size would be $61\times 61 \times 2$
+        \pause
+	\item \textbf{Weights Number}, the total weights number is $64,498,866$.
+	\pause
+	\item \textbf{Training Environment}, GPU(\textit{GeForce GTX 1080 Ti, 11 Gbps GDDR5X memory}) held by Image Section, DIKU.
+\end{itemize}
+\end{frame}
 
 \begin{frame}{Results and Analysis}{Simulation on CNN}
 \begin{figure}[!h]
@@ -417,7 +474,7 @@ I define $\pmb{d}=(d_x, d_y)$ as grid cell size and $h$ as smoothing length.
 \end{frame}
 
 \begin{frame}{Results and Analysis}{Conclusion}
-Now, some conclusions can acheived,
+Now, we can obtain some conclusions,
 \pause
 \begin{itemize}
     \item \textbf{CNN-Model} actually makes the iterative solver converge faster. But it is not a great improvement to buit-in warm starting.
