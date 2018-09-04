@@ -11,9 +11,9 @@
 % notice. 
 
 \documentclass{beamer}
-\usepackage{algorithm2e}
+\usepackage[lined]{algorithm2e}
 \usepackage{amsmath}
-\usepackage{graphicx}
+%\usepackage{graphicx}
 \usepackage{subcaption}
 
 % There are many different themes available for Beamer. A comprehensive
@@ -113,41 +113,49 @@
 \begin{frame}{Previous Work}
   \begin{itemize}
   \item {
-    My first point.
+    Deep Learning applied in computer simulation.
   }
   \item {
-    My second point.
+    Speed up contact simulation.
   }
   \end{itemize}
 \end{frame}
 
 \subsection{Thesis Overview}
-
-% You can reveal the parts of a slide one at a time
-% with the \pause command:
 \begin{frame}{Thesis Overview}
-%  \begin{itemize}
-%  \item {
-%    Modeling Contact.
-%    \pause % The slide will pause after showing the first item
-%  }
-%  \item {   
-%    Second item.
-%  }
-%  % You can also specify when the content should appear
-%  % by using <n->:
-%  \item<3-> {
-%    Third item.
-%  }
-%  \item<4-> {
-%    Fourth item.
-%  }
-%  % or you can use the \uncover command to reveal general
-%  % content (not just \items):
-%  \item<5-> {
-%    Fifth item. \uncover<6->{Extra text in the fifth item.}
-%  }
-%  \end{itemize}
+\pause
+\textbf{Model Contact}
+\pause
+$$\pmb{M}\dot{\mathbf{u}} = \underbrace{\pmb{J}^{T}\pmb{\lambda}}_{\mathbf{F}_{contact}} + \mathbf{F}_{ext}$$
+\pause
+Then, it can be transformed to a Linear Complementarity Problem
+\pause
+\begin{equation*}
+    \begin{aligned}
+        \mathbf{w} & = \pmb{J}_{n}\mathbf{v}^{t+1} \\
+        & =  \underbrace{\pmb{J}_{n}\pmb{M}^{-1}\pmb{J}_{n}^{T}\Delta{t}}_{\pmb{A}}\pmb{\lambda}_{n} + \underbrace{\pmb{J}_{n}(\Delta{t}\pmb{M}^{-1}\mathbf{F}_{ext} + \mathbf{v}^{t})}_{\pmb{b}} \\
+        & = \pmb{A}\pmb{\lambda}_{n} + \pmb{b}
+    \end{aligned}
+\end{equation*}
+\pause
+$$\pmb{\lambda} = \textit{LCP}(\pmb{A}, \pmb{b})$$
+\end{frame}
+
+\begin{frame}{Thesis Overview}{Projected Gauss-Seidel(PGS) solver for LCP}
+\begin{algorithm}[H]
+        \KwData{$N, \pmb{\lambda}_{init}, \pmb{A}, \pmb{b}$}
+        \KwResult{Compute the values of $\pmb{\lambda}$, the convergence rate $\pmb{\theta}$}
+        \For{$ k = 1~\textbf{To}~N$}{
+            \If{$k=1$}{$\pmb{\lambda} \gets \pmb{\lambda}_{init}$}
+            $\pmb{\lambda}_{old} \gets \pmb{\lambda}$ \\
+            \For{all $i$}{
+                $\pmb{r}_i \gets \pmb{A}_{i*}\pmb{\lambda} + \pmb{b}_i$ \;
+                $\pmb{\lambda}_{i} \gets \text{max}(0, \pmb{\lambda}_i - \frac{\pmb{r}_i}{\pmb{A}_{ii}})$ \;
+            }
+            $\pmb{\theta}_{k} \gets \text{max}(|\pmb{\lambda}- \pmb{\lambda}_{old}|)$
+        }
+        %\caption{\textit{pgs}($\pmb{A}, \pmb{b}, \pmb{\lambda}_{init}$)}
+\end{algorithm}
 \end{frame}
 
 \section{Particles-Grid-Particles}
@@ -245,19 +253,36 @@ For numerical work,
 \end{figure}
 \end{frame}
 
-\begin{frame}
-%\begin{algorithm}
-%        \KwData{Given a set of contacts $\mathcal{C}$ between a set of bodies $\mathcal{B}$ and the state in time $t$, as well as all the spacial positions of grid nodes $\mathbf{x}$}
-%        \KwResult{the contact grid image $\pmb{G}_{\lambda}$}
-%        \For{all $i$ and $j$}{
-%            1. Find the nearest neihbors $\mathcal{C}_{near} \subseteq \mathcal{C}$ around $\mathbf{x}_{ij}$ \\
-%            2. read the current contact forces values and its position.
-%                $$\pmb{q}_k, \pmb{\lambda}_{k}~~k\in\mathcal{C}_{near}~~\pmb{\lambda} = [\lambda_n, \lambda_t]$$ \\
-%            3. Compute grid values
-%                $$\pmb{G}_{\lambda}(i, j) \gets \sum_{k\in \mathcal{C}_{near}}W(\mathbf{x}_{ij}, \pmb{q}_{k})\pmb{\lambda}_k$$
-%        }
+\begin{frame}{Mapping bodies into a grid image}
+\begin{algorithm}[H]
+        \KwData{
+            Given a set of bodies $\mathcal{B}$ and the state in time $t$, as well as all the spacial positions of grid nodes $\mathbf{x}$
+        }
+        \KwResult{the body grid image $\pmb{G}_{\mathcal{B}}$}
+        \For{all $i$ and $j$}{
+            1. Find the nearest neihbors $\mathcal{B}_{near} \subseteq \mathcal{B}$ around $\mathbf{x}_{ij}$ \\
+            2. read the current state,
+                $$m_k, \pmb{v}_k, \pmb{q}_k, \omega_{k}~~k\in\mathcal{B}_{near}$$\\
+            3. Define state vector $\pmb{S}_{k} \gets [m_k, {v_k}_{x}, {v_k}_{y}, \omega_{k}]$\\
+            4. Compute grid values
+                $$\pmb{G}_{\mathcal{B}}(i, j) \gets \sum_{k\in \mathcal{B}_{near}}W(\mathbf{x}_{ij}, \pmb{q}_{k})\pmb{S}_k$$
+        }
+\end{algorithm}
+\end{frame}
+
+\begin{frame}{Mapping contacts into a grid image}
+\begin{algorithm}[H]
+        \KwData{Given a set of contacts $\mathcal{C}$ between a set of bodies $\mathcal{B}$ and the state in time $t$, as well as all the spacial positions of grid nodes $\mathbf{x}$}
+        \KwResult{the contact grid image $\pmb{G}_{\lambda}$}
+        \For{all $i$ and $j$}{
+            1. Find the nearest neihbors $\mathcal{C}_{near} \subseteq \mathcal{C}$ around $\mathbf{x}_{ij}$ \\
+            2. read the current contact forces values and its position.
+                $$\pmb{q}_k, \pmb{\lambda}_{k}~~k\in\mathcal{C}_{near}~~\pmb{\lambda} = [\lambda_n, \lambda_t]$$ \\
+            3. Compute grid values
+                $$\pmb{G}_{\lambda}(i, j) \gets \sum_{k\in \mathcal{C}_{near}}W(\mathbf{x}_{ij}, \pmb{q}_{k})\pmb{\lambda}_k$$
+        }
 %        \caption{Mapping contacts into a grid image. It can be called by $Contacts2grid(\mathbf{x}, \mathcal{C})$}
-%\end{algorithm}
+\end{algorithm}
 \end{frame}
 
 \subsection{Bilinear Interpolation}
@@ -307,6 +332,7 @@ After getting the two values in $x-$direction $f(x, y_1)$ and $f(x, y_2)$, we ca
 \end{frame}
 
 \section{Deep Learning Model}
+\subsection{Convolutional Neural Networks}
 \subsection{CNN Architecture}
 \begin{frame}{CNN Architecture}
 \begin{figure}[!h]
