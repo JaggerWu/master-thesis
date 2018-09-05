@@ -72,7 +72,6 @@
 % - Not really informative to the audience, more for people (including
 %   yourself) who are reading the slides online
 
-\subject{Theoretical Computer Science}
 % This is only inserted into the PDF information catalog. Can be left
 % out. 
 
@@ -114,9 +113,16 @@
   \begin{itemize}
   \item {
     Deep Learning applied in computer simulation.
+	\begin{itemize}
+	\item Deep Learning used in liquid dynamic simulation
+        \item Visual Interaction Networks(DeepMind)
+	\end{itemize}
   }
   \item {
     Speed up contact simulation.
+	\begin{itemize}
+	\item Optimization for contact solver
+	\end{itemize}
   }
   \end{itemize}
 \end{frame}
@@ -164,10 +170,9 @@ $$\pmb{\lambda} = \textit{LCP}(\pmb{A}, \pmb{b})$$
 \begin{frame}{Grid-Particle Method}
 In order to generate accessible data for CNN model, we transform every state into a set of grid images.
 \begin{itemize}
-\item {It can make the simulation states be expressed by a set of matrixes, which can be accessible for deep neural networks.
+\item {It can make the simulation states be expressed by a set of matrixes, which can be accessible for deep neural networks.}
     \pause
-}
-\item {}
+\item Grid image can restore the distribution of mass, linear velocity, angular velocity for deep learning neural networks, while the visualization image of simulation can only describe the position of rigid.
 \end{itemize}
 \end{frame}
 \begin{frame}{Grid-Particle Method}{Workflow}
@@ -182,7 +187,7 @@ The feature image will be used as input to a model(created by a convolutional ne
 \pause
 }
 \item {
-For all contacts positions, interpolated values will be gener- ated based on label image. Then, the values will be used as starting iterate values for contact force solver. In our hypoth- esis, the given starting values will speed up the solver to reach convergence.
+For all contacts positions, interpolated values will be generated based on label image. Then, the values will be used as starting iterate values for contact force solver. In our hypothesis, the given starting values will speed up the solver to reach convergence.
 }
 
 \end{enumerate}
@@ -333,6 +338,18 @@ After getting the two values in $x-$direction $f(x, y_1)$ and $f(x, y_2)$, we ca
 
 \section{Deep Learning Model}
 \subsection{Convolutional Neural Networks}
+\begin{frame}{Deep Learning Model}{Convolutional Neural Networks(CNN)}
+\begin{figure}[!h]
+        \centering
+        \includegraphics[scale=1.3]{../report/Figures/convolve.png}
+        \caption{One simple example of convolution.}
+        \label{con}
+    \end{figure}
+\pause
+\begin{equation}
+        (\pmb{I} * \pmb{K})_{xy} = \sum_{i=1}^{h}\sum_{j=1}^{w} \pmb{K}_{ij}\cdot \pmb{I}_{x+i-1, y+j-1}
+\end{equation}
+\end{frame}
 \subsection{CNN Architecture}
 \begin{frame}{CNN Architecture}
 \begin{figure}[!h]
@@ -552,34 +569,15 @@ More learning models can be explored, like Recurrent Neural Networks(RNN),  Long
 % All of the following is optional and typically not needed. 
 \appendix
 \section<presentation>*{\appendixname}
-\subsection<presentation>*{For Further Reading}
+\subsection<presentation>*{Thanks!!}
 
 \begin{frame}[allowframebreaks]
-  \frametitle<presentation>{For Further Reading}
-    
-  \begin{thebibliography}{10}
-    
-  \beamertemplatebookbibitems
-  % Start with overview books.
-
-  \bibitem{Author1990}
-    A.~Author.
-    \newblock {\em Handbook of Everything}.
-    \newblock Some Press, 1990.
+  \frametitle<presentation>{Thanks!}
+  \begin{itemize}
+  \item Thanks for Kenny's supervision
+  \item Thanks for Lukas and Lucian's co-operation on initial work.
+  \end{itemize}    
  
-    
-  \beamertemplatearticlebibitems
-  % Followed by interesting articles. Keep the list short. 
-
-  \bibitem{Someone2000}
-    S.~Someone.
-    \newblock On this and that.
-    \newblock {\em Journal of This and That}, 2(1):50--100,
-    2000.
-  \end{thebibliography}
 \end{frame}
 
 \end{document}
-
-
-
