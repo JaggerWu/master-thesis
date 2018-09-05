@@ -168,7 +168,8 @@ $$\pmb{\lambda} = \textit{LCP}(\pmb{A}, \pmb{b})$$
 
 \subsection{Grid-Particle Method}
 \begin{frame}{Grid-Particle Method}
-In order to generate accessible data for CNN model, we transform every state into a set of grid images.
+In order to generate accessible data for deep learning model, we transform every state into one grid images with multiple channels.
+\pause
 \begin{itemize}
 \item {It can make the simulation states be expressed by a set of matrixes, which can be accessible for deep neural networks.}
     \pause
@@ -177,9 +178,10 @@ In order to generate accessible data for CNN model, we transform every state int
 \end{frame}
 \begin{frame}{Grid-Particle Method}{Workflow}
 The whole workflow can be described as,
+\pause
 \begin{enumerate}
 \item {
-Based on Smoothed Particle Hydrodynamics(SPH), map current state(\(m, v_x, v_y, \omega, n_x\)) to a image(the number of channel is 5.), which is called feature image.
+Based on Smoothed Particle Hydrodynamics(SPH), map current state(\(m, v_x, v_y, \omega\)) to a image(the number of channel is 5.), which is called feature image.
 \pause
 }
 \item {
@@ -201,8 +203,7 @@ The heart of SPH is a kernel interpolation method which allows any function to b
         A_{I}(\textbf{r}) = \int A({\textbf{r}}^{\prime})W(\|\textbf{r} - \textbf{r}^{\prime}\|, h)\mathrm{d}\textbf{r}^{\prime}
 \end{equation}
 \pause
-where the integration is over the entire space, and $W$ is an in-
-terpolating kernel with
+where the integration is over the entire space, and $W$ is an interpolating kernel with
 \pause
 \begin{equation}
         \int W(\|\textbf{r} - \textbf{r}^{\prime}\|, h)\mathrm{d} \textbf{r}^{\prime} = 1
@@ -591,10 +592,8 @@ More learning models can be explored, like Recurrent Neural Networks(RNN),  Long
 % All of the following is optional and typically not needed. 
 \appendix
 \section<presentation>*{\appendixname}
-\subsection<presentation>*{Thanks!!}
 
-\begin{frame}[allowframebreaks]
-  \frametitle<presentation>{Thanks!}
+\begin{frame}{Thanks}
   \begin{itemize}
   \item Thanks for Kenny's supervision
   \item Thanks for Lukas and Lucian's co-operation on initial work.
