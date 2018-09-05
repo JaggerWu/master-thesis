@@ -359,6 +359,28 @@ After getting the two values in $x-$direction $f(x, y_1)$ and $f(x, y_2)$, we ca
 \end{frame}
 
 \subsection{Training Configuration}
+\begin{frame}{Loss function}
+Firstly, we define a filter funtion,
+\begin{equation}
+            g(x)= \begin{cases} 0, \quad x = 0 \\ 1, \quad x \ne 0 \end{cases}
+        \end{equation}
+        Then, we can update the loss function.
+        \begin{equation}
+            L = \frac{1}{N}\sum_{i}^{N}g(\hat{y}_i)(y_i-\hat{y}_i)^2
+        \end{equation}
+\end{frame}
+\begin{frame}{Learning Rate Scheduling}
+\begin{algorithm}[H]
+        \KwData{$epoch$}
+        \KwResult{learning rate $\eta$}
+        \If {$epoch < 100$}{$\eta = 5\times10{-3}$}
+        \If {$100< epoch < 300$}{$\eta = 2\times10^{-3}$}
+        \If {$300< epoch < 500$}{$\eta = 1\times10^{-3}$}
+        \If {$epoch > 300$}{$\eta = 2\times10^{-4}$}
+        \caption{Learning Rate Scheduling}
+        \label{ls}
+    \end{algorithm}
+\end{frame}
 \begin{frame}{Training Hyperparameter}
 \begin{table}[h!]
         \centering
